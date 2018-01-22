@@ -3,16 +3,18 @@ package com.ovoenergy.offer.rest;
 import com.google.common.collect.Lists;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
+import com.ovoenergy.offer.dto.ValidationDTO;
+import com.ovoenergy.offer.validation.CustomValidationProcessor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +26,9 @@ import static com.ovoenergy.offer.dto.OffersServiceURLs.*;
 public class OfferService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OfferService.class);
+
+    @Autowired
+    private CustomValidationProcessor customValidator;
 
     @RequestMapping(value = GET_OFFER, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -62,6 +67,11 @@ public class OfferService {
     public ResponseEntity<OfferDTO> craeteOffer(@RequestBody(required = true) OfferDTO request) {
         LOGGER.debug("CREATE offer request has been received: {}", request);
         //TODO: Add business logic for create
+        ValidationDTO validationDTO = customValidator.processValidation(request);
+        if(validationDTO != null) {
+            return new ResponseEntity<>(validationDTO, HttpStatus.BAD_REQUEST);
+        }
+
         OfferDTO response = new OfferDTO();
         LOGGER.debug("Returning response for CREATE offer: {}", response);
         return new ResponseEntity<>(response, HttpStatus.OK);

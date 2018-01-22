@@ -32,12 +32,14 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.projectlombok:lombok:1.16.6")
     compile("com.google.guava:guava:21.0")
+    compile("javax.validation:validation-api:1.1.0.Final")
     compile("io.springfox:springfox-swagger2:2.0.3") {
         force=true
     }
     compile("io.springfox:springfox-swagger-ui:2.0.3") {
         force=true
     }
+    compile("org.apache.commons:commons-lang3:3.4")
 }
 
 task wrapper(type: Wrapper) {

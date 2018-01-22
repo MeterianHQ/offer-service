@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - checkout
-      - run: echo "Hello World from build"
+      - run: ./service.sh dev_build
 
   uat:
     docker:
