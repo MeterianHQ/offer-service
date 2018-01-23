@@ -30,6 +30,8 @@ public class OfferDTO {
     private String offerCode;
 
     @ApiModelProperty(name = "offerName", required = true)
+    @NotNull(message = CodeKeys.NOT_NULL_FIELD)
+    @NotEmpty(message = CodeKeys.FIELD_REQUIRED)
     private String offerName;
 
     @ApiModelProperty(name = "description", required = true)
