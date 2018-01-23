@@ -17,13 +17,12 @@ public void initialize(ExpiryDateFieldsValueConstraint dateFieldsValueConstraint
 }
 
 public boolean isValid(OfferDTO value, ConstraintValidatorContext context) {
-
         Long expiyDateFieldValue = (Long) new BeanWrapperImpl(value)
         .getPropertyValue(expiryDateField);
         Boolean isExpirableFieldValue =  (Boolean) new BeanWrapperImpl(value)
                 .getPropertyValue(isExpirableField);
 
-        return isExpirableFieldValue && expiyDateFieldValue != null;
+        return (isExpirableFieldValue && expiyDateFieldValue != null) || (!isExpirableFieldValue && expiyDateFieldValue == null);
 }
 
 }
