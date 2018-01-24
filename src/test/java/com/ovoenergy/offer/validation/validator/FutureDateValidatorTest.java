@@ -13,9 +13,9 @@ import static org.junit.Assert.assertTrue;
 
 public class FutureDateValidatorTest {
 
-        private static final Long TEST_INVALID_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()/1000 ;
+        private static final Long TEST_INVALID_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
-        private static final Long TEST_VALID_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()/1000 ;
+        private static final Long TEST_VALID_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() ;
 
         @Mock
         private ConstraintValidatorContext mockConstraintValidatorContext;

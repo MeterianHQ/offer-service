@@ -28,7 +28,7 @@ docker_build() {
 
 # runs docker image
 docker_run() {
-    docker run -p $DOCKER_EXPOSE_PORT -t $DOCKER_IMAGE_LABEL
+    docker run -d -p $DOCKER_EXPOSE_PORT -t $DOCKER_IMAGE_LABEL
  }
 
 case $1 in

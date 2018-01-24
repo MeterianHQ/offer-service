@@ -15,6 +15,6 @@ public class FutureDateValidator implements ConstraintValidator<FutureDateConstr
         @Override
         public boolean isValid(Long contactField, ConstraintValidatorContext cxt) {
                 LocalDateTime localDateTime =  LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1);
-                return contactField == null || Duration.between(localDateTime, Instant.ofEpochSecond(contactField).atZone(ZoneId.of("UTC")).toLocalDateTime()).getSeconds() >= 0;
+                return contactField == null || Duration.between(localDateTime, Instant.ofEpochMilli(contactField).atZone(ZoneId.of("UTC")).toLocalDateTime()).getSeconds() >= 0;
         }
 }
