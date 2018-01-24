@@ -1,6 +1,7 @@
 package com.ovoenergy.offer.validation.validator;
 
 import com.ovoenergy.offer.dto.OfferDTO;
+import com.ovoenergy.offer.test.utils.UnitTest;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -12,6 +13,7 @@ import java.time.ZoneId;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@UnitTest
 public class DateFieldsValueValidatorTest {
 
     private static final Long TEST_START_DATE_BEFORE_EXPIRY = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() ;

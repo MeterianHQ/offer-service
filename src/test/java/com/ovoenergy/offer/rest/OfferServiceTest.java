@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.ValidationDTO;
+import com.ovoenergy.offer.test.utils.UnitTest;
 import com.ovoenergy.offer.validation.CustomValidationProcessor;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 
 
 @RunWith(PowerMockRunner.class)
+@UnitTest
 public class OfferServiceTest {
 
     @InjectMocks

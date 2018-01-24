@@ -9,6 +9,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.ovoenergy.offer.test.utils.UnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,7 @@ import java.util.Locale;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LocaleContextHolder.class})
+@UnitTest
 public class InternalExceptionHandlerTest {
 
     private static final Locale LOCALE = Locale.ENGLISH;

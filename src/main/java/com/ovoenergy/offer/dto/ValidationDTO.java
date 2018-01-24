@@ -14,7 +14,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public class ValidationDTO extends OfferDTO {
 
     @ApiModelProperty(name = "constraintViolations", required = true)

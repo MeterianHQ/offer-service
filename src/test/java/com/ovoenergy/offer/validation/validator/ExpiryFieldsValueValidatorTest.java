@@ -1,6 +1,7 @@
 package com.ovoenergy.offer.validation.validator;
 
 import com.ovoenergy.offer.dto.OfferDTO;
+import com.ovoenergy.offer.test.utils.UnitTest;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -12,6 +13,7 @@ import java.time.ZoneId;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@UnitTest
 public class ExpiryFieldsValueValidatorTest {
 
 

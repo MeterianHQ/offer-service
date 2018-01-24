@@ -40,6 +40,7 @@ dependencies {
         force=true
     }
     compile("org.apache.commons:commons-lang3:3.4")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile("org.powermock:powermock-api-mockito:1.6.2")
     testCompile("org.powermock:powermock-module-junit4:1.6.2")
     testCompile("org.springframework.boot:spring-boot-starter-test")
@@ -59,5 +60,17 @@ task buildDocker(type: Docker, dependsOn: build) {
             from jar
             into stageDir
         }
+    }
+}
+
+test {
+    useJUnit {
+        systemProperty "testprofile", "unittest"
+    }
+}
+
+task integrationTest(type: Test) {
+    useJUnit {
+        systemProperty "testprofile", "integrationtest"
     }
 }
