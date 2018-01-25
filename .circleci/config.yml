@@ -12,6 +12,7 @@ jobs:
 
     steps:
       - checkout
+      - run: gradle integrationTest
       - run: ./service.sh dev_build
 
   uat:
