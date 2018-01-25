@@ -13,6 +13,7 @@ import java.util.Set;
 @JsonSerialize
 @Getter
 @Setter
+@NoArgsConstructor
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class ValidationDTO extends OfferDTO {

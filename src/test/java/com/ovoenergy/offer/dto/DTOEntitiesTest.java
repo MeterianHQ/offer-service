@@ -3,7 +3,7 @@ package com.ovoenergy.offer.dto;
 import com.ovoenergy.offer.test.utils.BaseBeansTest;
 import org.junit.Test;
 
-public class CleaningEntitiesTest extends BaseBeansTest {
+public class DTOEntitiesTest extends BaseBeansTest {
     @Test
     public void testVerifyGettersAndSetters() {
         verify(OfferDTO.class);
