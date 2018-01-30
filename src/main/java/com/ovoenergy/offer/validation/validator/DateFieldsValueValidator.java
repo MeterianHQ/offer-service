@@ -25,7 +25,7 @@ public boolean isValid(OfferDTO value, ConstraintValidatorContext context) {
         .getPropertyValue(expiryDateField);
         Boolean isExpirableFieldValue =  (Boolean) new BeanWrapperImpl(value)
                 .getPropertyValue(isExpirableField);
-         return isExpirableFieldValue && expiyDateFieldValue != null && startDateFieldValue != null && startDateFieldValue < expiyDateFieldValue;
+         return !isExpirableFieldValue || ((expiyDateFieldValue != null && startDateFieldValue != null) && startDateFieldValue < expiyDateFieldValue);
 }
 
 }
