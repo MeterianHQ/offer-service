@@ -18,7 +18,11 @@ public interface MessageKeys {
 
     String OFFER_EXPIRY_DATE_BEFORE_START_DATE = "offer.expiry.date.before.start.date";
 
-    String NO_EXPIRITY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE = "no.expirity.offer.could.not.have.expiry.date";
+    String NO_EXPIRY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE = "no.expiry.offer.could.not.have.expiry.date";
+
+    String INPUT_REDEMPTION_MAX = "input.redemption.max";
+
+    String INPUT_VALUE_MAX = "input.value.max";
 
     interface Common {
 

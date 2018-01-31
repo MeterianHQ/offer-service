@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -19,7 +20,7 @@ import javax.validation.constraints.Pattern;
 @JsonSerialize
 @NoArgsConstructor
 @ApiModel(value = "Offer", description = "Offer information")
-@ExpiryDateFieldsValueConstraint(message = CodeKeys.NO_EXPIRITY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE, propertyPath = "expiryDate")
+@ExpiryDateFieldsValueConstraint(message = CodeKeys.NO_EXPIRY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE, propertyPath = "expiryDate")
 @DateFieldsValueConstraint(message = CodeKeys.OFFER_EXPIRY_DATE_BEFORE_START_DATE, propertyPath = "expiryDate")
 public class OfferDTO {
 
@@ -50,11 +51,13 @@ public class OfferDTO {
     @ApiModelProperty(name = "value", required = true)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD)
     @Min(value = 1, message = CodeKeys.INPUT_VALUE_ZERO)
+    @Max(value = 999, message = CodeKeys.INPUT_VALUE_MAX)
     private Long value;
 
     @ApiModelProperty(name = "maxOfferRedemptions", required = true)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD)
     @Min(value = 1, message = CodeKeys.INPUT_VALUE_ZERO)
+    @Max(value = 99999999, message = CodeKeys.INPUT_REDEMPTION_MAX)
     private Long maxOfferRedemptions;
 
     @ApiModelProperty(name = "startDate", required = true)
