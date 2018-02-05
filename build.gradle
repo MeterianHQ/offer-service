@@ -30,6 +30,7 @@ targetCompatibility = 1.8
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.projectlombok:lombok:1.16.6")
     compile("com.google.guava:guava:21.0")
     compile("javax.validation:validation-api:1.1.0.Final")
@@ -63,6 +64,8 @@ task buildDocker(type: Docker, dependsOn: build) {
         }
     }
 }
+
+
 
 test {
     useJUnit {
