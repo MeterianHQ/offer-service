@@ -1,0 +1,90 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+group = 'com.ovoenergy'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    liquibase
+}
+
+dependencies {
+    liquibase 'org.postgresql:postgresql:42.2.1'
+    liquibase 'org.liquibase:liquibase-core:3.5.3'
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+def urlProperty = System.getProperty("url");
+def url = (urlProperty != null) ? urlProperty : System.getenv("RDS_OFFERS_DB_URL");
+def userProperty = System.getProperty("userName");
+def userName = (userProperty != null) ? userProperty : System.getenv("RDS_OFFERS_DB_USERNAME");
+def passwordProperty = System.getProperty("password");
+def type = System.getProperty("type");
+def password = (passwordProperty != null) ? passwordProperty : System.getenv("RDS_OFFERS_DB_PASSWORD");
+
+task liquibaseCreate(type: JavaExec) {
+    description 'Liquibase updates DB by all not used changesets'
+    group = 'Liquibase'
+    main = 'liquibase.integration.commandline.Main'
+    classpath configurations.liquibase
+    args '--changeLogFile=db\\changelog\\1.0\\changelog-create-db-1.0.xml'
+    args '--username=' + userName
+    args '--password=' + password
+    args '--url=' + url
+    args 'update'
+}
+
+task liquibaseDropAll(type: JavaExec) {
+    group = "Liquibase"
+    classpath configurations.liquibase
+    main = "liquibase.integration.commandline.Main"
+    args '--username=' + userName
+    args '--password=' + password
+    args '--url=' + url
+    args 'dropAll'
+}
+
+task liquibaseCleanData(type: JavaExec) {
+    description 'Liquibase clear DB tables'
+    group = 'Liquibase'
+    main = 'liquibase.integration.commandline.Main'
+    classpath configurations.liquibase
+    args '--changeLogFile=db\\changelog\\1.0\\changelog-clear-db-1.0.xml'
+    args '--username=' + userName
+    args '--password=' + password
+    args '--url=' + url
+    args 'update'
+}
+
+task liquibaseUpdate(type: JavaExec) {
+    description 'Liquibase updates DB by all not applied changesets'
+    group = 'Liquibase'
+    main = 'liquibase.integration.commandline.Main'
+    classpath configurations.liquibase
+    args '--changeLogFile=db\\changelog\\changelog-update-db.xml'
+    args '--username=' + userName
+    args '--password=' + password
+    args '--url=' + url
+    args '--contexts=' + type
+    args 'update'
+}
+
+defaultTasks 'liquibaseUpdate'

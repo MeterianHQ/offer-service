@@ -53,7 +53,7 @@ public class OfferServiceTest {
         ValidationDTO validationDTO = new ValidationDTO(fixtureOfferDTO);
         when(mockCustomValidator.processValidation(any())).thenReturn(validationDTO);
 
-        ResponseEntity<OfferDTO> response = unit.craeteOffer(fixtureOfferDTO);
+        ResponseEntity<OfferDTO> response = unit.createOffer(fixtureOfferDTO);
 
         verify(mockCustomValidator, only()).processValidation(eq(fixtureOfferDTO));
         assertEquals(fixtureOfferDTO.getChannel(), response.getBody().getChannel());
@@ -77,7 +77,7 @@ public class OfferServiceTest {
         validationDTO.setConstraintViolations(violations);
         when(mockCustomValidator.processValidation(any())).thenReturn(validationDTO);
 
-        ResponseEntity<OfferDTO> response = unit.craeteOffer(fixtureOfferDTO);
+        ResponseEntity<OfferDTO> response = unit.createOffer(fixtureOfferDTO);
 
         verify(mockCustomValidator, only()).processValidation(eq(fixtureOfferDTO));
         assertEquals(fixtureOfferDTO.getChannel(), response.getBody().getChannel());

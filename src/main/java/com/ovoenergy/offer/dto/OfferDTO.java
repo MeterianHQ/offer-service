@@ -7,6 +7,8 @@ import com.ovoenergy.offer.validation.validator.ExpiryDateFieldsValueConstraint;
 import com.ovoenergy.offer.validation.validator.FutureDateConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -19,10 +21,16 @@ import javax.validation.constraints.Pattern;
 @Data
 @JsonSerialize
 @NoArgsConstructor
+@AllArgsConstructor
 @ApiModel(value = "Offer", description = "Offer information")
 @ExpiryDateFieldsValueConstraint(message = CodeKeys.NO_EXPIRY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE, propertyPath = "expiryDate")
 @DateFieldsValueConstraint(message = CodeKeys.OFFER_EXPIRY_DATE_BEFORE_START_DATE, propertyPath = "expiryDate")
+@Builder
 public class OfferDTO {
+
+
+    @ApiModelProperty(name = "id", required = true)
+    private Long id;
 
     @ApiModelProperty(name = "offerCode", required = true)
     @NotEmpty(message = CodeKeys.FIELD_REQUIRED)

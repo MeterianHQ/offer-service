@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd" >
+    <changeSet id="create_offers_db_tables" author="yuliya.makarchuk">
+        <createTable tableName="offer" schemaName="offers_db">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="offer_code" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="offer_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(150)"/>
+            <column name="supplier" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="offer_type"  type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_offer_redemptions" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_date" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expiry_date" type="BIGINT"/>
+            <column name="eligibility_criteria" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_expirable" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="channel" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            CREATE SEQUENCE offers_db.offer_id_seq;
+            ALTER TABLE offers_db.offer alter COLUMN id set default nextval('offers_db.offer_id_seq');
+        </sql>
+        <rollback>
+            <dropTable tableName="offer"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

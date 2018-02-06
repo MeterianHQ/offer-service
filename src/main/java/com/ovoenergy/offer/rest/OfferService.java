@@ -1,9 +1,9 @@
 package com.ovoenergy.offer.rest;
 
-import com.google.common.collect.Lists;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.ValidationDTO;
+import com.ovoenergy.offer.manager.OfferManager;
 import com.ovoenergy.offer.validation.CustomValidationProcessor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,16 +30,20 @@ public class OfferService {
     @Autowired
     private CustomValidationProcessor customValidator;
 
+    @Autowired
+    private OfferManager offerManager;
+
     @RequestMapping(value = GET_OFFER, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = OfferDTO.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
             @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class), })
     @ApiOperation(value = GET_OFFER, notes = "Get offer by id", produces = "application/json")
-    public ResponseEntity<OfferDTO> getOfferById(@PathVariable String id) {
+    public ResponseEntity<OfferDTO> getOfferById(@PathVariable Long id) {
         LOGGER.debug("GET offer by id request has been received: {}", id);
-        //TODO: Add business logic for get by id
-        OfferDTO response = new OfferDTO();
+
+        OfferDTO response = offerManager.getOfferById(id);
+
         LOGGER.debug("Returning response for GET offer by id: {}", id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -52,8 +56,9 @@ public class OfferService {
     @ApiOperation(value = GET_ALL_OFFERS, notes = "Get all offers", produces = "application/json")
     public ResponseEntity<List<OfferDTO>> getAllOffers() {
         LOGGER.debug("GET all offers");
-        //TODO: Add business logic for get all offers
-        List<OfferDTO> response = Lists.newArrayList(new OfferDTO());
+
+        List<OfferDTO> response = offerManager.getAllOffers();
+
         LOGGER.debug("Returning response for GET all offers");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -64,15 +69,16 @@ public class OfferService {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
             @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class), })
     @ApiOperation(value = CREATE_OFFER, notes = "Create offer", produces = "application/json")
-    public ResponseEntity<OfferDTO> craeteOffer(@RequestBody(required = true) OfferDTO request) {
+    public ResponseEntity<OfferDTO> createOffer(@RequestBody(required = true) OfferDTO request) {
         LOGGER.debug("CREATE offer request has been received: {}", request);
-        //TODO: Add business logic for create
+
         ValidationDTO validationDTO = customValidator.processValidation(request);
         if(validationDTO != null) {
             return new ResponseEntity<>(validationDTO, HttpStatus.BAD_REQUEST);
         }
 
-        OfferDTO response = new OfferDTO();
+        OfferDTO response = offerManager.createOffer(request);
+
         LOGGER.debug("Returning response for CREATE offer: {}", response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -83,10 +89,11 @@ public class OfferService {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
             @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class), })
     @ApiOperation(value = UPDATE_OFFER, notes = "Update offer", produces = "application/json")
-    public ResponseEntity<OfferDTO> updateOffer(@PathVariable String id, @RequestBody(required = true) OfferDTO request) {
+    public ResponseEntity<OfferDTO> updateOffer(@PathVariable Long id, @RequestBody(required = true) OfferDTO request) {
         LOGGER.debug("UPDATE offer with id = {} request has been received: {}", id, request);
-        //TODO: Add business logic for update
-        OfferDTO response = new OfferDTO();
+
+        OfferDTO response = offerManager.updateOffer(request, id);
+
         LOGGER.debug("Returning response for UPDATE offer with id = {}: {}", id, response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -97,10 +104,11 @@ public class OfferService {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
             @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class), })
     @ApiOperation(value = DELETE_OFFER, notes = "Delete offer", produces = "application/json")
-    public ResponseEntity<OfferDTO> deleteOffer(@PathVariable String id) {
+    public ResponseEntity<OfferDTO> deleteOffer(@PathVariable Long id) {
         LOGGER.debug("DELETE offer by id = {} request has been received", id);
-        //TODO: Add business logic for delete
-        OfferDTO response = new OfferDTO();
+
+        OfferDTO response = offerManager.deleteOffer(id);
+
         LOGGER.debug("Returning response for DELETE offer by id {}", id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

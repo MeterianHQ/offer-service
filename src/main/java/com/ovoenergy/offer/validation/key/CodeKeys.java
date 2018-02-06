@@ -12,7 +12,6 @@ public interface CodeKeys {
 
     String INPUT_VALUE_ZERO = "OFR5";
 
-    //TODO: Add validators
     String NOT_UNIQUE_OFFER_CODE = "OFR6";
 
     String INVALID_OFFER_CODE = "OFR7";

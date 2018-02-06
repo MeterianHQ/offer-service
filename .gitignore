@@ -4,3 +4,9 @@
 /build/
 /environment/.terraform
 /out/
+/db-scripts/.gradle
+/db-scripts/.idea
+/db-scripts/gradle
+/db-scripts/gradlew
+*.iml
+gradlew.bat
