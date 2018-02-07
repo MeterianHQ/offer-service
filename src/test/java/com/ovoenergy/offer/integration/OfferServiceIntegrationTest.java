@@ -123,13 +123,13 @@ public class OfferServiceIntegrationTest {
 
         ValidationDTO validationDTO = objectMapper.reader().forType(ValidationDTO.class).readValue(response.getBody());
 
-        assertEquals("Input value for field description is different", ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION, validationDTO.getDescription());
-        assertEquals("Input value for Name field is incorrect",ValidateOfferForCreateInputData.TEST_VALID_NAME,validationDTO.getOfferName());
-        assertEquals("Input value for Code field is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_CODE,validationDTO.getOfferCode());
-        assertEquals("Input value for Supplier is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_SUPPLIER,validationDTO.getSupplier());
+        assertEquals("Input value for field description is invalid", ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION, validationDTO.getDescription());
+        assertEquals("Input value for Name field is invalid",ValidateOfferForCreateInputData.TEST_VALID_NAME,validationDTO.getOfferName());
+        assertEquals("Input value for Code field is expected",ValidateOfferForCreateInputData.TEST_INVALID_CODE,validationDTO.getOfferCode());
+        assertEquals("Input value for Supplier is expected",ValidateOfferForCreateInputData.TEST_INVALID_SUPPLIER,validationDTO.getSupplier());
         assertEquals("Input value for Offer TYPE is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_OFFER_TYPE,validationDTO.getOfferType());
         assertEquals("Input value for Value is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_MAX_VALUE,validationDTO.getValue());
-        assertEquals("Input value for Offer Redeptions is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION,validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Offer Redemption is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION,validationDTO.getMaxOfferRedemptions());
         assertEquals("Input value for Eligibility criteria ",ValidateOfferForCreateInputData.TEST_INVALID_ELIGIBILITY_CRITERIA,validationDTO.getEligibilityCriteria());
         assertEquals("Input value for Channel is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_CHANEL,validationDTO.getChannel());
         assertEquals("Input value for START date is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_START_DATE, validationDTO.getStartDate());
@@ -220,18 +220,18 @@ public class OfferServiceIntegrationTest {
 
         ValidationDTO validationDTO = objectMapper.reader().forType(ValidationDTO.class).readValue(response.getBody());
 
-      // assertEquals("Input value for field description is null", validationDTO.getDescription());
-        assertEquals("Input value for Name field is null", null,validationDTO.getOfferName());
-        assertEquals("Input value for Code field is null",null,validationDTO.getOfferCode());
-        assertEquals("Input value for Supplier is null",null,validationDTO.getSupplier());
-        assertEquals("Input value for Offer TYPE is null",null,validationDTO.getOfferType());
-        assertEquals("Input value for Value is null",null,validationDTO.getValue());
-        assertEquals("Input value for Offer Redemptions null",null,validationDTO.getMaxOfferRedemptions());
-        assertEquals("Input value for Eligibility criteria is null ",null, validationDTO.getEligibilityCriteria());
-        assertEquals("Input value for Channel is null",null, validationDTO.getChannel());
-        assertEquals("Input value for START date is null", null, validationDTO.getStartDate());
-        assertEquals("Input value for EXPIRY date is null ", null, validationDTO.getExpiryDate());
-        assertTrue("No Expiry Date selected value is incorrect",validationDTO.getIsExpirable());
+        assertEquals("Input value for description is expected", null, validationDTO.getDescription());
+        assertEquals("Input value for Name field is expected", null,validationDTO.getOfferName());
+        assertEquals("Input value for Code field is expected",null,validationDTO.getOfferCode());
+        assertEquals("Input value for Supplier is expected",null,validationDTO.getSupplier());
+        assertEquals("Input value for Offer TYPE is expected",null,validationDTO.getOfferType());
+        assertEquals("Input value for Value is expected",null,validationDTO.getValue());
+        assertEquals("Input value for Offer Redemption expected",null,validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Eligibility criteria is expected ",null, validationDTO.getEligibilityCriteria());
+        assertEquals("Input value for Channel is expected",null, validationDTO.getChannel());
+        assertEquals("Input value for START date is expected", null, validationDTO.getStartDate());
+        assertEquals("Input value for EXPIRY date is expected ", null, validationDTO.getExpiryDate());
+        assertTrue("No Expiry Date selected value is expected",validationDTO.getIsExpirable());
 
         //Checking validation codes and messages for OfferType
         Set<ErrorMessageDTO> offerTypeValidations = validationDTO.getConstraintViolations().get("offerType");
@@ -299,15 +299,15 @@ public class OfferServiceIntegrationTest {
 
     }
 
-    //@Test
+    @Test
     public void testValidateOfferForCreateWithEmptyInputValues() throws IOException {
         OfferDTO offerToValidate = new OfferDTO();
         offerToValidate.setOfferName("");
         offerToValidate.setOfferCode("");
         offerToValidate.setSupplier("");
         offerToValidate.setOfferType("");
-        offerToValidate.setValue(3L);
-        offerToValidate.setMaxOfferRedemptions(3L);
+        offerToValidate.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
+        offerToValidate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
         offerToValidate.setEligibilityCriteria("");
         offerToValidate.setChannel("");
         offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
@@ -323,17 +323,17 @@ public class OfferServiceIntegrationTest {
 
         ValidationDTO validationDTO = objectMapper.reader().forType(ValidationDTO.class).readValue(response.getBody());
 
-        assertEquals("Input value for Name field is empty","", validationDTO.getOfferName());
-        assertEquals("Input value for Code field is incorrec","",validationDTO.getOfferCode());
-        assertEquals("Input value for Supplier is incorrect","",validationDTO.getSupplier());
-        assertEquals("Input value for Offer TYPE is incorrect","",validationDTO.getOfferType());
-        assertEquals("Input value for Offer Redeptions is correct", Long.valueOf(3L),validationDTO.getMaxOfferRedemptions());
-        assertEquals("Input value for Offer Redeptions is incorrect",Long.valueOf(3L),validationDTO.getMaxOfferRedemptions());
-        assertEquals("Input value for Eligibility criteria ","",validationDTO.getEligibilityCriteria());
-        assertEquals("Input value for Channel is incorrect","",validationDTO.getChannel());
-        assertEquals("Input value for START date is incorrect",ValidateOfferForCreateInputData.TEST_VALID_START_DATE, validationDTO.getStartDate());
-        assertEquals("Input value for EXPIRY date is incorrect ",ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE, validationDTO.getExpiryDate());
-        assertTrue("No Expiry Date selected value is incorrect",validationDTO.getIsExpirable());
+        assertEquals("Empty Input value for Name field  expected","", validationDTO.getOfferName());
+        assertEquals("Empty Input value for Code field  expected","",validationDTO.getOfferCode());
+        assertEquals("Empty Input value for Supplier  expected","",validationDTO.getSupplier());
+        assertEquals("Empty Input value for Offer TYPE expected","",validationDTO.getOfferType());
+        assertEquals("Input value for Offer Redemption is expected", ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION,validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Offer Value is expected",ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE,validationDTO.getValue());
+        assertEquals("Empty Input value for Eligibility criteria expected ","",validationDTO.getEligibilityCriteria());
+        assertEquals("Empty Input value for Channel expected","",validationDTO.getChannel());
+        assertEquals("Input value for START date expected",ValidateOfferForCreateInputData.TEST_VALID_START_DATE, validationDTO.getStartDate());
+        assertEquals("Input value for EXPIRY date expected ",ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE, validationDTO.getExpiryDate());
+        assertTrue("No Expiry Date selected value is expected",validationDTO.getIsExpirable());
 
         //Checking validation codes and messages for offer type dropdown
         Set<ErrorMessageDTO> offerTypeValidations = validationDTO.getConstraintViolations().get("offerType");
@@ -350,55 +350,32 @@ public class OfferServiceIntegrationTest {
         assertTrue("Validation constraints missed error message name field is empty", offerNameAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.REQUIRED_FIELD));
 
         //Checking validation codes and messages for OfferCode
-        //Set<ErrorMessageDTO> offerCodeValidations = validationDTO.getConstraintViolations().get("offerCode");
-        //Set<String> offerCodeAllErrorCodes = offerCodeValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
-      //  Set<String> offerCodeAllErrorMessages = offerCodeValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-      //  assertTrue("Validation constraints missed error code if offer code field is empty ", offerCodeAllErrorCodes.contains(CodeKeys.FIELD_REQUIRED));
-       // assertTrue("Validation constraints missed error message if offer code field is empty", offerCodeAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.REQUIRED_FIELD));
-
-        //Checking validation codes and messages for OfferRedemption
-        Set<ErrorMessageDTO> offerRedemptionValidations = validationDTO.getConstraintViolations().get("offerRedemption");
-        Set<String> offerRedemptionAllErrorCodes = offerRedemptionValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
-        Set<String> offerRedemptionAllErrorMessages = offerRedemptionValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code if offer value field is empty", offerRedemptionAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-        assertTrue("Validation constraints missed error message if offer value field is empty", offerRedemptionAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
+        Set<ErrorMessageDTO> offerCodeValidations = validationDTO.getConstraintViolations().get("offerCode");
+        Set<String> offerCodeAllErrorCodes = offerCodeValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
+        Set<String> offerCodeAllErrorMessages = offerCodeValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
+        assertTrue("Validation constraints missed error code if offer code field is empty ", offerCodeAllErrorCodes.contains(CodeKeys.FIELD_REQUIRED));
+        assertTrue("Validation constraints missed error message if offer code field is empty", offerCodeAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.REQUIRED_FIELD));
 
         //Checking validation codes and messages for offer supplier dropdown
-        Set<ErrorMessageDTO> offerSupplierValidations = validationDTO.getConstraintViolations().get("offerSupplier");
+        Set<ErrorMessageDTO> offerSupplierValidations = validationDTO.getConstraintViolations().get("supplier");
         Set<String> offerSupplierAllErrorCodes = offerSupplierValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerSupplierAllErrorMessages = offerSupplierValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code if  offer supplier field empty", offerSupplierAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-        assertTrue("Validation constraints missed error message if offer supplier field empty ", offerSupplierAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
+        assertTrue("Validation constraints missed error code if  offer supplier field empty", offerSupplierAllErrorCodes.contains(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED));
+        assertTrue("Validation constraints missed error message if offer supplier field empty ", offerSupplierAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.PROVIDED_VALUE_NOT_SUPPORTED));
 
         //Checking validation codes and messages for offer channel dropdown
-        Set<ErrorMessageDTO> offerChannelValidations = validationDTO.getConstraintViolations().get("offerChannel");
+        Set<ErrorMessageDTO> offerChannelValidations = validationDTO.getConstraintViolations().get("channel");
         Set<String> offerChannelAllErrorCodes = offerChannelValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerChannelAllErrorMessages = offerChannelValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code if offer channel field is empty", offerChannelAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-        assertTrue("Validation constraints missed error message if offer channel field is empty ", offerChannelAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
+        assertTrue("Validation constraints missed error code if offer channel field is empty", offerChannelAllErrorCodes.contains(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED));
+        assertTrue("Validation constraints missed error message if offer channel field is empty ", offerChannelAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.PROVIDED_VALUE_NOT_SUPPORTED));
 
         //Checking validation codes and messages for offer eligibility criteria dropdown
-        Set<ErrorMessageDTO> offerEligibilityValidations = validationDTO.getConstraintViolations().get("offerEligibility");
+        Set<ErrorMessageDTO> offerEligibilityValidations = validationDTO.getConstraintViolations().get("eligibilityCriteria");
         Set<String> offerEligibilityAllErrorCodes = offerEligibilityValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerEligibilityAllErrorMessages = offerEligibilityValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
         assertTrue("Validation constraints missed error code if eligibility criteria field is empty ", offerEligibilityAllErrorCodes.contains(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED));
         assertTrue("Validation constraints missed error message if eligibility criteria field is empty", offerEligibilityAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.PROVIDED_VALUE_NOT_SUPPORTED));
-
-
-        //Checking validation codes and messages for OfferValue
-        //Set<ErrorMessageDTO> offerValueValidations = validationDTO.getConstraintViolations().get("offerValue");
-       // Set<String> offerValueAllErrorCodes = offerValueValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
-        //Set<String> offerValueAllErrorMessages = offerValueValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        //assertTrue("Validation constraints missed error code if offer value field is empty", offerValueAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-        //assertTrue("Validation constraints missed error message if offer value field is empty ", offerValueAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
-
-        //Checking validation codes and messages for startDate
-        //Set<ErrorMessageDTO> startDateValidations = validationDTO.getConstraintViolations().get("startDate");
-        //Set<String> startDateAllErrorCodes = startDateValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
-        //Set<String> startDateAllErrorMessages = startDateValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        //assertTrue("Validation constraints missed error code if start date is empty", startDateAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-       // assertTrue("Validation constraints missed error message if start date is empty", startDateAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
-
     }
 
     @Test
