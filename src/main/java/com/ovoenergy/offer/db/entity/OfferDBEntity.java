@@ -19,6 +19,10 @@ public class OfferDBEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private StatusType status;
+
     @Column(name = "offer_code")
     private String offerCode;
 
@@ -58,4 +62,7 @@ public class OfferDBEntity {
     @Column(name = "channel")
     @Enumerated(EnumType.STRING)
     private ChannelType channel;
+
+    @Column(name = "updated_on")
+    private Long updatedOn;
 }

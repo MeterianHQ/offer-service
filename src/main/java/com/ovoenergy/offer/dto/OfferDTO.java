@@ -28,7 +28,6 @@ import javax.validation.constraints.Pattern;
 @Builder
 public class OfferDTO {
 
-
     @ApiModelProperty(name = "id", required = true)
     private Long id;
 
@@ -68,6 +67,9 @@ public class OfferDTO {
     @Max(value = 99999999, message = CodeKeys.INPUT_REDEMPTION_MAX)
     private Long maxOfferRedemptions;
 
+    @ApiModelProperty(name = "actualOfferRedemptions", notes = "response field only", required = true)
+    private Long actualOfferRedemptions;
+
     @ApiModelProperty(name = "startDate", required = true)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD)
     @FutureDateConstraint(message = CodeKeys.NON_IN_FUTURE_DATE)
@@ -90,4 +92,10 @@ public class OfferDTO {
     @Pattern(regexp = "^(Email|Display|Social)$", message = CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD)
     private String channel;
+
+    @ApiModelProperty(name = "actualOfferRedemptions", notes = "response field only", required = true)
+    private String status;
+
+    @ApiModelProperty(name = "updatedOn", notes = "response field only", required = true)
+    private Long updatedOn;
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="add_status_updated_on_columns" author="yuliya.makarchuk" runAlways="false" failOnError="true">
+        <addColumn catalogName="offers_db"
+                   schemaName="offers_db"
+                   tableName="offer">
+            <column name="status" type="VARCHAR(150)"/>
+            <column name="updated_on" type="BIGINT"/>
+        </addColumn>
+        <rollback>
+            <dropColumn catalogName="offers_db"
+                        schemaName="offers_db"
+                        tableName="offer"
+                        columnName="status"/>
+            <dropColumn catalogName="offers_db"
+                        schemaName="offers_db"
+                        tableName="offer"
+                        columnName="updated_on"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

@@ -14,7 +14,21 @@ dev_build() {
 # create offers_db
 create_db() {
     cd db-scripts
-    gradle liquibaseCreate -DuserName=postgres -Dpassword=postgres -Durl=jdbc:postgresql://localhost/offers_engine
+    gradle liquibaseDropAll liquibaseCreate liquibaseUpdate -DuserName=postgres -Dpassword=postgres -Durl=jdbc:postgresql://localhost/offers_engine
+    cd ../
+}
+
+# re-create offers_db
+re_create_db() {
+    cd db-scripts
+    gradle liquibaseCreate liquibaseUpdate -DuserName=postgres -Dpassword=postgres -Durl=jdbc:postgresql://localhost/offers_engine
+    cd ../
+}
+
+# update offers_db
+update_db() {
+    cd db-scripts
+    gradle liquibaseUpdate -DuserName=postgres -Dpassword=postgres -Durl=jdbc:postgresql://localhost/offers_engine
     cd ../
 }
 
@@ -46,6 +60,12 @@ case $1 in
     create_db)
         create_db
         ;;
+    re_create_db)
+        create_db
+        ;;
+    update_db)
+        create_db
+        ;;
     dev_run)
         dev_run
         ;;
@@ -59,5 +79,5 @@ case $1 in
         dev_run_debug
         ;;
     *)
-        echo "Supported actions: $0 {dev_build|dev_run|docker_build|docker_run}"
+        echo "Supported actions: $0 {dev_build|dev_run|docker_build|docker_run|create_db}"
 esac

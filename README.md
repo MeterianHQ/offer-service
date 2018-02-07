@@ -5,7 +5,13 @@
 ./service.sh dev_build
 
 # Command to create offers DB in Postgresql. Please create offers_db schema in offers_engine database.
-./service.sh db_create
+./service.sh create_db
+
+# Command to re-create offers DB in Postgresql. Please create offers_db schema in offers_engine database.
+./service.sh re_create_db
+
+# Command to update offers DB in Postgresql. Please create offers_db schema in offers_engine database.
+./service.sh update_db
 
 # Command to run application
 ./service.sh dev_run

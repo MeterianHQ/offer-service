@@ -2,6 +2,7 @@ package com.ovoenergy.offer.manager.impl;
 
 import com.google.common.collect.Sets;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
+import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
@@ -16,6 +17,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -43,6 +46,8 @@ public class OfferManagerImpl implements OfferManager {
 
         OfferDBEntity offerDBEntity = OfferMapper.fromOfferDTOTODBEntity(offerDTO);
         offerDBEntity.setId(null);
+        offerDBEntity.setStatus(StatusType.ACTIVE);
+        offerDBEntity.setUpdatedOn(LocalDateTime.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli());
 
         return OfferMapper
                 .fromOfferDBEntityToDTO(
