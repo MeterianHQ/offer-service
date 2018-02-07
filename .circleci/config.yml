@@ -15,7 +15,9 @@ jobs:
 
       - run: gradle integrationTest
       - store_test_results:
-          path: build/reports/tests/integrationTest
+          path: reports/tests/integrationTest
+      - store_artifacts:
+          path: reports/tests/integrationTest
 
       - run: ./service.sh dev_build
 
