@@ -1,45 +1,49 @@
 package com.ovoenergy.offer.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
-import com.ovoenergy.offer.Application;
+import com.ovoenergy.offer.integration.mock.MockApplication;
+import com.ovoenergy.offer.db.entity.*;
+import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OffersServiceURLs;
 import com.ovoenergy.offer.dto.ValidationDTO;
-import com.ovoenergy.offer.rest.InternalExceptionHandler;
+import com.ovoenergy.offer.integration.mock.config.OfferRepositoryTestConfiguration;
 import com.ovoenergy.offer.test.utils.IntegrationTest;
 import com.ovoenergy.offer.validation.key.CodeKeys;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.json.ObjectContent;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestClientException;
+
+import static org.mockito.Matchers.any;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.ovoenergy.offer.validation.key.CodeKeys.*;
+import static org.junit.Assert.assertEquals;
+
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {MockApplication.class, OfferRepositoryTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @IntegrationTest
-/*
-@TestPropertySource(properties = {"management.port=0"})
-*/
+@ActiveProfiles("integrationtest")
 public class OfferServiceIntegrationTest {
+
+    @Autowired
+    private OfferRepository offerRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OfferServiceIntegrationTest.class);
 
@@ -47,45 +51,44 @@ public class OfferServiceIntegrationTest {
 
     private interface ValidateOfferForCreateInputData {
 
-        // INvalid data
+        // Invalid data
+        String TEST_INVALID_CODE = "code*";
+        String TEST_INVALID_SUPPLIER = "Amazon1";
+        String TEST_INVALID_OFFER_TYPE = "Giftcard1";
+        String TEST_INVALID_ELIGIBILITY_CRITERIA = "SSD1";
+        String TEST_INVALID_CHANEL = "Email1";
+        Long TEST_INVALID_MAX_VALUE = 3334L;
+        Long TEST_INVALID_MAX_REDEMPTION= 888888889L;
+        Long TEST_INVALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).minusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        Long TEST_INVALID_START_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
-        final static String TEST_INVALID_CODE = "code*";
-        final static String TEST_INVALID_SUPPLIER = "Amazon1";
-        final static String TEST_INVALID_OFFER_TYPE = "Giftcard1";
-        final static String TEST_INVALID_ELIGIBILITY_CRITERIA = "SSD1";
-        final static String TEST_INVALID_CHANEL = "Email1";
-        final static Long TEST_INVALID_MAX_VALUE = 3334L;
-        final static Long TEST_INVALID_MAX_REDEMPTION= 888888889L;
-        static final Long TEST_INVALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).minusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        static final Long TEST_INVALID_START_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
-
-        // valid data
-        final static String TEST_VALID_DESCRIPTION = "Valid description 100%";
-        final static String TEST_VALID_NAME = "Valid name 100%";
-        final static String TEST_VALID_CODE = "validCODE";
-        final static String TEST_VALID_SUPPLIER = "Amazon";
-        final static String TEST_VALID_OFFER_TYPE = "Giftcard";
-        final static String TEST_VALID_ELIGIBILITY_CRITERIA = "SSD";
-        final static String TEST_VALID_CHANEL = "Email";
-        final static Long TEST_VALID_MAX_VALUE = 333L;
-        final static Long TEST_VALID_MAX_REDEMPTION= 88888888L;
-        static final Long TEST_VALID_START_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        static final Long TEST_VALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        // Valid data
+        String TEST_VALID_DESCRIPTION = "Valid description 100%";
+        String TEST_VALID_NAME = "Valid name 100%";
+        String TEST_VALID_CODE = "validCODE";
+        String TEST_VALID_SUPPLIER = "Amazon";
+        String TEST_VALID_OFFER_TYPE = "Giftcard";
+        String TEST_VALID_ELIGIBILITY_CRITERIA = "SSD";
+        String TEST_VALID_CHANEL = "Email";
+        Long TEST_VALID_MAX_VALUE = 333L;
+        Long TEST_VALID_MAX_REDEMPTION= 88888888L;
+        Long TEST_VALID_START_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        Long TEST_VALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
     }
 
     private interface ValidateOfferForCreateViolationConstraintMessages {
-        final static String REQUIRED_FIELD = "This field is required";
-        final static String NOT_NULL_FIELD = "This field cannot be null";
-        final static String PROVIDED_VALUE_NOT_SUPPORTED = "Provided value is not supported";
-        final static String INPUT_VALUE_ZERO= "Input value cannot be 0";
-        final static String NOT_UNIQUE_OFFER_CODE= "Please choose a unique offer code";
-        final static String INVALID_OFFER_CODE="An offer code cannot include spaces or special characters";
-        final static String NON_IN_FUTURE_DATE="Please select a date in the future";
-        final static String OFFER_EXPIRY_DATE_BEFORE_START_DATE= "Offer Expiry Date must be after the Offer Start Date";
-        final static String NO_EXPIRITY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE="No expiry date' cannot be ticked if 'Expiry date' selected";
-        final static String INPUT_VALUE_MAX = "Field value is limited to 3 digits";
-        final static String INPUT_REDEMPTION_MAX = "Field value is limited to 8 digits";
+        String REQUIRED_FIELD = "This field is required";
+        String NOT_NULL_FIELD = "This field cannot be null";
+        String PROVIDED_VALUE_NOT_SUPPORTED = "Provided value is not supported";
+        String INPUT_VALUE_ZERO= "Input value cannot be 0";
+        String NOT_UNIQUE_OFFER_CODE= "Please choose a unique offer code";
+        String INVALID_OFFER_CODE="An offer code cannot include spaces or special characters";
+        String NON_IN_FUTURE_DATE="Please select a date in the future";
+        String OFFER_EXPIRY_DATE_BEFORE_START_DATE= "Offer Expiry Date must be after the Offer Start Date";
+        String NO_EXPIRITY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE="No expiry date' cannot be ticked if 'Expiry date' selected";
+        String INPUT_VALUE_MAX = "Field value is limited to 3 digits";
+        String INPUT_REDEMPTION_MAX = "Field value is limited to 8 digits";
     }
 
     @LocalServerPort
@@ -95,7 +98,7 @@ public class OfferServiceIntegrationTest {
 
     private HttpHeaders headers = new HttpHeaders();
 
-    //@Test
+    @Test
     public void testValidateOfferForCreate() throws IOException {
         OfferDTO offerToValidate = new OfferDTO();
         offerToValidate.setDescription(ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION);
@@ -132,7 +135,6 @@ public class OfferServiceIntegrationTest {
         assertEquals("Input value for START date is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_START_DATE, validationDTO.getStartDate());
         assertEquals("Input value for EXPIRY date is incorrect ",ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE, validationDTO.getExpiryDate());
         assertTrue("No Expiry Date selected value is incorrect",validationDTO.getIsExpirable());
-
 
         //Checking validation codes and messages for expiryDate
         Set<ErrorMessageDTO> expiryDateValidations = validationDTO.getConstraintViolations().get("expiryDate");
@@ -204,21 +206,9 @@ public class OfferServiceIntegrationTest {
         assertTrue("Validation constraints missed error message iif not supported value in offer channel ", offerChannelAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.PROVIDED_VALUE_NOT_SUPPORTED));
     }
 
-    //@Test
+    @Test
     public void testValidateOfferForCreateWithNullInputValues() throws IOException {
-
         OfferDTO offerToValidate = new OfferDTO();
-       // offerToValidate.setDescription(null);
-        offerToValidate.setOfferName(null);
-        offerToValidate.setOfferCode(null);
-        offerToValidate.setSupplier(null);
-        offerToValidate.setOfferType(null);
-        offerToValidate.setValue(null);
-        offerToValidate.setMaxOfferRedemptions(null);
-        offerToValidate.setEligibilityCriteria(null);
-        offerToValidate.setChannel(null);
-        offerToValidate.setStartDate(null);
-        offerToValidate.setExpiryDate(null);
         offerToValidate.setIsExpirable(true);
 
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
@@ -236,7 +226,7 @@ public class OfferServiceIntegrationTest {
         assertEquals("Input value for Supplier is null",null,validationDTO.getSupplier());
         assertEquals("Input value for Offer TYPE is null",null,validationDTO.getOfferType());
         assertEquals("Input value for Value is null",null,validationDTO.getValue());
-        assertEquals("Input value for Offer Redeptions null",null,validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Offer Redemptions null",null,validationDTO.getMaxOfferRedemptions());
         assertEquals("Input value for Eligibility criteria is null ",null, validationDTO.getEligibilityCriteria());
         assertEquals("Input value for Channel is null",null, validationDTO.getChannel());
         assertEquals("Input value for START date is null", null, validationDTO.getStartDate());
@@ -312,7 +302,6 @@ public class OfferServiceIntegrationTest {
     //@Test
     public void testValidateOfferForCreateWithEmptyInputValues() throws IOException {
         OfferDTO offerToValidate = new OfferDTO();
-       // offerToValidate.setDescription("");
         offerToValidate.setOfferName("");
         offerToValidate.setOfferCode("");
         offerToValidate.setSupplier("");
@@ -321,8 +310,8 @@ public class OfferServiceIntegrationTest {
         offerToValidate.setMaxOfferRedemptions(3L);
         offerToValidate.setEligibilityCriteria("");
         offerToValidate.setChannel("");
-        offerToValidate.setStartDate(Long.valueOf(""));
-        offerToValidate.setExpiryDate(Long.valueOf(""));
+        offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
+        offerToValidate.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerToValidate.setIsExpirable(true);
 
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
@@ -334,17 +323,16 @@ public class OfferServiceIntegrationTest {
 
         ValidationDTO validationDTO = objectMapper.reader().forType(ValidationDTO.class).readValue(response.getBody());
 
-       // assertEquals("Input value for field description is different", validationDTO.getDescription());
         assertEquals("Input value for Name field is empty","", validationDTO.getOfferName());
         assertEquals("Input value for Code field is incorrec","",validationDTO.getOfferCode());
         assertEquals("Input value for Supplier is incorrect","",validationDTO.getSupplier());
         assertEquals("Input value for Offer TYPE is incorrect","",validationDTO.getOfferType());
-        assertEquals("Input value for Value is incorrect","",validationDTO.getValue());
-        assertEquals("Input value for Offer Redeptions is incorrect","",validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Offer Redeptions is correct", Long.valueOf(3L),validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Offer Redeptions is incorrect",Long.valueOf(3L),validationDTO.getMaxOfferRedemptions());
         assertEquals("Input value for Eligibility criteria ","",validationDTO.getEligibilityCriteria());
         assertEquals("Input value for Channel is incorrect","",validationDTO.getChannel());
-        assertEquals("Input value for START date is incorrect","", validationDTO.getStartDate());
-        assertEquals("Input value for EXPIRY date is incorrect ","", validationDTO.getExpiryDate());
+        assertEquals("Input value for START date is incorrect",ValidateOfferForCreateInputData.TEST_VALID_START_DATE, validationDTO.getStartDate());
+        assertEquals("Input value for EXPIRY date is incorrect ",ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE, validationDTO.getExpiryDate());
         assertTrue("No Expiry Date selected value is incorrect",validationDTO.getIsExpirable());
 
         //Checking validation codes and messages for offer type dropdown
@@ -412,7 +400,8 @@ public class OfferServiceIntegrationTest {
        // assertTrue("Validation constraints missed error message if start date is empty", startDateAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
 
     }
-    //@Test
+
+    @Test
     public void createOfferSuccess() {
         OfferDTO offerToValidate = new OfferDTO();
         offerToValidate.setDescription(ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION);
@@ -428,7 +417,24 @@ public class OfferServiceIntegrationTest {
         offerToValidate.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerToValidate.setIsExpirable(true);
 
+        OfferDBEntity offerDBEntity = new OfferDBEntity();
+        offerDBEntity.setDescription(ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION);
+        offerDBEntity.setOfferName(ValidateOfferForCreateInputData.TEST_VALID_NAME);
+        offerDBEntity.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+        offerDBEntity.setSupplier(SupplierType.byValue(ValidateOfferForCreateInputData.TEST_VALID_SUPPLIER));
+        offerDBEntity.setOfferType(OfferType.byValue(ValidateOfferForCreateInputData.TEST_VALID_OFFER_TYPE));
+        offerDBEntity.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
+        offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
+        offerDBEntity.setEligibilityCriteria(EligibilityCriteriaType.byValue(ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA));
+        offerDBEntity.setChannel(ChannelType.byValue(ValidateOfferForCreateInputData.TEST_VALID_CHANEL));
+        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
+        offerDBEntity.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
+        offerDBEntity.setIsExpirable(true);
+        offerDBEntity.setId(1L);
+
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
+
+        Mockito.when(offerRepository.save(any(OfferDBEntity.class))).thenReturn(offerDBEntity);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.CREATE_OFFER),
