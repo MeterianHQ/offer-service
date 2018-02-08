@@ -26,8 +26,13 @@ public enum ValidationCodeMessageKeyPair {
 
     INPUT_REDEMPTION_MAX(CodeKeys.INPUT_REDEMPTION_MAX, MessageKeys.INPUT_REDEMPTION_MAX),
 
-    INPUT_VALUE_MAX(CodeKeys.INPUT_VALUE_MAX, MessageKeys.INPUT_VALUE_MAX);
+    INPUT_VALUE_MAX(CodeKeys.INPUT_VALUE_MAX, MessageKeys.INPUT_VALUE_MAX),
 
+    INVALID_EMAIL(CodeKeys.INVALID_EMAIL, MessageKeys.INVALID_EMAIL),
+
+    OFFER_EXPIRED(CodeKeys.OFFER_EXPIRED, MessageKeys.OFFER_EXPIRED),
+
+    OFFER_INVALID(CodeKeys.OFFER_INVALID, MessageKeys.OFFER_INVALID);
 
     private String code;
 

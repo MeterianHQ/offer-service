@@ -11,4 +11,8 @@ public interface OffersServiceURLs {
     String DELETE_OFFER = "/offers/{id}";
 
     String GET_ALL_OFFERS = "/offers";
+
+    String VERIFY_OFFER = "/offers/verify";
+
+    String APPLY_TO_OFFER = "/offers/apply";
 }

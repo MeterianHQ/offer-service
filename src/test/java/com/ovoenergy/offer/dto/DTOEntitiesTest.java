@@ -7,18 +7,18 @@ public class DTOEntitiesTest extends BaseBeansTest {
     @Test
     public void testVerifyGettersAndSetters() {
         verify(OfferDTO.class);
-        verify(ValidationDTO.class);
+        verify(OfferValidationDTO.class);
     }
 
     @Test
     public void testEquality() {
         equality(OfferDTO.class);
-        equality(ValidationDTO.class);
+        equality(OfferValidationDTO.class);
     }
 
     @Test
     public void testHashCode() {
         hashCodeEquality(OfferDTO.class);
-        hashCodeEquality(ValidationDTO.class);
+        hashCodeEquality(OfferValidationDTO.class);
     }
 }

@@ -16,7 +16,7 @@ public interface OfferManager {
 
     List<OfferDTO> getAllOffers();
 
-    Boolean validateOffer(String offerCode);
+    Boolean verifyOffer(String offerCode);
 
     Boolean applyToOffer(String offerCode, String emailAddress);
 

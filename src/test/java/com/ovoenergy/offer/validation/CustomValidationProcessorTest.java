@@ -4,7 +4,7 @@ import com.flextrade.jfixture.annotations.Fixture;
 import com.flextrade.jfixture.rules.FixtureRule;
 import com.google.common.collect.Sets;
 import com.ovoenergy.offer.dto.OfferDTO;
-import com.ovoenergy.offer.dto.ValidationDTO;
+import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.test.utils.UnitTest;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import org.junit.Rule;
@@ -62,7 +62,7 @@ public class CustomValidationProcessorTest {
         when(mockValidator.validate(eq(fixtureOfferDTO))).thenReturn(constraintViolations);
         when(mockMsgSource.getMessage(any(), any(), any())).thenReturn("Error Message");
 
-        ValidationDTO result = unit.processValidation(fixtureOfferDTO);
+        OfferValidationDTO result = unit.processOfferValidation(fixtureOfferDTO);
 
 
         assertEquals(1, result.getConstraintViolations().get("propertyPath").size());

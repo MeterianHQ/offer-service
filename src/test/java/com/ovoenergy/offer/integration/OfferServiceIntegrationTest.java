@@ -7,7 +7,7 @@ import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OffersServiceURLs;
-import com.ovoenergy.offer.dto.ValidationDTO;
+import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.integration.mock.config.OfferRepositoryTestConfiguration;
 import com.ovoenergy.offer.test.utils.IntegrationTest;
 import com.ovoenergy.offer.validation.key.CodeKeys;
@@ -121,7 +121,7 @@ public class OfferServiceIntegrationTest {
                 HttpMethod.POST, entity, String.class);
         assertEquals("Fail 400 http", HttpStatus.BAD_REQUEST, response.getStatusCode());
 
-        ValidationDTO validationDTO = objectMapper.reader().forType(ValidationDTO.class).readValue(response.getBody());
+        OfferValidationDTO validationDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
 
         assertEquals("Input value for field description is invalid", ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION, validationDTO.getDescription());
         assertEquals("Input value for Name field is invalid",ValidateOfferForCreateInputData.TEST_VALID_NAME,validationDTO.getOfferName());
@@ -218,7 +218,7 @@ public class OfferServiceIntegrationTest {
                 HttpMethod.POST, entity, String.class);
         assertEquals("Failure 400 Http", HttpStatus.BAD_REQUEST, response.getStatusCode());
 
-        ValidationDTO validationDTO = objectMapper.reader().forType(ValidationDTO.class).readValue(response.getBody());
+        OfferValidationDTO validationDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
 
         assertEquals("Input value for description is expected", null, validationDTO.getDescription());
         assertEquals("Input value for Name field is expected", null,validationDTO.getOfferName());
@@ -321,7 +321,7 @@ public class OfferServiceIntegrationTest {
                 HttpMethod.POST, entity, String.class);
         assertEquals("Failure 400http", HttpStatus.BAD_REQUEST, response.getStatusCode());
 
-        ValidationDTO validationDTO = objectMapper.reader().forType(ValidationDTO.class).readValue(response.getBody());
+        OfferValidationDTO validationDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
 
         assertEquals("Empty Input value for Name field  expected","", validationDTO.getOfferName());
         assertEquals("Empty Input value for Code field  expected","",validationDTO.getOfferCode());
@@ -418,9 +418,9 @@ public class OfferServiceIntegrationTest {
                 HttpMethod.POST, entity, String.class);
         assertEquals("Success: Offer created", HttpStatus.OK, response.getStatusCode());
 
-        ValidationDTO validationDTO = null;
+        OfferValidationDTO validationDTO = null;
         try {
-            validationDTO = objectMapper.reader().forType(ValidationDTO.class).readValue(response.getBody());
+            validationDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
         } catch (IOException e) {
             e.printStackTrace();
         }

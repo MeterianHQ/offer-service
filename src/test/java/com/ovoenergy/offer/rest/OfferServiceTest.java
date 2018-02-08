@@ -5,7 +5,7 @@ import com.flextrade.jfixture.rules.FixtureRule;
 import com.google.common.collect.Sets;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
-import com.ovoenergy.offer.dto.ValidationDTO;
+import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.test.utils.UnitTest;
 import com.ovoenergy.offer.validation.CustomValidationProcessor;
 import org.junit.Rule;
@@ -50,12 +50,12 @@ public class OfferServiceTest {
 
     @Test
     public void testCreateOfferSuccess() {
-        ValidationDTO validationDTO = new ValidationDTO(fixtureOfferDTO);
-        when(mockCustomValidator.processValidation(any())).thenReturn(validationDTO);
+        OfferValidationDTO validationDTO = new OfferValidationDTO(fixtureOfferDTO);
+        when(mockCustomValidator.processOfferValidation(any())).thenReturn(validationDTO);
 
         ResponseEntity<OfferDTO> response = unit.createOffer(fixtureOfferDTO);
 
-        verify(mockCustomValidator, only()).processValidation(eq(fixtureOfferDTO));
+        verify(mockCustomValidator, only()).processOfferValidation(eq(fixtureOfferDTO));
         assertEquals(fixtureOfferDTO.getChannel(), response.getBody().getChannel());
         assertEquals(fixtureOfferDTO.getDescription(), response.getBody().getDescription());
         assertEquals(fixtureOfferDTO.getEligibilityCriteria(), response.getBody().getEligibilityCriteria());
@@ -71,15 +71,15 @@ public class OfferServiceTest {
 
     @Test
     public void testCreateOfferValidationError() {
-        ValidationDTO validationDTO = new ValidationDTO(fixtureOfferDTO);
+        OfferValidationDTO validationDTO = new OfferValidationDTO(fixtureOfferDTO);
         Map<String, Set<ErrorMessageDTO>> violations = new HashMap<>();
         violations.put(TEST_FIELD, Sets.newHashSet(new ErrorMessageDTO("ERR1", "ERR1")));
         validationDTO.setConstraintViolations(violations);
-        when(mockCustomValidator.processValidation(any())).thenReturn(validationDTO);
+        when(mockCustomValidator.processOfferValidation(any())).thenReturn(validationDTO);
 
         ResponseEntity<OfferDTO> response = unit.createOffer(fixtureOfferDTO);
 
-        verify(mockCustomValidator, only()).processValidation(eq(fixtureOfferDTO));
+        verify(mockCustomValidator, only()).processOfferValidation(eq(fixtureOfferDTO));
         assertEquals(fixtureOfferDTO.getChannel(), response.getBody().getChannel());
         assertEquals(fixtureOfferDTO.getDescription(), response.getBody().getDescription());
         assertEquals(fixtureOfferDTO.getEligibilityCriteria(), response.getBody().getEligibilityCriteria());
@@ -91,7 +91,7 @@ public class OfferServiceTest {
         assertEquals(fixtureOfferDTO.getOfferType(), response.getBody().getOfferType());
         assertEquals(fixtureOfferDTO.getSupplier(), response.getBody().getSupplier());
         assertEquals(fixtureOfferDTO.getStartDate(), response.getBody().getStartDate());
-        assertEquals(1, ((ValidationDTO) response.getBody()).getConstraintViolations().get(TEST_FIELD).size());
+        assertEquals(1, ((OfferValidationDTO) response.getBody()).getConstraintViolations().get(TEST_FIELD).size());
 
     }
 }

@@ -46,6 +46,9 @@ public class OfferDBEntity {
     @Column(name = "max_offer_redemptions")
     private Long maxOfferRedemptions;
 
+    @Column(name = "actual_offer_redemptions")
+    private Long actualOfferRedemptions;
+
     @Column(name = "start_date")
     private Long startDate;
 

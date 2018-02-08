@@ -9,5 +9,5 @@ public interface OfferRepository extends CrudRepository<OfferDBEntity, Long> {
 
     OfferDBEntity findOneById(Long id);
 
-    OfferDBEntity findOneByOfferCode(String offerCode);
+    OfferDBEntity findOneByOfferCodeIgnoreCase(String offerCode);
 }

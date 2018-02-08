@@ -1,11 +1,8 @@
 package com.ovoenergy.offer.validation;
 
 import com.google.common.collect.Sets;
-import com.ovoenergy.offer.dto.ErrorMessageDTO;
-import com.ovoenergy.offer.dto.OfferDTO;
-import com.ovoenergy.offer.dto.ValidationDTO;
+import com.ovoenergy.offer.dto.*;
 import com.ovoenergy.offer.validation.key.ValidationCodeMessageKeyPair;
-import org.apache.tomcat.util.buf.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -26,12 +23,12 @@ public class CustomValidationProcessor {
     @Autowired
     private MessageSource msgSource;
 
-    public ValidationDTO processValidation(OfferDTO request) {
+    public OfferValidationDTO processOfferValidation(OfferDTO request) {
         Set<ConstraintViolation<OfferDTO>> violations = validator.validate(request);
         if(violations == null || violations.size() == 0) {
             return null;
         }
-        ValidationDTO validationDTO = new ValidationDTO(request);
+        OfferValidationDTO validationDTO = new OfferValidationDTO(request);
         for (ConstraintViolation<OfferDTO> constraintViolation : violations) {
             String propertyPath = constraintViolation.getPropertyPath().toString();
             propertyPath = propertyPath == null || propertyPath.isEmpty() ? "expiryDate" : propertyPath;
@@ -46,4 +43,13 @@ public class CustomValidationProcessor {
         }
         return validationDTO;
     }
+
+    public Boolean isOfferVerifyInputDataValid(OfferVerifyDTO request) {
+        Set<ConstraintViolation<OfferVerifyDTO>> violations = validator.validate(request);
+        if(violations == null || violations.size() == 0) {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -1,8 +1,6 @@
 package com.ovoenergy.offer.rest;
 
-import com.ovoenergy.offer.dto.ErrorMessageDTO;
-import com.ovoenergy.offer.dto.OfferDTO;
-import com.ovoenergy.offer.dto.ValidationDTO;
+import com.ovoenergy.offer.dto.*;
 import com.ovoenergy.offer.manager.OfferManager;
 import com.ovoenergy.offer.validation.CustomValidationProcessor;
 import io.swagger.annotations.Api;
@@ -72,7 +70,7 @@ public class OfferService {
     public ResponseEntity<OfferDTO> createOffer(@RequestBody(required = true) OfferDTO request) {
         LOGGER.debug("CREATE offer request has been received: {}", request);
 
-        ValidationDTO validationDTO = customValidator.processValidation(request);
+        OfferValidationDTO validationDTO = customValidator.processOfferValidation(request);
         if(validationDTO != null) {
             return new ResponseEntity<>(validationDTO, HttpStatus.BAD_REQUEST);
         }
@@ -113,4 +111,21 @@ public class OfferService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @RequestMapping(value = VERIFY_OFFER, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = OfferVerifyDTO.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
+            @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class), })
+    @ApiOperation(value = VERIFY_OFFER, notes = "Create offer", produces = "application/json")
+    public ResponseEntity<Boolean> verifyOffer(@RequestBody(required = true) OfferVerifyDTO request) {
+        LOGGER.debug("VERIFY offer request has been received: {}", request);
+
+        Boolean response = false;
+        if(customValidator.isOfferVerifyInputDataValid(request)) {
+            response = offerManager.verifyOffer(request.getOfferCode());
+        }
+
+        LOGGER.debug("Returning response for VERIFY offer: {}", response);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

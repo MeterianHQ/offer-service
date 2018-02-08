@@ -45,6 +45,7 @@ task liquibaseCreate(type: JavaExec) {
     group = 'Liquibase'
     main = 'liquibase.integration.commandline.Main'
     classpath configurations.liquibase
+    args '--defaultSchemaName=offers_db'
     args '--changeLogFile=db\\changelog\\1.0\\changelog-create-db-1.0.xml'
     args '--username=' + userName
     args '--password=' + password
@@ -57,11 +58,11 @@ task liquibaseDropAll(type: JavaExec) {
     group = "Liquibase"
     main = "liquibase.integration.commandline.Main"
     classpath configurations.liquibase
-    args '--changeLogFile=db\\changelog\\1.0\\changelog-drop-all-db-1.0.xml'
+    args '--defaultSchemaName=offers_db'
     args '--username=' + userName
     args '--password=' + password
     args '--url=' + url
-    args 'update'
+    args 'dropAll'
 }
 
 task liquibaseCleanData(type: JavaExec) {
@@ -69,6 +70,7 @@ task liquibaseCleanData(type: JavaExec) {
     group = 'Liquibase'
     main = 'liquibase.integration.commandline.Main'
     classpath configurations.liquibase
+    args '--defaultSchemaName=offers_db'
     args '--changeLogFile=db\\changelog\\1.0\\changelog-clear-db-1.0.xml'
     args '--username=' + userName
     args '--password=' + password
@@ -82,6 +84,7 @@ task liquibaseUpdate(type: JavaExec) {
     main = 'liquibase.integration.commandline.Main'
     classpath configurations.liquibase
     args '--changeLogFile=db\\changelog\\changelog-update-db.xml'
+    args '--defaultSchemaName=offers_db'
     args '--username=' + userName
     args '--password=' + password
     args '--url=' + url

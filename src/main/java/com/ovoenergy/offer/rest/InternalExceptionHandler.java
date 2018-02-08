@@ -1,8 +1,11 @@
 package com.ovoenergy.offer.rest;
 
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
+import com.ovoenergy.offer.exception.InternalBaseException;
+import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.key.MessageKeys;
+import com.ovoenergy.offer.validation.key.ValidationCodeMessageKeyPair;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -62,6 +65,16 @@ public class InternalExceptionHandler {
                 CodeKeys.GENERIC_SERVER_ERROR,
                 msgSource.getMessage(MessageKeys.Common.GENERIC_SERVER_ERROR, null, LocaleContextHolder.getLocale())),
                 HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(VariableNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ResponseEntity<ErrorMessageDTO> processPathVariableNotValidError(InternalBaseException e) {
+        String messageErrorCode = e.getErrorMessageProperty();
+        return new ResponseEntity<>(new ErrorMessageDTO(
+                messageErrorCode,
+                msgSource.getMessage(ValidationCodeMessageKeyPair.getMessageByCode(messageErrorCode), null, LocaleContextHolder.getLocale())), HttpStatus.BAD_REQUEST);
     }
 
 }

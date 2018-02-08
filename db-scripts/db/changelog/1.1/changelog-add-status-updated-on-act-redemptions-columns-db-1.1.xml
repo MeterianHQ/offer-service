@@ -9,6 +9,7 @@
                    tableName="offer">
             <column name="status" type="VARCHAR(150)"/>
             <column name="updated_on" type="BIGINT"/>
+            <column name="actual_offer_redemptions" type="BIGINT"/>
         </addColumn>
         <rollback>
             <dropColumn catalogName="offers_db"
@@ -19,6 +20,10 @@
                         schemaName="offers_db"
                         tableName="offer"
                         columnName="updated_on"/>
+            <dropColumn catalogName="offers_db"
+                        schemaName="offers_db"
+                        tableName="offer"
+                        columnName="actual_offer_redemptions"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>

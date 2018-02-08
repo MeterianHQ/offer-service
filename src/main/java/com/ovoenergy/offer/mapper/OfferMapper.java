@@ -22,7 +22,7 @@ public class OfferMapper {
                 .supplier(offerDBEntity.getSupplier().value())
                 .value(offerDBEntity.getValue())
                 .id(offerDBEntity.getId())
-                .actualOfferRedemptions(0L)
+                .actualOfferRedemptions(offerDBEntity.getActualOfferRedemptions())
                 .status(offerDBEntity.getStatus().name())
                 .updatedOn(offerDBEntity.getUpdatedOn())
                 .build();

@@ -26,4 +26,10 @@ public interface CodeKeys {
 
     String INPUT_VALUE_MAX = "OFR12";
 
+    String INVALID_EMAIL = "OFR13";
+
+    String OFFER_INVALID = "OFR14";
+
+    String OFFER_EXPIRED = "OFR15";
+
 }

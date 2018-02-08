@@ -17,12 +17,12 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode(callSuper = true)
-public class ValidationDTO extends OfferDTO {
+public class OfferValidationDTO extends OfferDTO {
 
     @ApiModelProperty(name = "constraintViolations", required = true)
     private Map<String, Set<ErrorMessageDTO>> constraintViolations =  new HashMap<>();
 
-    public ValidationDTO(OfferDTO offerDTO) {
+    public OfferValidationDTO(OfferDTO offerDTO) {
         super();
         this.setOfferCode(offerDTO.getOfferCode());
         this.setOfferName(offerDTO.getOfferName());

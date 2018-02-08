@@ -24,6 +24,12 @@ public interface MessageKeys {
 
     String INPUT_VALUE_MAX = "input.value.max";
 
+    String INVALID_EMAIL = "invalid.email";
+
+    String OFFER_INVALID = "offer.invalid";
+
+    String OFFER_EXPIRED = "offer.expired";
+
     interface Common {
 
         String GENERIC_SERVER_ERROR = "generic.server.error";
