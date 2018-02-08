@@ -11,9 +11,10 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.ValidationException;
 import javax.validation.Validator;
 import java.util.Set;
+
+import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
 
 @Component
 public class CustomValidationProcessor {
@@ -49,7 +50,7 @@ public class CustomValidationProcessor {
     public void processOfferVerifyInputDataValidation(OfferVerifyDTO request) {
         Set<ConstraintViolation<OfferVerifyDTO>> violations = validator.validate(request);
         if(violations != null && violations.size() > 0) {
-            throw new VariableNotValidException(violations.iterator().next().getMessage());
+            throw new VariableNotValidException(OFFER_INVALID);
         }
     }
 
