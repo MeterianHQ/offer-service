@@ -15,6 +15,7 @@ import com.ovoenergy.offer.validation.key.CodeKeys;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.omg.PortableInterceptor.ACTIVE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.eq;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {MockApplication.class, OfferRepositoryTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -384,24 +386,25 @@ public class OfferServiceIntegrationTest {
 
     @Test
     public void createOfferSuccess() {
-        OfferDTO offerToValidate = new OfferDTO();
-        offerToValidate.setDescription(ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION);
-        offerToValidate.setOfferName(ValidateOfferForCreateInputData.TEST_VALID_NAME);
-        offerToValidate.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
-        offerToValidate.setSupplier(ValidateOfferForCreateInputData.TEST_VALID_SUPPLIER);
-        offerToValidate.setOfferType(ValidateOfferForCreateInputData.TEST_VALID_OFFER_TYPE);
-        offerToValidate.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
-        offerToValidate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
-        offerToValidate.setEligibilityCriteria(ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA);
-        offerToValidate.setChannel(ValidateOfferForCreateInputData.TEST_VALID_CHANEL);
-        offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
-        offerToValidate.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
-        offerToValidate.setIsExpirable(true);
+        OfferDTO offerToCreate = new OfferDTO();
+        offerToCreate.setDescription(ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION);
+        offerToCreate.setOfferName(ValidateOfferForCreateInputData.TEST_VALID_NAME);
+        offerToCreate.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+        offerToCreate.setSupplier(ValidateOfferForCreateInputData.TEST_VALID_SUPPLIER);
+        offerToCreate.setOfferType(ValidateOfferForCreateInputData.TEST_VALID_OFFER_TYPE);
+        offerToCreate.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
+        offerToCreate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
+        offerToCreate.setEligibilityCriteria(ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA);
+        offerToCreate.setChannel(ValidateOfferForCreateInputData.TEST_VALID_CHANEL);
+        offerToCreate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
+        offerToCreate.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
+        offerToCreate.setIsExpirable(true);
 
         OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToCreate, headers);
 
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(offerToCreate.getOfferCode()))).thenReturn(null);
         Mockito.when(offerRepository.save(any(OfferDBEntity.class))).thenReturn(offerDBEntity);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -417,9 +420,11 @@ public class OfferServiceIntegrationTest {
         }
 
         VerifyValidOfferDTO(offerDTO);
+        Mockito.verify(offerRepository).save(any(OfferDBEntity.class));
+        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCase(eq(offerToCreate.getOfferCode()));
     }
 
-    //@Test
+    @Test
     public void fetchAllOffersSuccess() {
         OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
         Mockito.when(offerRepository.findAll()).thenReturn(Lists.newArrayList(offerDBEntity));
@@ -428,7 +433,8 @@ public class OfferServiceIntegrationTest {
                 createURLWithPort(OffersServiceURLs.GET_ALL_OFFERS),
                 HttpMethod.GET, null, new ParameterizedTypeReference<List<OfferDTO>>(){});
 
-        assertEquals("", HttpStatus.OK, response.getStatusCode());
+        assertEquals("Status code is OK", HttpStatus.OK, response.getStatusCode());
+
     }
 
     private OfferDBEntity prepareForTestValidOfferDBEntity() {
@@ -458,16 +464,34 @@ public class OfferServiceIntegrationTest {
         assertEquals("Input value for Supplier is valid",ValidateOfferForCreateInputData.TEST_VALID_SUPPLIER,offerDTO.getSupplier());
         assertEquals("Input value for Offer TYPE is valid",ValidateOfferForCreateInputData.TEST_VALID_OFFER_TYPE,offerDTO.getOfferType());
         assertEquals("Input value for Value is valid",ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE,offerDTO.getValue());
-        assertEquals("Input value for Offer Redeptions is valid",ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION,offerDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Offer Redemption is valid",ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION,offerDTO.getMaxOfferRedemptions());
         assertEquals("Input value for Eligibility criteria is valid ",ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA,offerDTO.getEligibilityCriteria());
         assertEquals("Input value for Channel is valid",ValidateOfferForCreateInputData.TEST_VALID_CHANEL,offerDTO.getChannel());
         assertEquals("Input value for START date is valid",ValidateOfferForCreateInputData.TEST_VALID_START_DATE, offerDTO.getStartDate());
         assertEquals("Input value for EXPIRY date is valid ",ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE, offerDTO.getExpiryDate());
         assertNotNull("Id for offer is autogenerated ", offerDTO.getId());
         assertTrue("No Expiry Date is true",offerDTO.getIsExpirable());
+        assertEquals("Input value for Update_on Date is valid ",ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE, offerDTO.getUpdatedOn());
+        assertEquals("Input value for STATUS is valid ",StatusType.ACTIVE.name(), offerDTO.getStatus());
     }
+
+    @Test
+    public void fetchAllOffersNoData() {
+        OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
+        Mockito.when(offerRepository.findAll()).thenReturn(Lists.newArrayList());
+
+        ResponseEntity<List<OfferDTO>> response = restTemplate.exchange(
+                createURLWithPort(OffersServiceURLs.GET_ALL_OFFERS),
+                HttpMethod.GET, null, new ParameterizedTypeReference<List<OfferDTO>>(){});
+
+        assertEquals("Status code is OK", HttpStatus.OK, response.getStatusCode());
+        assertTrue("List is empty", 0 == response.getBody().size());
+    }
+
+
 
     private String createURLWithPort(String uri) {
         return "http://localhost:" + port + uri;
     }
 }
+
