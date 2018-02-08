@@ -124,10 +124,8 @@ public class OfferService {
     public ResponseEntity<Boolean> verifyOffer(@RequestBody(required = true) OfferVerifyDTO request) {
         LOGGER.debug("VERIFY offer request has been received: {}", request);
 
-        Boolean response = false;
-        if(customValidator.isOfferVerifyInputDataValid(request)) {
-            response = offerManager.verifyOffer(request.getOfferCode());
-        }
+        customValidator.processOfferVerifyInputDataValidation(request);
+        Boolean response = offerManager.verifyOffer(request.getOfferCode());
 
         LOGGER.debug("Returning response for VERIFY offer: {}", response);
         return new ResponseEntity<>(response, HttpStatus.OK);
