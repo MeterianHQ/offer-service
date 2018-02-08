@@ -77,7 +77,7 @@ public class OfferService {
 
         OfferDTO response = offerManager.createOffer(request);
 
-        if(((OfferValidationDTO)response).getConstraintViolations() != null) {
+        if(response instanceof OfferValidationDTO) {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
