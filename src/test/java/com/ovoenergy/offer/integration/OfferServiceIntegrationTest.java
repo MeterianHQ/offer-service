@@ -75,6 +75,7 @@ public class OfferServiceIntegrationTest {
         Long TEST_VALID_MAX_REDEMPTION= 88888888L;
         Long TEST_VALID_START_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         Long TEST_VALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        Long TEST_VALID_UPDATE_ON_DATE = LocalDateTime.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
     }
 
     private interface ValidateOfferForCreateViolationConstraintMessages {
@@ -407,6 +408,8 @@ public class OfferServiceIntegrationTest {
         offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
         offerDBEntity.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerDBEntity.setIsExpirable(true);
+        offerDBEntity.setStatus(StatusType.ACTIVE);
+        offerDBEntity.setUpdatedOn(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE);
         offerDBEntity.setId(1L);
 
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
