@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.manager;
 
+import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 
 import java.util.List;
@@ -18,6 +19,6 @@ public interface OfferManager {
 
     Boolean verifyOffer(String offerCode);
 
-    Boolean applyToOffer(String offerCode, String emailAddress);
+    OfferApplyDTO applyUserToOffer(String offerCode, String emailAddress);
 
 }

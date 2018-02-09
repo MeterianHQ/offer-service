@@ -26,7 +26,7 @@ public class CustomValidationProcessor {
     @Autowired
     private MessageSource msgSource;
 
-    public OfferValidationDTO processOfferValidation(OfferDTO request) {
+    public OfferValidationDTO processOfferInputDataValidationViolations(OfferDTO request) {
         Set<ConstraintViolation<OfferDTO>> violations = validator.validate(request);
         if(violations == null || violations.size() == 0) {
             return null;
@@ -47,10 +47,11 @@ public class CustomValidationProcessor {
         return validationDTO;
     }
 
-    public void processOfferVerifyInputDataValidation(OfferVerifyDTO request) {
-        Set<ConstraintViolation<OfferVerifyDTO>> violations = validator.validate(request);
+    public <T> void processOfferInputDataValidationException(T request) {
+        Set<ConstraintViolation<T>> violations = validator.validate(request);
         if(violations != null && violations.size() > 0) {
-            throw new VariableNotValidException(OFFER_INVALID);
+            String messageErrorCode = violations.iterator().next().getMessage();
+            throw new VariableNotValidException(messageErrorCode);
         }
     }
 

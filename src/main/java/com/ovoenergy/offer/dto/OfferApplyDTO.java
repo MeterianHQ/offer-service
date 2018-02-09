@@ -5,6 +5,7 @@ import com.ovoenergy.offer.validation.key.CodeKeys;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Email;
@@ -18,16 +19,22 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @JsonSerialize
 @NoArgsConstructor
+@Builder
 public class OfferApplyDTO {
 
     @ApiModelProperty(name = "offerCode", required = true)
-    @NotEmpty(message = CodeKeys.FIELD_REQUIRED)
-    @NotNull(message = CodeKeys.NOT_NULL_FIELD)
-    @Pattern(regexp = "^[A-Za-z0-9]*$", message = CodeKeys.INVALID_OFFER_CODE)
+    @NotEmpty(message = CodeKeys.OFFER_INVALID)
+    @NotNull(message = CodeKeys.OFFER_INVALID)
+    @Pattern(regexp = "^[A-Za-z0-9]*$", message = CodeKeys.OFFER_INVALID)
     private String offerCode;
 
     @ApiModelProperty(name = "email", required = true)
+    @NotEmpty(message = CodeKeys.INVALID_EMAIL)
+    @NotNull(message = CodeKeys.INVALID_EMAIL)
     @Email(message = CodeKeys.INVALID_EMAIL)
     private String email;
+
+    @ApiModelProperty(name = "updatedOn", notes = "response field only", required = true)
+    private Long updatedOn;
 
 }

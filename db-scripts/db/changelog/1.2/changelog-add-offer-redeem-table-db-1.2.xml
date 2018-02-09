@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="changelog_add_offer_redeem_table" author="yuliya.makarchuk" runAlways="false" failOnError="true">
+        <createTable tableName="offer_redeem" schemaName="offers_db">
+            <column name="id_offer" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_on" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey catalogName="offers_db"
+                       columnNames="id_offer, email, updated_on"
+                       constraintName="pk_offer_redeem"
+                       schemaName="offers_db"
+                       tableName="offer_redeem"/>
+        <addForeignKeyConstraint baseColumnNames="id_offer"
+                                 baseTableName="offer_redeem"
+                                 constraintName="fk_offer_redeem_offer"
+                                 onDelete="CASCADE"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="offer"
+                                 baseTableSchemaName="offers_db"
+                                 referencedTableSchemaName="offers_db"/>
+        <rollback>
+            <dropPrimaryKey tableName="offer_redeem" constraintName="pk_offer_redeem"/>
+            <dropForeignKeyConstraint baseTableName="fk_offer_redeem_offer" constraintName="fk_offer_redeem_offer"/>
+            <dropTable tableName="offer_redeem"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

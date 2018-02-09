@@ -70,7 +70,7 @@ public class OfferService {
     public ResponseEntity<OfferDTO> createOffer(@RequestBody(required = true) OfferDTO request) {
         LOGGER.debug("CREATE offer request has been received: {}", request);
 
-        OfferValidationDTO validationDTO = customValidator.processOfferValidation(request);
+        OfferValidationDTO validationDTO = customValidator.processOfferInputDataValidationViolations(request);
         if(validationDTO != null) {
             return new ResponseEntity<>(validationDTO, HttpStatus.BAD_REQUEST);
         }
@@ -124,10 +124,26 @@ public class OfferService {
     public ResponseEntity<Boolean> verifyOffer(@RequestBody(required = true) OfferVerifyDTO request) {
         LOGGER.debug("VERIFY offer request has been received: {}", request);
 
-        customValidator.processOfferVerifyInputDataValidation(request);
+        customValidator.processOfferInputDataValidationException(request);
         Boolean response = offerManager.verifyOffer(request.getOfferCode());
 
         LOGGER.debug("Returning response for VERIFY offer: {}", response);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = APPLY_TO_OFFER, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = OfferVerifyDTO.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
+            @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class), })
+    @ApiOperation(value = APPLY_TO_OFFER, notes = "Create offer", produces = "application/json")
+    public ResponseEntity<OfferApplyDTO> applyToOfferOffer(@RequestBody(required = true) OfferApplyDTO request) {
+        LOGGER.debug("APPLY user to offer request has been received: {}", request);
+
+        customValidator.processOfferInputDataValidationException(request);
+        OfferApplyDTO response = offerManager.applyUserToOffer(request.getOfferCode(), request.getEmail());
+
+        LOGGER.debug("Returning response for APPLY user to offer: {}", response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
