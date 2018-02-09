@@ -103,7 +103,6 @@ public class OfferManagerImpl implements OfferManager {
         Long currentDbTimeMilliseconds = jdbcHelper.lookupCurrentDbTime().getTime();
         OfferDBEntity offerDBEntity = processOfferDBEntityValidation(offerCode);
         offerDBEntity.setActualOfferRedemptions(offerDBEntity.getActualOfferRedemptions() + 1);
-        offerDBEntity.setUpdatedOn(currentDbTimeMilliseconds);
 
         OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.save(new OfferRedeemDBEntity(offerDBEntity.getId(), emailAddress, currentDbTimeMilliseconds));
         offerRepository.save(offerDBEntity);
