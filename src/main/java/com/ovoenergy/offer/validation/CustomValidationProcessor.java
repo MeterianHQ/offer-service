@@ -3,6 +3,7 @@ package com.ovoenergy.offer.validation;
 import com.google.common.collect.Sets;
 import com.ovoenergy.offer.dto.*;
 import com.ovoenergy.offer.exception.VariableNotValidException;
+import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.key.ValidationCodeMessageKeyPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,6 +46,13 @@ public class CustomValidationProcessor {
             validationDTO.getConstraintViolations().put(propertyPath, errorMessageDTOS);
         }
         return validationDTO;
+    }
+
+    public <T> void processOfferInputDataInvalidOfferException(T request) {
+        Set<ConstraintViolation<T>> violations = validator.validate(request);
+        if(violations != null && violations.size() > 0) {
+            throw new VariableNotValidException(CodeKeys.OFFER_INVALID);
+        }
     }
 
     public <T> void processOfferInputDataValidationException(T request) {

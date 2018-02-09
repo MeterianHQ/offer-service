@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.ovoenergy.offer.db.entity.*;
 import com.ovoenergy.offer.db.repository.OfferRepository;
-import com.ovoenergy.offer.dto.ErrorMessageDTO;
-import com.ovoenergy.offer.dto.OfferDTO;
-import com.ovoenergy.offer.dto.OfferValidationDTO;
-import com.ovoenergy.offer.dto.OffersServiceURLs;
+import com.ovoenergy.offer.dto.*;
 import com.ovoenergy.offer.integration.mock.MockApplication;
 import com.ovoenergy.offer.integration.mock.config.OfferRepositoryTestConfiguration;
 import com.ovoenergy.offer.test.utils.IntegrationTest;
@@ -22,7 +19,6 @@ import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -69,7 +65,7 @@ public class OfferServiceIntegrationTest {
         Long TEST_INVALID_MAX_REDEMPTION= 888888889L;
         Long TEST_INVALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).minusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         Long TEST_INVALID_START_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-
+        String TEST_NON_EXISTING_CODE = "nonexisting";
 
         // Valid data
         String TEST_VALID_DESCRIPTION = "Valid description 100%";
@@ -98,6 +94,10 @@ public class OfferServiceIntegrationTest {
         String NO_EXPIRITY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE="No expiry date' cannot be ticked if 'Expiry date' selected";
         String INPUT_VALUE_MAX = "Field value is limited to 3 digits";
         String INPUT_REDEMPTION_MAX = "Field value is limited to 8 digits";
+        String INVALID_EMAIL = "Email format is not valid";
+        String OFFER_EXPIRED = "Offer has expired";
+        String OFFER_INVALID = "Offer code invalid";
+
     }
 
     @LocalServerPort
@@ -328,7 +328,7 @@ public class OfferServiceIntegrationTest {
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.CREATE_OFFER),
                 HttpMethod.POST, entity, String.class);
-        assertEquals("Failure 400http", HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Failure 400 http", HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         OfferValidationDTO validationDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
 
@@ -428,7 +428,7 @@ public class OfferServiceIntegrationTest {
         Mockito.verify(jdbcTemplate).queryForObject(any(String.class), any(RowMapper.class));
     }
 
-    //@Test
+    @Test
     public void fetchAllOffersSuccess() {
         OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
         Mockito.when(offerRepository.findAll()).thenReturn(Lists.newArrayList(offerDBEntity));
@@ -439,6 +439,117 @@ public class OfferServiceIntegrationTest {
 
         assertEquals("Status code is OK", HttpStatus.OK, response.getStatusCode());
 
+    }
+
+    @Test
+    public void fetchAllOffersNoData() {
+        Mockito.when(offerRepository.findAll()).thenReturn(Lists.newArrayList());
+
+        ResponseEntity<List<OfferDTO>> response = restTemplate.exchange(
+                createURLWithPort(OffersServiceURLs.GET_ALL_OFFERS),
+                HttpMethod.GET, null, new ParameterizedTypeReference<List<OfferDTO>>(){});
+
+        assertEquals("Status code is OK", HttpStatus.OK, response.getStatusCode());
+        assertTrue("List is empty", 0 == response.getBody().size());
+    }
+
+    @Test
+    public void verifyOfferValidationCases() throws IOException {
+        // test incorrect offer code format shouldn't pass validation
+        OfferVerifyDTO offerToVerify = new OfferVerifyDTO(ValidateOfferForCreateInputData.TEST_INVALID_CODE);
+        processInvalidOfferValidation(offerToVerify);
+
+        // test empty offer code shouldn't pass validation
+        offerToVerify.setOfferCode("");
+        processInvalidOfferValidation(offerToVerify);
+
+        // test null offer code shouldn't pass validation
+        offerToVerify.setOfferCode(null);
+        processInvalidOfferValidation(offerToVerify);
+
+        // test non existing offer code shouldn't pass validation
+        offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_NON_EXISTING_CODE);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_NON_EXISTING_CODE))).thenReturn(null);
+        processInvalidOfferValidation(offerToVerify);
+
+        // test non started offer code shouldn't pass validation
+        OfferDBEntity offerDBEntityNotStarted = new OfferDBEntity();
+        offerDBEntityNotStarted.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
+        offerDBEntityNotStarted.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
+        offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntityNotStarted);
+        processInvalidOfferValidation(offerToVerify);
+        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
+
+        // test expired offer shouldn't pass validation
+        offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+        OfferDBEntity offerDBEntity = new OfferDBEntity();
+        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_START_DATE);
+        offerDBEntity.setExpiryDate(ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE);
+        offerDBEntity.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+        offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
+        offerDBEntity.setActualOfferRedemptions(1L);
+        offerDBEntity.setIsExpirable(true);
+
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
+
+        HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToVerify, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort(OffersServiceURLs.VERIFY_OFFER),
+                HttpMethod.POST, request, String.class);
+
+        assertEquals("Bad request status code was not returned", HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        ErrorMessageDTO messageDTO = objectMapper.reader().forType(ErrorMessageDTO.class).readValue(response.getBody());
+
+        assertEquals("Offer expired error code missed in response", CodeKeys.OFFER_EXPIRED, messageDTO.getCode());
+        assertEquals("Offer expired error message missed in response",  ValidateOfferForCreateViolationConstraintMessages.OFFER_EXPIRED, messageDTO.getMessage());
+        Mockito.verify(offerRepository, Mockito.times(2)).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
+    }
+
+    @Test
+    public void verifyOfferSuccessCase() throws IOException {
+        // test valid offer code should be stored and redeemed
+        OfferVerifyDTO offerToCreate = new OfferVerifyDTO(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+
+        OfferDBEntity offerDBEntity = new OfferDBEntity();
+        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_START_DATE);
+        offerDBEntity.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
+        offerDBEntity.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+        offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
+        offerDBEntity.setActualOfferRedemptions(1L);
+        offerDBEntity.setIsExpirable(false);
+
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
+
+        HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToCreate, headers);
+
+        ResponseEntity<Boolean> response = restTemplate.exchange(
+                createURLWithPort(OffersServiceURLs.VERIFY_OFFER),
+                HttpMethod.POST, request, Boolean.class);
+
+        assertEquals("OK status code was not returned", HttpStatus.OK, response.getStatusCode());
+
+        assertTrue("Offer was successfully verified", response.getBody());
+
+        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
+    }
+
+
+    private void processInvalidOfferValidation(OfferVerifyDTO offerToVerify) throws IOException {
+        HttpEntity<OfferVerifyDTO> entity = new HttpEntity<>(offerToVerify, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort(OffersServiceURLs.VERIFY_OFFER),
+                HttpMethod.POST, entity, String.class);
+
+        assertEquals("Bad request status code was not returned", HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        ErrorMessageDTO messageDTO = objectMapper.reader().forType(ErrorMessageDTO.class).readValue(response.getBody());
+
+        assertEquals("Offer invalid error code missed in response", CodeKeys.OFFER_INVALID, messageDTO.getCode());
+        assertEquals("Offer invalid error message missed in response",  ValidateOfferForCreateViolationConstraintMessages.OFFER_INVALID, messageDTO.getMessage());
     }
 
     private OfferDBEntity prepareForTestValidOfferDBEntity() {
@@ -478,21 +589,6 @@ public class OfferServiceIntegrationTest {
         assertEquals("Input value for Update_on Date is valid ",ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE, offerDTO.getUpdatedOn());
         assertEquals("Input value for STATUS is valid ",StatusType.ACTIVE.name(), offerDTO.getStatus());
     }
-
-    @Test
-    public void fetchAllOffersNoData() {
-        OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
-        Mockito.when(offerRepository.findAll()).thenReturn(Lists.newArrayList());
-
-        ResponseEntity<List<OfferDTO>> response = restTemplate.exchange(
-                createURLWithPort(OffersServiceURLs.GET_ALL_OFFERS),
-                HttpMethod.GET, null, new ParameterizedTypeReference<List<OfferDTO>>(){});
-
-        assertEquals("Status code is OK", HttpStatus.OK, response.getStatusCode());
-        assertTrue("List is empty", 0 == response.getBody().size());
-    }
-
-
 
     private String createURLWithPort(String uri) {
         return "http://localhost:" + port + uri;
