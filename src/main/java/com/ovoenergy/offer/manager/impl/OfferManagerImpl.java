@@ -19,6 +19,7 @@ import com.ovoenergy.offer.validation.key.MessageKeys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -85,7 +86,7 @@ public class OfferManagerImpl implements OfferManager {
     public List<OfferDTO> getAllOffers() {
         List<OfferDTO> offers = new ArrayList<>();
 
-        offerRepository.findAll().forEach(off ->  offers.add(OfferMapper.fromOfferDBEntityToDTO(off)));
+        offerRepository.findAll(sortByUpdatedOnDesc()).forEach(off ->  offers.add(OfferMapper.fromOfferDBEntityToDTO(off)));
 
         return offers;
     }
@@ -157,4 +158,7 @@ public class OfferManagerImpl implements OfferManager {
         return (!offerDBEntity.getIsExpirable() || offerDBEntity.getExpiryDate() >= now);
     }
 
+    private Sort sortByUpdatedOnDesc() {
+        return new Sort(Sort.Direction.DESC, "updatedOn");
+    }
 }
