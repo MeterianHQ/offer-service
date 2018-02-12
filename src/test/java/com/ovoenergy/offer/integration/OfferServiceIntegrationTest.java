@@ -590,6 +590,21 @@ public class OfferServiceIntegrationTest {
         assertEquals("Input value for STATUS is valid ",StatusType.ACTIVE.name(), offerDTO.getStatus());
     }
 
+    @Test
+    public void fetchAllOffersNoData() {
+        OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
+        Mockito.when(offerRepository.findAll()).thenReturn(Lists.newArrayList());
+
+        ResponseEntity<List<OfferDTO>> response = restTemplate.exchange(
+                createURLWithPort(OffersServiceURLs.GET_ALL_OFFERS),
+                HttpMethod.GET, null, new ParameterizedTypeReference<List<OfferDTO>>(){});
+
+        assertEquals("Status code is OK", HttpStatus.OK, response.getStatusCode());
+        assertTrue("List is empty", 0 == response.getBody().size());
+    }
+
+
+
     private String createURLWithPort(String uri) {
         return "http://localhost:" + port + uri;
     }
