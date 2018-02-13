@@ -23,8 +23,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_EXPIRED;
@@ -86,7 +84,7 @@ public class OfferManagerImpl implements OfferManager {
     public List<OfferDTO> getAllOffers() {
         List<OfferDTO> offers = new ArrayList<>();
 
-        offerRepository.findAll(sortByUpdatedOnDesc()).forEach(off ->  offers.add(OfferMapper.fromOfferDBEntityToDTO(off)));
+        offerRepository.findAll(new Sort(Sort.Direction.DESC, "updatedOn")).forEach(off ->  offers.add(OfferMapper.fromOfferDBEntityToDTO(off)));
 
         return offers;
     }
@@ -134,10 +132,11 @@ public class OfferManagerImpl implements OfferManager {
     }
 
     private OfferDBEntity processOfferDBEntityValidation(String offerCode) {
+        Long now = jdbcHelper.lookupCurrentDbTime().getTime();
         OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCase(offerCode);
-        if (null == offerDBEntity || !isStartDateValid(offerDBEntity) || !maxRedemptionsNotExceeded(offerDBEntity)) {
+        if (null == offerDBEntity || !isStartDateValid(offerDBEntity, now) || !maxRedemptionsNotExceeded(offerDBEntity)) {
             throw new VariableNotValidException(OFFER_INVALID);
-        } else if (!isExpiryDateValid(offerDBEntity)) {
+        } else if (!isExpiryDateValid(offerDBEntity, now)) {
             throw new VariableNotValidException(OFFER_EXPIRED);
         }
         return offerDBEntity;
@@ -147,17 +146,11 @@ public class OfferManagerImpl implements OfferManager {
         return (offerDBEntity.getActualOfferRedemptions() < offerDBEntity.getMaxOfferRedemptions());
     }
 
-    private Boolean isStartDateValid(OfferDBEntity offerDBEntity) {
-        Long now = LocalDateTime.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        return (offerDBEntity.getStartDate() <= now);
+    private Boolean isStartDateValid(OfferDBEntity offerDBEntity, Long currentTime) {
+        return (offerDBEntity.getStartDate() <= currentTime);
     }
 
-    private Boolean isExpiryDateValid(OfferDBEntity offerDBEntity) {
-        Long now = LocalDateTime.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        return (!offerDBEntity.getIsExpirable() || offerDBEntity.getExpiryDate() >= now);
-    }
-
-    private Sort sortByUpdatedOnDesc() {
-        return new Sort(Sort.Direction.DESC, "updatedOn");
+    private Boolean isExpiryDateValid(OfferDBEntity offerDBEntity, Long currentTime) {
+        return (!offerDBEntity.getIsExpirable() || offerDBEntity.getExpiryDate() >= currentTime);
     }
 }

@@ -5,10 +5,12 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @ApiModel(value = "Message", description = "Message related to operation status")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @JsonSerialize
 public class MessageDTO {
 

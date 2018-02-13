@@ -8,6 +8,7 @@ import javax.persistence.*;
 @Table(name = "offer_redeem", schema = "offers_db")
 @Getter
 @Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

@@ -455,6 +455,7 @@ public class OfferServiceIntegrationTest {
 
     @Test
     public void verifyOfferValidationCases() throws IOException {
+        Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
         // test incorrect offer code format shouldn't pass validation
         OfferVerifyDTO offerToVerify = new OfferVerifyDTO(ValidateOfferForCreateInputData.TEST_INVALID_CODE);
         processInvalidOfferValidation(offerToVerify);
@@ -521,6 +522,7 @@ public class OfferServiceIntegrationTest {
         offerDBEntity.setActualOfferRedemptions(1L);
         offerDBEntity.setIsExpirable(false);
 
+        Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
         Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
 
         HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToCreate, headers);
@@ -534,6 +536,7 @@ public class OfferServiceIntegrationTest {
         assertTrue("Offer was successfully verified", response.getBody());
 
         Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
+        Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
     }
 
 

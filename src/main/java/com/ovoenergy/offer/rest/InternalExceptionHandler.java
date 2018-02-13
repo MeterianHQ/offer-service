@@ -70,7 +70,7 @@ public class InternalExceptionHandler {
     @ExceptionHandler(VariableNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ResponseEntity<ErrorMessageDTO> processPathVariableNotValidError(InternalBaseException e) {
+    public ResponseEntity<ErrorMessageDTO> processVariableNotValidError(InternalBaseException e) {
         String messageErrorCode = e.getErrorMessageProperty();
         return new ResponseEntity<>(new ErrorMessageDTO(
                 messageErrorCode,
