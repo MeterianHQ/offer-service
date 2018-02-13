@@ -2,7 +2,6 @@ package com.ovoenergy.offer.dto;
 
 import com.ovoenergy.offer.test.utils.BaseBeansTest;
 import org.junit.Test;
-import sun.plugin2.message.Message;
 
 public class DTOEntitiesTest extends BaseBeansTest {
     @Test
