@@ -34,6 +34,17 @@ jobs:
 
     steps:
       - checkout
+
+      - update_db:
+        - run: |
+          export OFFERS_ENGINE_DB_URL="$UAT_OFFERS_ENGINE_DB_URL"
+          export OFFERS_ENGINE_DB_USER="$UAT_OFFERS_ENGINE_DB_USER"
+          export OFFERS_ENGINE_DB_PASSWORD="$UAT_OFFERS_ENGINE_DB_PASSWORD"
+
+          cd db-scripts
+          gradle liquibaseCreate liquibaseUpdate -DuserName=$UAT_OFFERS_ENGINE_DB_USER -Dpassword=$UAT_OFFERS_ENGINE_DB_PASSWORD -Durl=jdbc:postgresql://$OFFERS_ENGINE_DB_URL
+          cd ../
+
       - run: echo "Hello World from UAT"
 
 workflows:
