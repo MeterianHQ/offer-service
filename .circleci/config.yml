@@ -35,8 +35,7 @@ jobs:
     steps:
       - checkout
 
-      - update_db:
-        - run: |
+      - run: |
           export OFFERS_ENGINE_DB_URL="$UAT_OFFERS_ENGINE_DB_URL"
           export OFFERS_ENGINE_DB_USER="$UAT_OFFERS_ENGINE_DB_USER"
           export OFFERS_ENGINE_DB_PASSWORD="$UAT_OFFERS_ENGINE_DB_PASSWORD"
