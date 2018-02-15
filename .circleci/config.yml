@@ -41,7 +41,7 @@ jobs:
           export OFFERS_ENGINE_DB_PASSWORD="$UAT_OFFERS_ENGINE_DB_PASSWORD"
 
           cd db-scripts
-          gradle liquibaseCreate liquibaseUpdate -DuserName=$UAT_OFFERS_ENGINE_DB_USER -Dpassword=$UAT_OFFERS_ENGINE_DB_PASSWORD -Durl=jdbc:postgresql://$OFFERS_ENGINE_DB_URL
+          gradle liquibaseUpdate -DuserName=$UAT_OFFERS_ENGINE_DB_USER -Dpassword=$UAT_OFFERS_ENGINE_DB_PASSWORD -Durl=jdbc:postgresql://$OFFERS_ENGINE_DB_URL/offers_engine
           cd ../
 
       - run: echo "Hello World from UAT"
