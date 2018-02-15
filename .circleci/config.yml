@@ -36,10 +36,6 @@ jobs:
       - checkout
 
       - run:
-          name: Install Postgres client
-          command: sudo apt update && sudo apt install postgresql-client
-
-      - run:
           name: Apply Offers DB migrations
           command: |
               export OFFERS_ENGINE_DB_URL="$UAT_OFFERS_ENGINE_DB_URL"
