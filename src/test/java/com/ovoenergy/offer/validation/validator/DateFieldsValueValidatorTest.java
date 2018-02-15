@@ -16,9 +16,9 @@ import static org.junit.Assert.assertTrue;
 @UnitTest
 public class DateFieldsValueValidatorTest {
 
-    private static final Long TEST_START_DATE_BEFORE_EXPIRY = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() ;
+    private static final Long TEST_START_DATE_BEFORE_EXPIRY = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
-    private static final Long TEST_EXPIRY_DATE_AFTER_START = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(2).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() ;
+    private static final Long TEST_EXPIRY_DATE_AFTER_START = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(2).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
     @Mock
     private ConstraintValidatorContext mockConstraintValidatorContext;

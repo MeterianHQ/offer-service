@@ -45,7 +45,9 @@ public class OfferManagerImplTest {
 
     private static final Date TEST_NOW_DATE = new Date();
 
-    private static final Long TEST_NOW_MILLISECONDS = TEST_NOW_DATE.toInstant().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    private static final Long TEST_NOW_MILLISECONDS = TEST_NOW_DATE.toInstant().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+
+    private static final Long TEST_DAY_BEFORE_NOW_MILLISECONDS = TEST_NOW_DATE.toInstant().atZone(ZoneId.of("UTC")).minusDays(1).toInstant().toEpochMilli();
 
     private static final Long TEST_MAX_REDEMPTIONS_VALID = 11L;
 
@@ -145,7 +147,7 @@ public class OfferManagerImplTest {
 
     @Test
     public void verifyOfferSuccess() {
-        fixtureOfferDBEntity.setStartDate(TEST_NOW_MILLISECONDS);
+        fixtureOfferDBEntity.setStartDate(TEST_DAY_BEFORE_NOW_MILLISECONDS);
         fixtureOfferDBEntity.setExpiryDate(TEST_NOW_MILLISECONDS);
         fixtureOfferDBEntity.setMaxOfferRedemptions(TEST_MAX_REDEMPTIONS_VALID);
         fixtureOfferDBEntity.setActualOfferRedemptions(ACTUAL_REDEMPTIONS_VALID);
@@ -166,7 +168,7 @@ public class OfferManagerImplTest {
         offerApplyDTO.setEmail(TEST_EMAIL);
         offerApplyDTO.setOfferCode(TEST_OFFER_CODE);
 
-        fixtureOfferDBEntity.setStartDate(TEST_NOW_MILLISECONDS);
+        fixtureOfferDBEntity.setStartDate(TEST_DAY_BEFORE_NOW_MILLISECONDS);
         fixtureOfferDBEntity.setExpiryDate(TEST_NOW_MILLISECONDS);
         fixtureOfferDBEntity.setMaxOfferRedemptions(TEST_MAX_REDEMPTIONS_VALID);
         fixtureOfferDBEntity.setActualOfferRedemptions(ACTUAL_REDEMPTIONS_VALID);
@@ -182,7 +184,7 @@ public class OfferManagerImplTest {
         assertEquals(TEST_EMAIL, result.getEmail());
         assertEquals(TEST_OFFER_CODE, result.getOfferCode());
         verify(mockOfferRepository).findOneByOfferCodeIgnoreCase(eq(TEST_OFFER_CODE));
-        verify(mockJdbcHelper, times(2)).lookupCurrentDbTime();
+        verify(mockJdbcHelper, times(1)).lookupCurrentDbTime();
         verify(mockOfferRepository).save(any(OfferDBEntity.class));
         verify(mockOfferRedeemRepository).save(any(OfferRedeemDBEntity.class));
     }
