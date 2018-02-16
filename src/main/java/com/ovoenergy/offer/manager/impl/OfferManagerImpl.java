@@ -155,6 +155,6 @@ public class OfferManagerImpl implements OfferManager {
     }
 
     private Boolean isExpiryDateValid(OfferDBEntity offerDBEntity, Long currentMidnightTime) {
-        return (!offerDBEntity.getIsExpirable() || offerDBEntity.getExpiryDate() > currentMidnightTime);
+        return (!offerDBEntity.getIsExpirable() || offerDBEntity.getExpiryDate() >= currentMidnightTime);
     }
 }

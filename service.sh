@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 DOCKER_EXPOSE_PORT="8080:8080"
 
-DOCKER_IMAGE_LABEL="offer-service"
+DOCKER_IMAGE_LABEL="com.ovoenergy/offer-service"
 
 # build local jar file
 dev_build() {
@@ -50,7 +50,13 @@ docker_build() {
 
 # runs docker image
 docker_run() {
-    docker run -d -p $DOCKER_EXPOSE_PORT -t $DOCKER_IMAGE_LABEL --ignore-pull-failures
+    IP=$(ifconfig | egrep 'inet ' | sed -e 's/inet //' -e 's/addr://' -e 's/ Bcast.*//' -e 's/127.*//')
+    ARRAY=($IP)
+    ADDRESS=${ARRAY[1]}
+    VARS='-Dspring.datasource.url=jdbc:postgresql://'
+    VARS+=${ADDRESS}
+    VARS+=':5432/offers_engine -Dspring.datasource.username=postgres -Dspring.datasource.password=postgres'
+    docker run -d -e EXTRA_JAVA_VARS="${VARS}" -p $DOCKER_EXPOSE_PORT -t $DOCKER_IMAGE_LABEL --ignore-pull-failures
  }
 
 case $1 in
