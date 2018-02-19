@@ -75,11 +75,16 @@ public class OfferServiceIntegrationTest {
         String TEST_VALID_OFFER_TYPE = "Giftcard";
         String TEST_VALID_ELIGIBILITY_CRITERIA = "SSD";
         String TEST_VALID_CHANEL = "Email";
+
         Long TEST_VALID_MAX_VALUE = 333L;
         Long TEST_VALID_MAX_REDEMPTION= 88888888L;
         Long TEST_VALID_START_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         Long TEST_VALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+
         Long TEST_VALID_UPDATE_ON_DATE = LocalDateTime.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+
+        String TEST_STATUS_ACTIVE = "ACTIVE";
+
     }
 
     private interface ValidateOfferForCreateViolationConstraintMessages {
@@ -122,6 +127,7 @@ public class OfferServiceIntegrationTest {
         offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_START_DATE);
         offerToValidate.setExpiryDate(ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE);
         offerToValidate.setIsExpirable(true);
+        offerToValidate.setStatus(ValidateOfferForCreateInputData.TEST_STATUS_ACTIVE);
 
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
 
@@ -132,18 +138,21 @@ public class OfferServiceIntegrationTest {
 
         OfferValidationDTO validationDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
 
-        assertEquals("Input value for field description is invalid", ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION, validationDTO.getDescription());
-        assertEquals("Input value for Name field is invalid",ValidateOfferForCreateInputData.TEST_VALID_NAME,validationDTO.getOfferName());
+        assertEquals("Input value for field description is expected", ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION, validationDTO.getDescription());
+        assertEquals("Input value for Name field is expected",ValidateOfferForCreateInputData.TEST_VALID_NAME,validationDTO.getOfferName());
         assertEquals("Input value for Code field is expected",ValidateOfferForCreateInputData.TEST_INVALID_CODE,validationDTO.getOfferCode());
         assertEquals("Input value for Supplier is expected",ValidateOfferForCreateInputData.TEST_INVALID_SUPPLIER,validationDTO.getSupplier());
-        assertEquals("Input value for Offer TYPE is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_OFFER_TYPE,validationDTO.getOfferType());
-        assertEquals("Input value for Value is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_MAX_VALUE,validationDTO.getValue());
-        assertEquals("Input value for Offer Redemption is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION,validationDTO.getMaxOfferRedemptions());
-        assertEquals("Input value for Eligibility criteria ",ValidateOfferForCreateInputData.TEST_INVALID_ELIGIBILITY_CRITERIA,validationDTO.getEligibilityCriteria());
-        assertEquals("Input value for Channel is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_CHANEL,validationDTO.getChannel());
-        assertEquals("Input value for START date is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_START_DATE, validationDTO.getStartDate());
-        assertEquals("Input value for EXPIRY date is incorrect ",ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE, validationDTO.getExpiryDate());
-        assertTrue("No Expiry Date selected value is incorrect",validationDTO.getIsExpirable());
+        assertEquals("Input value for Offer TYPE is expected",ValidateOfferForCreateInputData.TEST_INVALID_OFFER_TYPE,validationDTO.getOfferType());
+        assertEquals("Input value for Value is expected",ValidateOfferForCreateInputData.TEST_INVALID_MAX_VALUE,validationDTO.getValue());
+        assertEquals("Input value for Offer Redemption is expected", ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION,validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Eligibility criteria is expected",ValidateOfferForCreateInputData.TEST_INVALID_ELIGIBILITY_CRITERIA,validationDTO.getEligibilityCriteria());
+        assertEquals("Input value for Channel is expected",ValidateOfferForCreateInputData.TEST_INVALID_CHANEL,validationDTO.getChannel());
+        assertEquals("Input value for START date is expected",ValidateOfferForCreateInputData.TEST_INVALID_START_DATE, validationDTO.getStartDate());
+        assertEquals("Input value for EXPIRY date is expected ",ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE, validationDTO.getExpiryDate());
+        assertTrue("No Expiry Date selected value is expected",validationDTO.getIsExpirable());
+
+        assertEquals("Status of offer is expected", ValidateOfferForCreateInputData.TEST_STATUS_ACTIVE, validationDTO.getStatus());
+
 
         //Checking validation codes and messages for expiryDate
         Set<ErrorMessageDTO> expiryDateValidations = validationDTO.getConstraintViolations().get("expiryDate");
@@ -242,6 +251,8 @@ public class OfferServiceIntegrationTest {
         assertEquals("Input value for EXPIRY date is expected ", null, validationDTO.getExpiryDate());
         assertTrue("No Expiry Date selected value is expected",validationDTO.getIsExpirable());
 
+        assertEquals("Offer sataus is expected ", null, validationDTO.getStatus());
+
         //Checking validation codes and messages for OfferType
         Set<ErrorMessageDTO> offerTypeValidations = validationDTO.getConstraintViolations().get("offerType");
         Set<String> offerTypeAllErrorCodes = offerTypeValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
@@ -322,6 +333,7 @@ public class OfferServiceIntegrationTest {
         offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
         offerToValidate.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerToValidate.setIsExpirable(true);
+        offerToValidate.setStatus(ValidateOfferForCreateInputData.TEST_STATUS_ACTIVE);
 
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
 
@@ -343,6 +355,7 @@ public class OfferServiceIntegrationTest {
         assertEquals("Input value for START date expected",ValidateOfferForCreateInputData.TEST_VALID_START_DATE, validationDTO.getStartDate());
         assertEquals("Input value for EXPIRY date expected ",ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE, validationDTO.getExpiryDate());
         assertTrue("No Expiry Date selected value is expected",validationDTO.getIsExpirable());
+        assertEquals("Offer status is expected","", validationDTO.getStatus());
 
         //Checking validation codes and messages for offer type dropdown
         Set<ErrorMessageDTO> offerTypeValidations = validationDTO.getConstraintViolations().get("offerType");
@@ -402,6 +415,7 @@ public class OfferServiceIntegrationTest {
         offerToCreate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
         offerToCreate.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerToCreate.setIsExpirable(true);
+        offerToCreate.setStatus(ValidateOfferForCreateInputData.TEST_STATUS_ACTIVE);
 
         OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
 
@@ -415,6 +429,10 @@ public class OfferServiceIntegrationTest {
                 createURLWithPort(OffersServiceURLs.CREATE_OFFER),
                 HttpMethod.POST, entity, String.class);
         assertEquals("Success: Offer created", HttpStatus.OK, response.getStatusCode());
+
+
+
+        //assertEquals("Input value for STATUS is valid ",StatusType.ACTIVE.name(), offerDTO.getStatus());
 
         OfferDTO offerDTO = null;
         try {
@@ -438,6 +456,7 @@ public class OfferServiceIntegrationTest {
                 HttpMethod.GET, null, new ParameterizedTypeReference<List<OfferDTO>>(){});
 
         assertEquals("Status code is OK", HttpStatus.OK, response.getStatusCode());
+
 
     }
 
