@@ -447,7 +447,7 @@ public class OfferServiceIntegrationTest {
 
         OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToCreate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToCreate, headers);
 
         Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(offerToCreate.getOfferCode()), eq(StatusType.ACTIVE))).thenReturn(null);
         Mockito.when(offerRepository.save(any(OfferDBEntity.class))).thenReturn(offerDBEntity);
@@ -551,7 +551,7 @@ public class OfferServiceIntegrationTest {
     }
 
     @Test
-    public void verifyOfferSuccessCase() {
+    public void verifyOfferSuccessCase() throws IOException {
         // test valid offer code should be stored and redeemed
         OfferVerifyDTO offerToCreate = new OfferVerifyDTO(ValidateOfferForCreateInputData.TEST_VALID_CODE);
 

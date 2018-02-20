@@ -23,7 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +68,7 @@ public class OfferManagerImpl implements OfferManager {
 
     @Override
     public OfferDTO updateOffer(OfferDTO offerDTO, Long id) {
-        OfferValidationDTO validationDTO = processOfferCodeInputValidation(offerDTO);
+        OfferValidationDTO validationDTO = processOfferCodeInputValidation(offerDTO, id);
         if (validationDTO != null) {
             return validationDTO;
         }
@@ -124,18 +124,29 @@ public class OfferManagerImpl implements OfferManager {
     private OfferValidationDTO processOfferCodeInputValidation(OfferDTO offerDTO) {
         OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerDTO.getOfferCode(), StatusType.ACTIVE);
         if (offerDBEntity != null) {
-            Map<String, Set<ErrorMessageDTO>> validations = new HashMap<>();
-            validations.put(OFFER_CODE_FIELD_NAME,
-                    Sets.newHashSet(
-                            new ErrorMessageDTO(
-                                    CodeKeys.NOT_UNIQUE_OFFER_CODE,
-                                    msgSource.getMessage(MessageKeys.NOT_UNIQUE_OFFER_CODE, null, LocaleContextHolder.getLocale()))));
-
-            OfferValidationDTO validationDTO = new OfferValidationDTO(offerDTO);
-            validationDTO.setConstraintViolations(validations);
-            return validationDTO;
+            return getOfferCodeExistsError(offerDTO);
         }
         return null;
+    }
 
+    private OfferValidationDTO processOfferCodeInputValidation(OfferDTO offerDTO, Long id) {
+        boolean exists = offerRepository.existsByOfferCodeIgnoreCaseAndStatusAndIdIsNot(offerDTO.getOfferCode(), StatusType.ACTIVE, id);
+        if (exists) {
+            return getOfferCodeExistsError(offerDTO);
+        }
+        return null;
+    }
+
+    private OfferValidationDTO getOfferCodeExistsError(OfferDTO offerDTO) {
+        Map<String, Set<ErrorMessageDTO>> validations = new HashMap<>();
+        validations.put(OFFER_CODE_FIELD_NAME,
+                Collections.singleton(
+                        new ErrorMessageDTO(
+                                CodeKeys.NOT_UNIQUE_OFFER_CODE,
+                                msgSource.getMessage(MessageKeys.NOT_UNIQUE_OFFER_CODE, null, LocaleContextHolder.getLocale()))));
+
+        OfferValidationDTO validationDTO = new OfferValidationDTO(offerDTO);
+        validationDTO.setConstraintViolations(validations);
+        return validationDTO;
     }
 }
