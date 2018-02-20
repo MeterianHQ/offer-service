@@ -1,25 +1,24 @@
 package com.ovoenergy.offer.db.entity;
 
+import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+
+@RequiredArgsConstructor
 public enum SupplierType {
 
     AMAZON("Amazon");
 
-    String value;
-
-    private SupplierType(String value) {
-        this.value = value;
-    }
-
-    public static SupplierType byValue(String value) {
-        for(SupplierType v : values()){
-            if( v.value().equals(value)){
-                return v;
-            }
-        }
-        return null;
-    }
+    private final String value;
 
     public String value() {
         return value;
+    }
+
+    public static SupplierType byValue(String value) {
+        return Arrays.stream(values())
+                .filter(v -> v.value().equals(value))
+                .findFirst()
+                .orElse(null);
     }
 }

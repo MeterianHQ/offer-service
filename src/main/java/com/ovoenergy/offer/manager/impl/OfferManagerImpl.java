@@ -23,7 +23,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
 
@@ -56,17 +61,22 @@ public class OfferManagerImpl implements OfferManager {
             return validationDTO;
         }
 
-        OfferDBEntity offerDBEntity = offerOperationsRegistry.createOfferDBEtity(offerDTO);
+        OfferDBEntity offerDBEntity = offerOperationsRegistry.createOfferDBEntity(offerDTO);
 
-        return OfferMapper
-                .fromOfferDBEntityToDTO(
-                        offerRepository.save(offerDBEntity));
+        return OfferMapper.fromOfferDBEntityToDTO(offerRepository.save(offerDBEntity));
     }
 
     @Override
     public OfferDTO updateOffer(OfferDTO offerDTO, Long id) {
-        //TODO: TBD
-        return null;
+        OfferValidationDTO validationDTO = processOfferCodeInputValidation(offerDTO);
+        if (validationDTO != null) {
+            return validationDTO;
+        }
+
+        OfferDBEntity oldOfferDBEntity = offerRepository.findOneById(id);
+        OfferDBEntity offerDBEntity = offerOperationsRegistry.updateOfferDBEntity(oldOfferDBEntity, offerDTO);
+
+        return OfferMapper.fromOfferDBEntityToDTO(offerRepository.save(offerDBEntity));
     }
 
     @Override
@@ -77,17 +87,16 @@ public class OfferManagerImpl implements OfferManager {
 
     @Override
     public List<OfferDTO> getAllOffers() {
-        List<OfferDTO> offers = new ArrayList<>();
-
-        offerRepository.findAll(new Sort(Sort.Direction.DESC, "updatedOn")).forEach(off ->  offers.add(OfferMapper.fromOfferDBEntityToDTO(off)));
-
-        return offers;
+        return offerRepository.findAll(new Sort(Sort.Direction.DESC, "updatedOn"))
+                .stream()
+                .map(OfferMapper::fromOfferDBEntityToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Boolean verifyOffer(String offerCode) {
         OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerCode, StatusType.ACTIVE);
-        if(offerDBEntity == null) {
+        if (offerDBEntity == null) {
             throw new VariableNotValidException(OFFER_INVALID);
         } else {
             offerOperationsRegistry.processOfferDBEntityValidation(offerDBEntity);
@@ -114,13 +123,13 @@ public class OfferManagerImpl implements OfferManager {
 
     private OfferValidationDTO processOfferCodeInputValidation(OfferDTO offerDTO) {
         OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerDTO.getOfferCode(), StatusType.ACTIVE);
-        if(offerDBEntity != null) {
+        if (offerDBEntity != null) {
             Map<String, Set<ErrorMessageDTO>> validations = new HashMap<>();
             validations.put(OFFER_CODE_FIELD_NAME,
                     Sets.newHashSet(
                             new ErrorMessageDTO(
-                                CodeKeys.NOT_UNIQUE_OFFER_CODE,
-                                msgSource.getMessage(MessageKeys.NOT_UNIQUE_OFFER_CODE, null, LocaleContextHolder.getLocale()))));
+                                    CodeKeys.NOT_UNIQUE_OFFER_CODE,
+                                    msgSource.getMessage(MessageKeys.NOT_UNIQUE_OFFER_CODE, null, LocaleContextHolder.getLocale()))));
 
             OfferValidationDTO validationDTO = new OfferValidationDTO(offerDTO);
             validationDTO.setConstraintViolations(validations);

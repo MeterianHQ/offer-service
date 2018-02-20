@@ -8,21 +8,18 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ExpiryFieldsValueValidator implements ConstraintValidator<ExpiryDateFieldsValueConstraint, OfferDTO> {
 
-        private String expiryDateField = "expiryDate";
+    private final String expiryDateField = "expiryDate";
+    private final String isExpirableField = "isExpirable";
 
-        private String isExpirableField = "isExpirable";
+    public void initialize(ExpiryDateFieldsValueConstraint dateFieldsValueConstraint) {
+    }
 
-
-public void initialize(ExpiryDateFieldsValueConstraint dateFieldsValueConstraint) {
-}
-
-public boolean isValid(OfferDTO value, ConstraintValidatorContext context) {
-        Long expiyDateFieldValue = (Long) new BeanWrapperImpl(value)
-        .getPropertyValue(expiryDateField);
-        Boolean isExpirableFieldValue =  (Boolean) new BeanWrapperImpl(value)
-                .getPropertyValue(isExpirableField);
+    public boolean isValid(OfferDTO value, ConstraintValidatorContext context) {
+        BeanWrapperImpl beanWrapper = new BeanWrapperImpl(value);
+        Long expiyDateFieldValue = (Long) beanWrapper.getPropertyValue(expiryDateField);
+        Boolean isExpirableFieldValue = (Boolean) beanWrapper.getPropertyValue(isExpirableField);
 
         return (isExpirableFieldValue && expiyDateFieldValue != null) || (!isExpirableFieldValue && expiyDateFieldValue == null);
-}
+    }
 
 }

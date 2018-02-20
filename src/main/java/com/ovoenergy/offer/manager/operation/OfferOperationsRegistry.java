@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_STATUS_TYPE_NOT_VALID;
@@ -17,51 +17,50 @@ import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_STATUS_TYPE_NOT_
 @Component
 public class OfferOperationsRegistry {
 
+    private final Map<StatusType, OfferBaseStrategy> offerStrategiesRegistry = new EnumMap<>(StatusType.class);
+
     @Autowired
     private ActiveOfferStrategy activeOfferStrategy;
 
     @Autowired
     private DraftOfferStrategy draftOfferStrategy;
 
-    private Map<StatusType, OfferBaseStrategy> OfferStrategiesRegistry = new HashMap<>();
-
     @PostConstruct
     public void init() {
-        OfferStrategiesRegistry.put(StatusType.ACTIVE, activeOfferStrategy);
-        OfferStrategiesRegistry.put(StatusType.DRAFT, draftOfferStrategy);
+        offerStrategiesRegistry.put(StatusType.ACTIVE, activeOfferStrategy);
+        offerStrategiesRegistry.put(StatusType.DRAFT, draftOfferStrategy);
     }
 
-    public OfferDBEntity createOfferDBEtity(OfferDTO offerDTO) {
+    public OfferDBEntity createOfferDBEntity(OfferDTO offerDTO) {
         StatusType statusType = processStatusType(offerDTO.getStatus());
-        OfferBaseStrategy offerBaseStrategy = OfferStrategiesRegistry.get(statusType);
+        OfferBaseStrategy offerBaseStrategy = offerStrategiesRegistry.get(statusType);
         return offerBaseStrategy.createOfferDBEntity(offerDTO);
     }
 
     public OfferDBEntity updateOfferDBEntity(OfferDBEntity offerDBEntity, OfferDTO offerDTO) {
         StatusType statusType = processStatusType(offerDTO.getStatus());
-        OfferBaseStrategy offerBaseStrategy = OfferStrategiesRegistry.get(statusType);
+        OfferBaseStrategy offerBaseStrategy = offerStrategiesRegistry.get(statusType);
+        offerDBEntity.setActualOfferRedemptions(offerDBEntity.getActualOfferRedemptions());
         return offerBaseStrategy.updateOfferDBEntity(offerDBEntity, offerDTO);
     }
 
     public OfferDBEntity processOfferDBEntityValidation(OfferDBEntity offerDBEntity) {
         StatusType statusType = processStatusType(offerDBEntity.getStatus().name());
-        OfferBaseStrategy offerBaseStrategy = OfferStrategiesRegistry.get(statusType);
+        OfferBaseStrategy offerBaseStrategy = offerStrategiesRegistry.get(statusType);
         return offerBaseStrategy.processOfferDBEntityValidation(offerDBEntity);
     }
 
     public OfferRedeemDBEntity createOfferRedeemDBEntity(OfferDBEntity offerDBEntity, String emailAddress) {
         StatusType statusType = processStatusType(offerDBEntity.getStatus().name());
-        OfferBaseStrategy offerBaseStrategy = OfferStrategiesRegistry.get(statusType);
+        OfferBaseStrategy offerBaseStrategy = offerStrategiesRegistry.get(statusType);
         return offerBaseStrategy.createOfferRedeemDBEntity(offerDBEntity.getId(), emailAddress);
     }
 
     private StatusType processStatusType(String statusTypeStr) {
-        StatusType statusType;
         try {
-            statusType = StatusType.valueOf(statusTypeStr.toUpperCase());
+            return StatusType.valueOf(statusTypeStr.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new VariableNotValidException(OFFER_STATUS_TYPE_NOT_VALID);
         }
-        return statusType;
     }
 }

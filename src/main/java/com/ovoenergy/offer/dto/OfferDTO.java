@@ -1,7 +1,10 @@
-package com.ovoenergy.offer.dto  ;
+package com.ovoenergy.offer.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.ovoenergy.offer.validation.group.*;
+import com.ovoenergy.offer.validation.group.BaseOfferChecks;
+import com.ovoenergy.offer.validation.group.EmptyDraftOfferChecks;
+import com.ovoenergy.offer.validation.group.NonEmptyDraftOfferChecks;
+import com.ovoenergy.offer.validation.group.RequiredActiveOfferChecks;
+import com.ovoenergy.offer.validation.group.RequiredDraftOfferChecks;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.validator.DateFieldsValueConstraint;
 import com.ovoenergy.offer.validation.validator.EmptyConstraint;
@@ -15,15 +18,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
 
 @Data
-@JsonSerialize
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(value = "Offer", description = "Offer information")
-@ExpiryDateFieldsValueConstraint(message = CodeKeys.NO_EXPIRY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE, propertyPath = "expiryDate", groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
-@DateFieldsValueConstraint(message = CodeKeys.OFFER_EXPIRY_DATE_BEFORE_START_DATE, propertyPath = "expiryDate", groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
+@ExpiryDateFieldsValueConstraint(propertyPath = "expiryDate", groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
+@DateFieldsValueConstraint(propertyPath = "expiryDate", groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
 @Builder
 public class OfferDTO {
 
@@ -32,7 +38,7 @@ public class OfferDTO {
 
     @ApiModelProperty(name = "offerCode", required = true)
     @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = BaseOfferChecks.class)
-    @NotNull(message = CodeKeys.NOT_NULL_FIELD , groups = BaseOfferChecks.class)
+    @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = BaseOfferChecks.class)
     @Pattern(regexp = "^[A-Za-z0-9]*$", message = CodeKeys.INVALID_OFFER_CODE, groups = BaseOfferChecks.class)
     private String offerCode;
 
@@ -75,12 +81,12 @@ public class OfferDTO {
 
     @ApiModelProperty(name = "startDate", required = true)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @FutureDateConstraint(message = CodeKeys.NON_IN_FUTURE_DATE, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @FutureDateConstraint(groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Null(groups = EmptyDraftOfferChecks.class)
     private Long startDate;
 
     @ApiModelProperty(name = "expiryDate", required = true)
-    @FutureDateConstraint(message = CodeKeys.NON_IN_FUTURE_DATE, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @FutureDateConstraint(groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Null(groups = EmptyDraftOfferChecks.class)
     private Long expiryDate;
 
@@ -89,7 +95,7 @@ public class OfferDTO {
     private Boolean isExpirable;
 
     @ApiModelProperty(name = "eligibilityCriteria", required = true)
-    @Pattern(regexp = "^(?i)(SSD)$", message = CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED,groups = BaseOfferChecks.class)
+    @Pattern(regexp = "^(?i)(SSD)$", message = CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED, groups = BaseOfferChecks.class)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = BaseOfferChecks.class)
     private String eligibilityCriteria;
 
