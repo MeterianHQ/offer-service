@@ -1,7 +1,9 @@
 package com.ovoenergy.offer.test.utils;
 
-import static org.junit.Assert.assertEquals;
+import com.google.common.base.Defaults;
+import com.google.common.collect.Sets;
 
+import javax.annotation.Nonnull;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -9,11 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-
-import com.google.common.base.Defaults;
-import com.google.common.collect.Sets;
-
+import static org.junit.Assert.assertEquals;
 
 public class GetterSetterVerifierTester<T> {
 
@@ -107,14 +105,13 @@ public class GetterSetterVerifierTester<T> {
      * that the same value was returned.
      *
      * @param property The property that we are testing.
-     *
      * @throws IllegalAccessException
      * @throws InstantiationException
      * @throws InvocationTargetException
      */
     private void testProperty(@Nonnull final PropertyDescriptor property) throws IllegalAccessException,
-                                                                                 InstantiationException,
-                                                                                 InvocationTargetException {
+            InstantiationException,
+            InvocationTargetException {
         final Object target = type.newInstance();
         final Object setValue = Defaults.defaultValue(property.getPropertyType());
 
@@ -125,8 +122,8 @@ public class GetterSetterVerifierTester<T> {
         final Object getValue = getter.invoke(target);
 
         assertEquals(
-            property.getDisplayName() + " getter / setter do not produce the same result.",
-            setValue, getValue
+                property.getDisplayName() + " getter / setter do not produce the same result.",
+                setValue, getValue
         );
     }
 
@@ -138,6 +135,6 @@ public class GetterSetterVerifierTester<T> {
      * of a class.
      */
     public static <T> GetterSetterVerifierTester<T> forClass(@Nonnull final Class<T> type) {
-        return new GetterSetterVerifierTester<T>(type);
+        return new GetterSetterVerifierTester<>(type);
     }
 }

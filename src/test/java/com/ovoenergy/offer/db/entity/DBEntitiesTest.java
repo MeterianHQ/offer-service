@@ -2,13 +2,11 @@ package com.ovoenergy.offer.db.entity;
 
 import com.flextrade.jfixture.JFixture;
 import com.ovoenergy.offer.test.utils.BaseBeansTest;
-import com.ovoenergy.offer.test.utils.UnitTest;
 import org.junit.Test;
 
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@UnitTest
 public class DBEntitiesTest extends BaseBeansTest {
 
     @Test
@@ -29,7 +27,7 @@ public class DBEntitiesTest extends BaseBeansTest {
         hashCodeEquality(OfferDBEntity.class);
         hashCodeEquality(OfferRedeemDBEntity.class);
         hashCodeEquality(OfferRedeemId.class);
-   }
+    }
 
     /*
      * BaseBeans tester doesn't handle all cases. Need to test some Entities
@@ -40,6 +38,6 @@ public class DBEntitiesTest extends BaseBeansTest {
         JFixture fixture = new JFixture();
         OfferRedeemId offerRedeemId = fixture.create(OfferRedeemId.class);
         assertTrue(offerRedeemId.hashCode() != fixture.create(OfferRedeemId.class).hashCode());
-        assertTrue(offerRedeemId.hashCode() == offerRedeemId.hashCode());
+        assertEquals(offerRedeemId.hashCode(), offerRedeemId.hashCode());
     }
 }

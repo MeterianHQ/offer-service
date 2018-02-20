@@ -1,10 +1,11 @@
 package com.ovoenergy.offer.validation.validator;
 
 import com.ovoenergy.offer.dto.OfferDTO;
-import com.ovoenergy.offer.test.utils.UnitTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDateTime;
@@ -13,17 +14,16 @@ import java.time.ZoneId;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-@UnitTest
+@RunWith(MockitoJUnitRunner.class)
 public class ExpiryFieldsValueValidatorTest {
 
-
-    private static final Long TEST_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(2).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli() ;
+    private static final Long TEST_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(2).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
     @Mock
     private ConstraintValidatorContext mockConstraintValidatorContext;
 
     @InjectMocks
-    private ExpiryFieldsValueValidator unit = new ExpiryFieldsValueValidator();
+    private ExpiryFieldsValueValidator unit;
 
     @Test
     public void testIsValidFailed() {

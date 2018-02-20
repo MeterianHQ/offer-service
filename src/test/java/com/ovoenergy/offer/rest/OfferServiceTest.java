@@ -4,17 +4,19 @@ import com.flextrade.jfixture.annotations.Fixture;
 import com.flextrade.jfixture.rules.FixtureRule;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.ovoenergy.offer.dto.*;
+import com.ovoenergy.offer.dto.ErrorMessageDTO;
+import com.ovoenergy.offer.dto.OfferApplyDTO;
+import com.ovoenergy.offer.dto.OfferDTO;
+import com.ovoenergy.offer.dto.OfferValidationDTO;
+import com.ovoenergy.offer.dto.OfferVerifyDTO;
 import com.ovoenergy.offer.manager.OfferManager;
-import com.ovoenergy.offer.mapper.OfferMapper;
-import com.ovoenergy.offer.test.utils.UnitTest;
 import com.ovoenergy.offer.validation.CustomValidationProcessor;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -23,18 +25,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertEquals;
 
-
-@RunWith(PowerMockRunner.class)
-@UnitTest
+@RunWith(MockitoJUnitRunner.class)
 public class OfferServiceTest {
 
     @InjectMocks
@@ -55,9 +54,8 @@ public class OfferServiceTest {
     @Rule
     public FixtureRule fixtures = FixtureRule.initFixtures();
 
-
     @Fixture
-    public OfferDTO fixtureOfferDTO;
+    private OfferDTO fixtureOfferDTO;
 
     @Test
     public void testCreateOfferSuccess() {
@@ -105,7 +103,7 @@ public class OfferServiceTest {
         ResponseEntity<List<OfferDTO>> result = unit.getAllOffers();
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertTrue(1 == result.getBody().size());
+        assertEquals(1, result.getBody().size());
         verify(mockOfferManager).getAllOffers();
     }
 
