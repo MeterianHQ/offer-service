@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.rest;
 
+import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.dto.*;
 import com.ovoenergy.offer.manager.OfferManager;
 import com.ovoenergy.offer.validation.CustomValidationProcessor;
@@ -70,7 +71,13 @@ public class OfferService {
     public ResponseEntity<OfferDTO> createOffer(@RequestBody(required = true) OfferDTO request) {
         LOGGER.debug("CREATE offer request has been received: {}", request);
 
-        OfferValidationDTO validationDTO = customValidator.processOfferInputDataValidationViolations(request);
+        OfferValidationDTO validationDTO;
+        if (StatusType.DRAFT.name().equalsIgnoreCase(request.getStatus())) {
+            validationDTO = customValidator.processDraftOfferInputDataValidationViolations(request);
+        } else {
+            validationDTO = customValidator.processActiveOfferInputDataValidationViolations(request);
+        }
+
         if(validationDTO != null) {
             return new ResponseEntity<>(validationDTO, HttpStatus.BAD_REQUEST);
         }

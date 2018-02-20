@@ -6,6 +6,8 @@ import com.google.common.collect.Sets;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.test.utils.UnitTest;
+import com.ovoenergy.offer.validation.group.BaseOfferChecks;
+import com.ovoenergy.offer.validation.group.RequiredActiveOfferChecks;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,16 +61,16 @@ public class CustomValidationProcessorTest {
         when(mockOfferDTOConstraintViolation.getPropertyPath()).thenReturn(mockPropertyPath);
         when(mockOfferDTOConstraintViolation.getMessage()).thenReturn(CodeKeys.FIELD_REQUIRED);
         when(mockPropertyPath.toString()).thenReturn("propertyPath");
-        when(mockValidator.validate(eq(fixtureOfferDTO))).thenReturn(constraintViolations);
+        when(mockValidator.validate(eq(fixtureOfferDTO), eq(BaseOfferChecks.class), eq(RequiredActiveOfferChecks.class))).thenReturn(constraintViolations);
         when(mockMsgSource.getMessage(any(), any(), any())).thenReturn("Error Message");
 
-        OfferValidationDTO result = unit.processOfferInputDataValidationViolations(fixtureOfferDTO);
+        OfferValidationDTO result = unit.processActiveOfferInputDataValidationViolations(fixtureOfferDTO);
 
 
         assertEquals(1, result.getConstraintViolations().get("propertyPath").size());
         verify(mockOfferDTOConstraintViolation).getPropertyPath();
         verify(mockOfferDTOConstraintViolation).getMessage();
-        verify(mockValidator).validate(eq(fixtureOfferDTO));
+        verify(mockValidator).validate(eq(fixtureOfferDTO),  eq(BaseOfferChecks.class), eq(RequiredActiveOfferChecks.class));
         verify(mockMsgSource).getMessage(any(), any(), any());
     }
 }

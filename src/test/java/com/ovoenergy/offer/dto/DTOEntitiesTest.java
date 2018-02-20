@@ -1,8 +1,10 @@
 package com.ovoenergy.offer.dto;
 
 import com.ovoenergy.offer.test.utils.BaseBeansTest;
+import com.ovoenergy.offer.test.utils.UnitTest;
 import org.junit.Test;
 
+@UnitTest
 public class DTOEntitiesTest extends BaseBeansTest {
     @Test
     public void testVerifyGettersAndSetters() {

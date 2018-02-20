@@ -402,12 +402,13 @@ public class OfferServiceIntegrationTest {
         offerToCreate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
         offerToCreate.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerToCreate.setIsExpirable(true);
+        offerToCreate.setStatus(StatusType.ACTIVE.name());
 
         OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
 
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToCreate, headers);
 
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(offerToCreate.getOfferCode()))).thenReturn(null);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(offerToCreate.getOfferCode()), eq(StatusType.ACTIVE))).thenReturn(null);
         Mockito.when(offerRepository.save(any(OfferDBEntity.class))).thenReturn(offerDBEntity);
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
 
@@ -470,7 +471,7 @@ public class OfferServiceIntegrationTest {
 
         // test non existing offer code shouldn't pass validation
         offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_NON_EXISTING_CODE);
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_NON_EXISTING_CODE))).thenReturn(null);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_NON_EXISTING_CODE), eq(StatusType.ACTIVE))).thenReturn(null);
         processInvalidOfferValidation(offerToVerify);
 
         // test non started offer code shouldn't pass validation
@@ -478,9 +479,10 @@ public class OfferServiceIntegrationTest {
         offerDBEntityNotStarted.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
         offerDBEntityNotStarted.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntityNotStarted);
+        offerDBEntityNotStarted.setStatus(StatusType.ACTIVE);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE))).thenReturn(offerDBEntityNotStarted);
         processInvalidOfferValidation(offerToVerify);
-        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
+        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE));
 
         // test expired offer shouldn't pass validation
         offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
@@ -491,8 +493,9 @@ public class OfferServiceIntegrationTest {
         offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
         offerDBEntity.setActualOfferRedemptions(1L);
         offerDBEntity.setIsExpirable(true);
+        offerDBEntity.setStatus(StatusType.ACTIVE);
 
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE))).thenReturn(offerDBEntity);
 
         HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToVerify, headers);
 
@@ -506,7 +509,7 @@ public class OfferServiceIntegrationTest {
 
         assertEquals("Offer expired error code missed in response", CodeKeys.OFFER_EXPIRED, messageDTO.getCode());
         assertEquals("Offer expired error message missed in response",  ValidateOfferForCreateViolationConstraintMessages.OFFER_EXPIRED, messageDTO.getMessage());
-        Mockito.verify(offerRepository, Mockito.times(2)).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
+        Mockito.verify(offerRepository, Mockito.times(2)).findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE));
     }
 
     @Test
@@ -521,9 +524,10 @@ public class OfferServiceIntegrationTest {
         offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
         offerDBEntity.setActualOfferRedemptions(1L);
         offerDBEntity.setIsExpirable(false);
+        offerDBEntity.setStatus(StatusType.ACTIVE);
 
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE))).thenReturn(offerDBEntity);
 
         HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToCreate, headers);
 
@@ -535,7 +539,7 @@ public class OfferServiceIntegrationTest {
 
         assertTrue("Offer was successfully verified", response.getBody());
 
-        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
+        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE));
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
     }
 

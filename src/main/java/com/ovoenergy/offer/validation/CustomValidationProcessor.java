@@ -3,6 +3,7 @@ package com.ovoenergy.offer.validation;
 import com.google.common.collect.Sets;
 import com.ovoenergy.offer.dto.*;
 import com.ovoenergy.offer.exception.VariableNotValidException;
+import com.ovoenergy.offer.validation.group.*;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.key.ValidationCodeMessageKeyPair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,7 @@ import org.springframework.stereotype.Component;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.Set;
-
-import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
+import java.util.stream.Collectors;
 
 @Component
 public class CustomValidationProcessor {
@@ -27,11 +27,31 @@ public class CustomValidationProcessor {
     @Autowired
     private MessageSource msgSource;
 
-    public OfferValidationDTO processOfferInputDataValidationViolations(OfferDTO request) {
-        Set<ConstraintViolation<OfferDTO>> violations = validator.validate(request);
-        if(violations == null || violations.size() == 0) {
+    public OfferValidationDTO processActiveOfferInputDataValidationViolations(OfferDTO request) {
+        Set<ConstraintViolation<OfferDTO>> violations = validator.validate(request, BaseOfferChecks.class, RequiredActiveOfferChecks.class);
+        if (violations == null || violations.size() == 0) {
             return null;
         }
+        return prepareValidationDTO(request, violations);
+    }
+
+    public OfferValidationDTO processDraftOfferInputDataValidationViolations(OfferDTO request) {
+        Set<ConstraintViolation<OfferDTO>> emptyFieldsViolations = validator.validate(request, EmptyDraftOfferChecks.class);
+        Set<ConstraintViolation<OfferDTO>> violations = Sets.newHashSet();
+        if (emptyFieldsViolations == null || emptyFieldsViolations.size() == 0) {
+            Set<ConstraintViolation<OfferDTO>> nonEmptyFieldsViolations = nonEmptyFieldsViolations = validator.validate(request, NonEmptyDraftOfferChecks.class);
+            Set<String> emptyFieldsToSkip = emptyFieldsViolations.stream().map(cv -> cv.getPropertyPath().toString()).collect(Collectors.toSet());
+            violations = nonEmptyFieldsViolations.stream().filter(cv -> emptyFieldsToSkip.contains(cv.getPropertyPath().toString())).collect(Collectors.toSet());
+        }
+        violations.addAll(validator.validate(request, BaseOfferChecks.class, RequiredDraftOfferChecks.class));
+
+        if (violations == null || violations.size() == 0) {
+            return null;
+        }
+        return prepareValidationDTO(request, violations);
+    }
+
+    private OfferValidationDTO prepareValidationDTO(OfferDTO request, Set<ConstraintViolation<OfferDTO>> violations) {
         OfferValidationDTO validationDTO = new OfferValidationDTO(request);
         for (ConstraintViolation<OfferDTO> constraintViolation : violations) {
             String propertyPath = constraintViolation.getPropertyPath().toString();
@@ -46,18 +66,19 @@ public class CustomValidationProcessor {
             validationDTO.getConstraintViolations().put(propertyPath, errorMessageDTOS);
         }
         return validationDTO;
+
     }
 
     public <T> void processOfferInputDataInvalidOfferException(T request) {
         Set<ConstraintViolation<T>> violations = validator.validate(request);
-        if(violations != null && violations.size() > 0) {
+        if (violations != null && violations.size() > 0) {
             throw new VariableNotValidException(CodeKeys.OFFER_INVALID);
         }
     }
 
     public <T> void processOfferInputDataValidationException(T request) {
         Set<ConstraintViolation<T>> violations = validator.validate(request);
-        if(violations != null && violations.size() > 0) {
+        if (violations != null && violations.size() > 0) {
             String messageErrorCode = violations.iterator().next().getMessage();
             throw new VariableNotValidException(messageErrorCode);
         }

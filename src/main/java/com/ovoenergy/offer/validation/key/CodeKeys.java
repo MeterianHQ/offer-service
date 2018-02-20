@@ -32,4 +32,6 @@ public interface CodeKeys {
 
     String OFFER_EXPIRED = "OFR15";
 
+    String OFFER_STATUS_TYPE_NOT_VALID = "OFR16";
+
 }
