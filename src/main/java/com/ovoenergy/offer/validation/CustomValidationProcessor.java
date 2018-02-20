@@ -44,8 +44,8 @@ public class CustomValidationProcessor {
     public OfferValidationDTO processDraftOfferInputDataValidationViolations(OfferDTO request) {
         Set<ConstraintViolation<OfferDTO>> emptyFieldsViolations = validator.validate(request, EmptyDraftOfferChecks.class);
         Set<ConstraintViolation<OfferDTO>> violations = Sets.newHashSet();
-        if (emptyFieldsViolations == null || emptyFieldsViolations.size() == 0) {
-            Set<ConstraintViolation<OfferDTO>> nonEmptyFieldsViolations = emptyFieldsViolations = validator.validate(request, NonEmptyDraftOfferChecks.class);
+        if (emptyFieldsViolations != null && emptyFieldsViolations.size() > 0) {
+            Set<ConstraintViolation<OfferDTO>> nonEmptyFieldsViolations = validator.validate(request, NonEmptyDraftOfferChecks.class);
             Set<String> emptyFieldsToSkip = emptyFieldsViolations.stream().map(cv -> cv.getPropertyPath().toString()).collect(Collectors.toSet());
             violations = nonEmptyFieldsViolations.stream().filter(cv -> emptyFieldsToSkip.contains(cv.getPropertyPath().toString())).collect(Collectors.toSet());
         }
