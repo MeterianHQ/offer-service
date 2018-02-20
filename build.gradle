@@ -82,13 +82,6 @@ configurations {
     integrationTestRuntime.extendsFrom testRuntime
 }
 
-idea {
-    module {
-        testSourceDirs += file('src/integration-test/java')
-        scopes.TEST.plus += [ configurations.integrationTestCompile ]
-    }
-}
-
 task integrationTest(type: Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
