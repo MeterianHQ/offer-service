@@ -451,7 +451,7 @@ public class OfferServiceIntegrationTest {
 
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToCreate, headers);
 
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(offerToCreate.getOfferCode()), eq(StatusType.ACTIVE))).thenReturn(null);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(offerToCreate.getOfferCode()))).thenReturn(null);
         Mockito.when(offerRepository.save(any(OfferDBEntity.class))).thenReturn(offerDBEntity);
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
 
