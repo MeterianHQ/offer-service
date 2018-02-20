@@ -13,8 +13,7 @@ jobs:
     steps:
       - checkout
 
-      - run: gradle integrationTest
-      - run: gradle test
+      - run: gradle test integrationTest
 
       - store_test_results:
           path: build/test-results
