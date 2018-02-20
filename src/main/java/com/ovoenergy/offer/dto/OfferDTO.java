@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ovoenergy.offer.validation.group.*;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.validator.DateFieldsValueConstraint;
-import com.ovoenergy.offer.validation.validator.EmptyConstraint;
 import com.ovoenergy.offer.validation.validator.ExpiryDateFieldsValueConstraint;
 import com.ovoenergy.offer.validation.validator.FutureDateConstraint;
 import io.swagger.annotations.ApiModel;
@@ -38,9 +37,8 @@ public class OfferDTO {
 
     @ApiModelProperty(name = "offerName", required = true)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = {RequiredActiveOfferChecks.class})
     @Null(groups = EmptyDraftOfferChecks.class)
-    @EmptyConstraint(groups = EmptyDraftOfferChecks.class)
     private String offerName;
 
     @ApiModelProperty(name = "description", required = true)

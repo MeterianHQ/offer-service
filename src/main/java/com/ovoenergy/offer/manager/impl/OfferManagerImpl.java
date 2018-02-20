@@ -113,7 +113,7 @@ public class OfferManagerImpl implements OfferManager {
     }
 
     private OfferValidationDTO processOfferCodeInputValidation(OfferDTO offerDTO) {
-        OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerDTO.getOfferCode(), StatusType.ACTIVE);
+        OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCase(offerDTO.getOfferCode());
         if(offerDBEntity != null) {
             Map<String, Set<ErrorMessageDTO>> validations = new HashMap<>();
             validations.put(OFFER_CODE_FIELD_NAME,

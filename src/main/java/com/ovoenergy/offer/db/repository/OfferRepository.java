@@ -14,4 +14,6 @@ public interface OfferRepository extends JpaRepository<OfferDBEntity, Long> {
     OfferDBEntity findOneById(Long id);
 
     OfferDBEntity findOneByOfferCodeIgnoreCaseAndStatus(String offerCode, StatusType status);
+
+    OfferDBEntity findOneByOfferCodeIgnoreCase(String offerCode);
 }
