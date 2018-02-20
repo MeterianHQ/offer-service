@@ -2,15 +2,18 @@ package com.ovoenergy.offer.mapper;
 
 import com.flextrade.jfixture.annotations.Fixture;
 import com.flextrade.jfixture.rules.FixtureRule;
-import com.ovoenergy.offer.db.entity.*;
+import com.ovoenergy.offer.db.entity.ChannelType;
+import com.ovoenergy.offer.db.entity.EligibilityCriteriaType;
+import com.ovoenergy.offer.db.entity.OfferDBEntity;
+import com.ovoenergy.offer.db.entity.OfferType;
+import com.ovoenergy.offer.db.entity.StatusType;
+import com.ovoenergy.offer.db.entity.SupplierType;
 import com.ovoenergy.offer.dto.OfferDTO;
-import com.ovoenergy.offer.test.utils.UnitTest;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-@UnitTest
 public class OfferMapperTest {
 
     @Rule
@@ -23,7 +26,7 @@ public class OfferMapperTest {
     private OfferDTO fixtureOfferDTO;
 
     @Test
-    public void testFomOfferDBEntityToDTOSuccess(){
+    public void testFomOfferDBEntityToDTOSuccess() {
         OfferDTO result = OfferMapper.fromOfferDBEntityToDTO(fixtureOfferDBEntity);
 
         assertEquals(fixtureOfferDBEntity.getOfferCode(), result.getOfferCode());
@@ -45,7 +48,7 @@ public class OfferMapperTest {
     }
 
     @Test
-    public void testFromOfferDTOTODBEntitySuccess(){
+    public void testFromOfferDTOTODBEntitySuccess() {
         fixtureOfferDTO.setChannel(ChannelType.EMAIL.value());
         fixtureOfferDTO.setEligibilityCriteria(EligibilityCriteriaType.SSD.value());
         fixtureOfferDTO.setOfferType(OfferType.GIFTCARD.value());

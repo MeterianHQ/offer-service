@@ -13,15 +13,14 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.Profile;
+
 import static com.google.common.collect.Lists.newArrayList;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.ovoenergy.offer"}, excludeFilters={
-        @ComponentScan.Filter(type= FilterType.ASSIGNABLE_TYPE, value=Application.class)})
+@ComponentScan(basePackages = "com.ovoenergy.offer", excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = Application.class)})
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class,JpaRepositoriesAutoConfiguration.class,DataSourceTransactionManagerAutoConfiguration.class, SpringDataWebAutoConfiguration.class})
-@Profile("integrationtest")
+        HibernateJpaAutoConfiguration.class, JpaRepositoriesAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, SpringDataWebAutoConfiguration.class})
 public class MockApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);

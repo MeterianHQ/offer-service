@@ -1,16 +1,7 @@
 package com.ovoenergy.offer.rest;
 
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
-import static org.junit.Assert.assertEquals;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.ovoenergy.offer.exception.VariableNotValidException;
-import com.ovoenergy.offer.test.utils.UnitTest;
 import com.ovoenergy.offer.validation.key.ValidationCodeMessageKeyPair;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +22,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Locale;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LocaleContextHolder.class, ValidationCodeMessageKeyPair.class})
-@UnitTest
 public class InternalExceptionHandlerTest {
 
     private static final Locale LOCALE = Locale.ENGLISH;
@@ -41,7 +39,7 @@ public class InternalExceptionHandlerTest {
     private static final String ERROR_MESSAGE = "ERROR_MESSAGE";
 
     @InjectMocks
-    InternalExceptionHandler handler = new InternalExceptionHandler();
+    private InternalExceptionHandler handler;
 
     @Mock
     private HttpServletRequest mockReq;
@@ -51,9 +49,6 @@ public class InternalExceptionHandlerTest {
 
     @Mock
     private MessageSource msgSource;
-
-    @Mock
-    ValidationCodeMessageKeyPair mockValidationCodeMessageKeyPair;
 
     @Before
     public void setUp() {
