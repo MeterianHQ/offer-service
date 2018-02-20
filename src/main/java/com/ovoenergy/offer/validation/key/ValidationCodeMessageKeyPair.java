@@ -32,7 +32,9 @@ public enum ValidationCodeMessageKeyPair {
 
     OFFER_EXPIRED(CodeKeys.OFFER_EXPIRED, MessageKeys.OFFER_EXPIRED),
 
-    OFFER_INVALID(CodeKeys.OFFER_INVALID, MessageKeys.OFFER_INVALID);
+    OFFER_INVALID(CodeKeys.OFFER_INVALID, MessageKeys.OFFER_INVALID),
+
+    OFFER_STATUS_TYPE_NOT_VALID(CodeKeys.OFFER_STATUS_TYPE_NOT_VALID, MessageKeys.OFFER_STATUS_TYPE_NOT_VALID);
 
     private String code;
 

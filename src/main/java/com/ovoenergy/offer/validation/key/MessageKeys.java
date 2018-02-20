@@ -30,6 +30,8 @@ public interface MessageKeys {
 
     String OFFER_EXPIRED = "offer.expired";
 
+    String OFFER_STATUS_TYPE_NOT_VALID = "offer.status.type.not.valid";
+
     interface Common {
 
         String GENERIC_SERVER_ERROR = "generic.server.error";

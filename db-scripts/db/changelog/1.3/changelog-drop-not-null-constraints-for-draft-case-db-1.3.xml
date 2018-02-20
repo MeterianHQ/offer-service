@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="changelog_drop_not_null_constraints_for_draft_case" author="yuliya.makarchuk" runAlways="false"
+               failOnError="true">
+        <dropNotNullConstraint catalogName="offers_db"
+                               columnDataType="VARCHAR(50)"
+                               columnName="offer_name"
+                               schemaName="offers_db"
+                               tableName="offer"/>
+        <dropNotNullConstraint catalogName="offers_db"
+                               columnDataType="BIGINT"
+                               columnName="max_offer_redemptions"
+                               schemaName="offers_db"
+                               tableName="offer"/>
+        <dropNotNullConstraint catalogName="offers_db"
+                               columnDataType="BIGINT"
+                               columnName="value"
+                               schemaName="offers_db"
+                               tableName="offer"/>
+        <dropNotNullConstraint catalogName="offers_db"
+                               columnDataType="BIGINT"
+                               columnName="start_date"
+                               schemaName="offers_db"
+                               tableName="offer"/>
+        <dropNotNullConstraint catalogName="offers_db"
+                               columnDataType="BIGINT"
+                               columnName="expiry_date"
+                               schemaName="offers_db"
+                               tableName="offer"/>
+        <addNotNullConstraint catalogName="offers_db"
+                               columnDataType="VARCHAR(150)"
+                               columnName="status"
+                               schemaName="offers_db"
+                               tableName="offer"/>
+        <rollback>
+            <addNotNullConstraint catalogName="offers_db"
+                                   columnDataType="VARCHAR(50)"
+                                   columnName="offer_name"
+                                   schemaName="offers_db"
+                                   tableName="offer"/>
+            <addNotNullConstraint catalogName="offers_db"
+                                   columnDataType="BIGINT"
+                                   columnName="max_offer_redemptions"
+                                   schemaName="offers_db"
+                                   tableName="offer"/>
+            <addNotNullConstraint catalogName="offers_db"
+                                   columnDataType="BIGINT"
+                                   columnName="value"
+                                   schemaName="offers_db"
+                                   tableName="offer"/>
+            <addNotNullConstraint catalogName="offers_db"
+                                   columnDataType="BIGINT"
+                                   columnName="start_date"
+                                   schemaName="offers_db"
+                                   tableName="offer"/>
+            <addNotNullConstraint catalogName="offers_db"
+                                   columnDataType="BIGINT"
+                                   columnName="expiry_date"
+                                   schemaName="offers_db"
+                                   tableName="offer"/>
+            <dropNotNullConstraint catalogName="offers_db"
+                                  columnDataType="VARCHAR(150)"
+                                  columnName="status"
+                                  schemaName="offers_db"
+                                  tableName="offer"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

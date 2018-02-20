@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.entity.StatusType;
-import com.ovoenergy.offer.db.jdbc.JdbcHelper;
 import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
@@ -13,6 +12,7 @@ import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.manager.OfferManager;
+import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
 import com.ovoenergy.offer.mapper.OfferMapper;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.key.MessageKeys;
@@ -23,13 +23,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.*;
 
-import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_EXPIRED;
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
 
 @Service
@@ -38,13 +33,13 @@ public class OfferManagerImpl implements OfferManager {
     private final static String OFFER_CODE_FIELD_NAME = "offerCode";
 
     @Autowired
-    private JdbcHelper jdbcHelper;
-
-    @Autowired
     private OfferRepository offerRepository;
 
     @Autowired
     private OfferRedeemRepository offerRedeemRepository;
+
+    @Autowired
+    private OfferOperationsRegistry offerOperationsRegistry;
 
     @Autowired
     private MessageSource msgSource;
@@ -61,11 +56,7 @@ public class OfferManagerImpl implements OfferManager {
             return validationDTO;
         }
 
-        OfferDBEntity offerDBEntity = OfferMapper.fromOfferDTOTODBEntity(offerDTO);
-        offerDBEntity.setId(null);
-        offerDBEntity.setStatus(StatusType.ACTIVE);
-        offerDBEntity.setActualOfferRedemptions(0L);
-        offerDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
+        OfferDBEntity offerDBEntity = offerOperationsRegistry.createOfferDBEtity(offerDTO);
 
         return OfferMapper
                 .fromOfferDBEntityToDTO(
@@ -95,19 +86,22 @@ public class OfferManagerImpl implements OfferManager {
 
     @Override
     public Boolean verifyOffer(String offerCode) {
-        Long currentDbTimeMidnightMilliseconds =  jdbcHelper.lookupCurrentDbTime().toInstant().atZone(ZoneId.of("UTC")).toLocalDate().atStartOfDay().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        processOfferDBEntityValidation(offerCode, currentDbTimeMidnightMilliseconds);
+        OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerCode, StatusType.ACTIVE);
+        if(offerDBEntity == null) {
+            throw new VariableNotValidException(OFFER_INVALID);
+        } else {
+            offerOperationsRegistry.processOfferDBEntityValidation(offerDBEntity);
+        }
         return true;
     }
 
     @Override
     @Transactional(Transactional.TxType.REQUIRED)
     public OfferApplyDTO applyUserToOffer(String offerCode, String emailAddress) {
-        Long currentDbTimeMidnightMilliseconds =  LocalDateTime.of(jdbcHelper.lookupCurrentDbTime().toInstant().atZone(ZoneId.of("UTC")).toLocalDate(), LocalTime.MIDNIGHT).toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli();
-        OfferDBEntity offerDBEntity = processOfferDBEntityValidation(offerCode, currentDbTimeMidnightMilliseconds);
+        OfferDBEntity offerDBEntity = offerOperationsRegistry.processOfferDBEntityValidation(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerCode, StatusType.ACTIVE));
         offerDBEntity.setActualOfferRedemptions(offerDBEntity.getActualOfferRedemptions() + 1);
 
-        OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.save(new OfferRedeemDBEntity(offerDBEntity.getId(), emailAddress, currentDbTimeMidnightMilliseconds));
+        OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.save(offerOperationsRegistry.createOfferRedeemDBEntity(offerDBEntity, emailAddress));
         offerRepository.save(offerDBEntity);
 
         return OfferApplyDTO
@@ -119,7 +113,7 @@ public class OfferManagerImpl implements OfferManager {
     }
 
     private OfferValidationDTO processOfferCodeInputValidation(OfferDTO offerDTO) {
-        OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCase(offerDTO.getOfferCode());
+        OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerDTO.getOfferCode(), StatusType.ACTIVE);
         if(offerDBEntity != null) {
             Map<String, Set<ErrorMessageDTO>> validations = new HashMap<>();
             validations.put(OFFER_CODE_FIELD_NAME,
@@ -134,27 +128,5 @@ public class OfferManagerImpl implements OfferManager {
         }
         return null;
 
-    }
-
-    private OfferDBEntity processOfferDBEntityValidation(String offerCode,  Long currentMidnightTime) {
-        OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCase(offerCode);
-        if (null == offerDBEntity || !isStartDateValid(offerDBEntity, currentMidnightTime) || !maxRedemptionsNotExceeded(offerDBEntity)) {
-            throw new VariableNotValidException(OFFER_INVALID);
-        } else if (!isExpiryDateValid(offerDBEntity, currentMidnightTime)) {
-            throw new VariableNotValidException(OFFER_EXPIRED);
-        }
-        return offerDBEntity;
-    }
-
-    private Boolean maxRedemptionsNotExceeded(OfferDBEntity offerDBEntity) {
-        return (offerDBEntity.getActualOfferRedemptions() < offerDBEntity.getMaxOfferRedemptions());
-    }
-
-    private Boolean isStartDateValid(OfferDBEntity offerDBEntity, Long currentMidnightTime) {
-        return (offerDBEntity.getStartDate() <= currentMidnightTime);
-    }
-
-    private Boolean isExpiryDateValid(OfferDBEntity offerDBEntity, Long currentMidnightTime) {
-        return (!offerDBEntity.getIsExpirable() || offerDBEntity.getExpiryDate() >= currentMidnightTime);
     }
 }

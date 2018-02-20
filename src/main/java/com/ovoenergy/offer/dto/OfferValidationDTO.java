@@ -36,5 +36,6 @@ public class OfferValidationDTO extends OfferDTO {
         this.setOfferType(offerDTO.getOfferType());
         this.setSupplier(offerDTO.getSupplier());
         this.setValue(offerDTO.getValue());
+        this.setStatus(offerDTO.getStatus());
     }
 }

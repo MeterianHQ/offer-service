@@ -59,14 +59,14 @@ public class OfferServiceTest {
 
     @Test
     public void testCreateOfferSuccess() {
-        when(mockCustomValidator.processOfferInputDataValidationViolations(any())).thenReturn(null);
+        when(mockCustomValidator.processActiveOfferInputDataValidationViolations(any())).thenReturn(null);
         when(mockOfferManager.createOffer(eq(fixtureOfferDTO))).thenReturn(fixtureOfferDTO);
 
         ResponseEntity<OfferDTO> response = unit.createOffer(fixtureOfferDTO);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(fixtureOfferDTO, fixtureOfferDTO);
-        verify(mockCustomValidator, only()).processOfferInputDataValidationViolations(fixtureOfferDTO);
+        verify(mockCustomValidator, only()).processActiveOfferInputDataValidationViolations(fixtureOfferDTO);
         verify(mockOfferManager).createOffer(eq(fixtureOfferDTO));
     }
 
@@ -76,12 +76,12 @@ public class OfferServiceTest {
         Map<String, Set<ErrorMessageDTO>> violations = new HashMap<>();
         violations.put(TEST_FIELD, Sets.newHashSet(new ErrorMessageDTO("ERR1", "ERR1")));
         validationDTO.setConstraintViolations(violations);
-        when(mockCustomValidator.processOfferInputDataValidationViolations(any())).thenReturn(validationDTO);
+        when(mockCustomValidator.processActiveOfferInputDataValidationViolations(any())).thenReturn(validationDTO);
 
         ResponseEntity<OfferDTO> response = unit.createOffer(fixtureOfferDTO);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        verify(mockCustomValidator, only()).processOfferInputDataValidationViolations(eq(fixtureOfferDTO));
+        verify(mockCustomValidator, only()).processActiveOfferInputDataValidationViolations(eq(fixtureOfferDTO));
         assertEquals(fixtureOfferDTO.getChannel(), response.getBody().getChannel());
         assertEquals(fixtureOfferDTO.getDescription(), response.getBody().getDescription());
         assertEquals(fixtureOfferDTO.getEligibilityCriteria(), response.getBody().getEligibilityCriteria());
