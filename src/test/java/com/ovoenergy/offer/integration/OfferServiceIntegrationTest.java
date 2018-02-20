@@ -3,6 +3,7 @@ package com.ovoenergy.offer.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.ovoenergy.offer.db.entity.*;
+import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.*;
 import com.ovoenergy.offer.integration.mock.MockApplication;
@@ -49,6 +50,9 @@ public class OfferServiceIntegrationTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private OfferRedeemRepository offerRedeemRepository;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(OfferServiceIntegrationTest.class);
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -64,7 +68,7 @@ public class OfferServiceIntegrationTest {
         Long TEST_INVALID_MAX_VALUE = 3334L;
         Long TEST_INVALID_MAX_REDEMPTION= 888888889L;
         Long TEST_INVALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).minusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        Long TEST_INVALID_START_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        Long TEST_INVALID_DATE_BEFORE_NOW = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         String TEST_NON_EXISTING_CODE = "nonexisting";
 
         // Valid data
@@ -75,16 +79,22 @@ public class OfferServiceIntegrationTest {
         String TEST_VALID_OFFER_TYPE = "Giftcard";
         String TEST_VALID_ELIGIBILITY_CRITERIA = "SSD";
         String TEST_VALID_CHANEL = "Email";
-
         Long TEST_VALID_MAX_VALUE = 333L;
         Long TEST_VALID_MAX_REDEMPTION= 88888888L;
-        Long TEST_VALID_START_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        Long TEST_VALID_DATE_IN_FUTURE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         Long TEST_VALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-
         Long TEST_VALID_UPDATE_ON_DATE = LocalDateTime.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
-        String TEST_STATUS_ACTIVE = "ACTIVE";
+        //invalid data for Q&S flow:
+        String TEST_NO_REDEMPTION_OFFER_CODE = "codewithoutredemption";
+        String TEST_EXPIRED_OFFER_CODE = "Expiredoffer";
+        String TEST_INVALID_EMAIL = "invalid.email.mail.ru";
 
+        //valid code for Q&S flow:
+        String TEST_VALID_OFFER_CODE = "ACTIVEOFFER";
+        String TEST_VALID_EMAIL = "valid.email@mail.ru";
+        Long TEST_ACTUAL_REDEMTION = 1L;
+        Long TEST_OFFER_ID_REDEEMED = 1L;
     }
 
     private interface ValidateOfferForCreateViolationConstraintMessages {
@@ -102,6 +112,7 @@ public class OfferServiceIntegrationTest {
         String INVALID_EMAIL = "Email format is not valid";
         String OFFER_EXPIRED = "Offer has expired";
         String OFFER_INVALID = "Offer code invalid";
+
 
     }
 
@@ -124,10 +135,10 @@ public class OfferServiceIntegrationTest {
         offerToValidate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION);
         offerToValidate.setEligibilityCriteria(ValidateOfferForCreateInputData.TEST_INVALID_ELIGIBILITY_CRITERIA);
         offerToValidate.setChannel(ValidateOfferForCreateInputData.TEST_INVALID_CHANEL);
-        offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_START_DATE);
+        offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_DATE_BEFORE_NOW);
         offerToValidate.setExpiryDate(ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE);
         offerToValidate.setIsExpirable(true);
-        offerToValidate.setStatus(ValidateOfferForCreateInputData.TEST_STATUS_ACTIVE);
+        offerToValidate.setStatus(StatusType.ACTIVE.name());
 
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
 
@@ -138,21 +149,27 @@ public class OfferServiceIntegrationTest {
 
         OfferValidationDTO validationDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
 
-        assertEquals("Input value for field description is expected", ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION, validationDTO.getDescription());
-        assertEquals("Input value for Name field is expected",ValidateOfferForCreateInputData.TEST_VALID_NAME,validationDTO.getOfferName());
+        assertEquals("Input value for field description is invalid", ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION, validationDTO.getDescription());
+        assertEquals("Input value for Name field is invalid",ValidateOfferForCreateInputData.TEST_VALID_NAME,validationDTO.getOfferName());
         assertEquals("Input value for Code field is expected",ValidateOfferForCreateInputData.TEST_INVALID_CODE,validationDTO.getOfferCode());
         assertEquals("Input value for Supplier is expected",ValidateOfferForCreateInputData.TEST_INVALID_SUPPLIER,validationDTO.getSupplier());
+        assertEquals("Input value for Offer TYPE is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_OFFER_TYPE,validationDTO.getOfferType());
+        assertEquals("Input value for Value is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_MAX_VALUE,validationDTO.getValue());
+        assertEquals("Input value for Offer Redemption is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION,validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Eligibility criteria ",ValidateOfferForCreateInputData.TEST_INVALID_ELIGIBILITY_CRITERIA,validationDTO.getEligibilityCriteria());
+        assertEquals("Input value for Channel is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_CHANEL,validationDTO.getChannel());
+        assertEquals("Input value for START date is incorrect",ValidateOfferForCreateInputData.TEST_INVALID_DATE_BEFORE_NOW, validationDTO.getStartDate());
+        assertEquals("Input value for EXPIRY date is incorrect ",ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE, validationDTO.getExpiryDate());
+        assertTrue("No Expiry Date selected value is incorrect",validationDTO.getIsExpirable());
         assertEquals("Input value for Offer TYPE is expected",ValidateOfferForCreateInputData.TEST_INVALID_OFFER_TYPE,validationDTO.getOfferType());
         assertEquals("Input value for Value is expected",ValidateOfferForCreateInputData.TEST_INVALID_MAX_VALUE,validationDTO.getValue());
         assertEquals("Input value for Offer Redemption is expected", ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION,validationDTO.getMaxOfferRedemptions());
         assertEquals("Input value for Eligibility criteria is expected",ValidateOfferForCreateInputData.TEST_INVALID_ELIGIBILITY_CRITERIA,validationDTO.getEligibilityCriteria());
         assertEquals("Input value for Channel is expected",ValidateOfferForCreateInputData.TEST_INVALID_CHANEL,validationDTO.getChannel());
-        assertEquals("Input value for START date is expected",ValidateOfferForCreateInputData.TEST_INVALID_START_DATE, validationDTO.getStartDate());
+        assertEquals("Input value for START date is expected",ValidateOfferForCreateInputData.TEST_INVALID_DATE_BEFORE_NOW, validationDTO.getStartDate());
         assertEquals("Input value for EXPIRY date is expected ",ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE, validationDTO.getExpiryDate());
         assertTrue("No Expiry Date selected value is expected",validationDTO.getIsExpirable());
-
-        assertEquals("Status of offer is expected", ValidateOfferForCreateInputData.TEST_STATUS_ACTIVE, validationDTO.getStatus());
-
+        assertEquals("Status of offer is expected", StatusType.ACTIVE.name(), validationDTO.getStatus());
 
         //Checking validation codes and messages for expiryDate
         Set<ErrorMessageDTO> expiryDateValidations = validationDTO.getConstraintViolations().get("expiryDate");
@@ -170,7 +187,6 @@ public class OfferServiceIntegrationTest {
         assertTrue("Validation constraints missed error code for start date NON in future", startDateAllErrorCodes.contains(CodeKeys.NON_IN_FUTURE_DATE));
         assertTrue("Validation constraints missed error message for start date NON in future", startDateAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NON_IN_FUTURE_DATE));
 
-
         //Checking validation codes and messages for OfferCode
         Set<ErrorMessageDTO> offerCodeValidations = validationDTO.getConstraintViolations().get("offerCode");
         Set<String> offerCodeAllErrorCodes = offerCodeValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
@@ -184,7 +200,6 @@ public class OfferServiceIntegrationTest {
         Set<String> offerValueAllErrorMessages = offerValueValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
         assertTrue("Validation constraints missed error code for >3 digits in offer value field", offerValueAllErrorCodes.contains(CodeKeys.INPUT_VALUE_MAX));
         assertTrue("Validation constraints missed error message for >3 digits on offer value field ", offerValueAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.INPUT_VALUE_MAX));
-
 
         //Checking validation codes and messages for OfferRedemption
         Set<ErrorMessageDTO> offerRedemptionValidations = validationDTO.getConstraintViolations().get("maxOfferRedemptions");
@@ -228,6 +243,7 @@ public class OfferServiceIntegrationTest {
     public void testValidateOfferForCreateWithNullInputValues() throws IOException {
         OfferDTO offerToValidate = new OfferDTO();
         offerToValidate.setIsExpirable(true);
+        offerToValidate.setStatus(StatusType.ACTIVE.name());
 
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
 
@@ -250,8 +266,7 @@ public class OfferServiceIntegrationTest {
         assertEquals("Input value for START date is expected", null, validationDTO.getStartDate());
         assertEquals("Input value for EXPIRY date is expected ", null, validationDTO.getExpiryDate());
         assertTrue("No Expiry Date selected value is expected",validationDTO.getIsExpirable());
-
-        assertEquals("Offer sataus is expected ", null, validationDTO.getStatus());
+        assertEquals("Status of offer is active", StatusType.ACTIVE.name(), validationDTO.getStatus());
 
         //Checking validation codes and messages for OfferType
         Set<ErrorMessageDTO> offerTypeValidations = validationDTO.getConstraintViolations().get("offerType");
@@ -259,7 +274,6 @@ public class OfferServiceIntegrationTest {
         Set<String> offerTypeAllErrorMessages = offerTypeValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
         assertTrue("Validation constraints missed error code for null value in offer name field", offerTypeAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
         assertTrue("Validation constraints missed error message for  null value in offer name field", offerTypeAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
-
 
         //Checking validation codes and messages for OfferName
         Set<ErrorMessageDTO> offerNameValidations = validationDTO.getConstraintViolations().get("offerName");
@@ -316,7 +330,6 @@ public class OfferServiceIntegrationTest {
         Set<String> startDateAllErrorMessages = startDateValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
         assertTrue("Validation constraints missed error code if null set for start date ", startDateAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
         assertTrue("Validation constraints missed error message if null set for start date ", startDateAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
-
     }
 
     @Test
@@ -330,10 +343,10 @@ public class OfferServiceIntegrationTest {
         offerToValidate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
         offerToValidate.setEligibilityCriteria("");
         offerToValidate.setChannel("");
-        offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
+        offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE);
         offerToValidate.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerToValidate.setIsExpirable(true);
-        offerToValidate.setStatus(ValidateOfferForCreateInputData.TEST_STATUS_ACTIVE);
+        offerToValidate.setStatus(StatusType.ACTIVE.name());
 
         HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
 
@@ -352,10 +365,10 @@ public class OfferServiceIntegrationTest {
         assertEquals("Input value for Offer Value is expected",ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE,validationDTO.getValue());
         assertEquals("Empty Input value for Eligibility criteria expected ","",validationDTO.getEligibilityCriteria());
         assertEquals("Empty Input value for Channel expected","",validationDTO.getChannel());
-        assertEquals("Input value for START date expected",ValidateOfferForCreateInputData.TEST_VALID_START_DATE, validationDTO.getStartDate());
+        assertEquals("Input value for START date expected",ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE, validationDTO.getStartDate());
         assertEquals("Input value for EXPIRY date expected ",ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE, validationDTO.getExpiryDate());
         assertTrue("No Expiry Date selected value is expected",validationDTO.getIsExpirable());
-        assertEquals("Offer status is expected","", validationDTO.getStatus());
+        assertEquals("Offer status is expected", StatusType.ACTIVE.name(), validationDTO.getStatus());
 
         //Checking validation codes and messages for offer type dropdown
         Set<ErrorMessageDTO> offerTypeValidations = validationDTO.getConstraintViolations().get("offerType");
@@ -398,6 +411,14 @@ public class OfferServiceIntegrationTest {
         Set<String> offerEligibilityAllErrorMessages = offerEligibilityValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
         assertTrue("Validation constraints missed error code if eligibility criteria field is empty ", offerEligibilityAllErrorCodes.contains(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED));
         assertTrue("Validation constraints missed error message if eligibility criteria field is empty", offerEligibilityAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.PROVIDED_VALUE_NOT_SUPPORTED));
+
+        //TODO: fix with  draft save commit
+        // Checking validation codes and messages for STATUS
+        // Set<ErrorMessageDTO> statusValidations = validationDTO.getConstraintViolations().get("status");
+        //Set<String> statusAllErrorCodes = statusValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
+        //Set<String> statusAllErrorMessages = statusValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
+        //assertTrue(" ", statusAllErrorCodes.contains(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED));
+        // assertTrue(" ", statusAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.PROVIDED_VALUE_NOT_SUPPORTED));
     }
 
     @Test
@@ -412,10 +433,10 @@ public class OfferServiceIntegrationTest {
         offerToCreate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
         offerToCreate.setEligibilityCriteria(ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA);
         offerToCreate.setChannel(ValidateOfferForCreateInputData.TEST_VALID_CHANEL);
-        offerToCreate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
+        offerToCreate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE);
         offerToCreate.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerToCreate.setIsExpirable(true);
-        offerToCreate.setStatus(ValidateOfferForCreateInputData.TEST_STATUS_ACTIVE);
+        offerToCreate.setStatus(StatusType.ACTIVE.name());
 
         OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
 
@@ -430,16 +451,14 @@ public class OfferServiceIntegrationTest {
                 HttpMethod.POST, entity, String.class);
         assertEquals("Success: Offer created", HttpStatus.OK, response.getStatusCode());
 
-
-
-        //assertEquals("Input value for STATUS is valid ",StatusType.ACTIVE.name(), offerDTO.getStatus());
-
         OfferDTO offerDTO = null;
         try {
             offerDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        assertEquals("Offer status set as ACTIVE", StatusType.ACTIVE.name(), offerDTO.getStatus());
 
         VerifyValidOfferDTO(offerDTO);
         Mockito.verify(offerRepository).save(any(OfferDBEntity.class));
@@ -456,8 +475,6 @@ public class OfferServiceIntegrationTest {
                 HttpMethod.GET, null, new ParameterizedTypeReference<List<OfferDTO>>(){});
 
         assertEquals("Status code is OK", HttpStatus.OK, response.getStatusCode());
-
-
     }
 
     @Test
@@ -494,7 +511,7 @@ public class OfferServiceIntegrationTest {
 
         // test non started offer code shouldn't pass validation
         OfferDBEntity offerDBEntityNotStarted = new OfferDBEntity();
-        offerDBEntityNotStarted.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
+        offerDBEntityNotStarted.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE);
         offerDBEntityNotStarted.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
         Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntityNotStarted);
@@ -504,11 +521,11 @@ public class OfferServiceIntegrationTest {
         // test expired offer shouldn't pass validation
         offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
         OfferDBEntity offerDBEntity = new OfferDBEntity();
-        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_START_DATE);
+        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_DATE_BEFORE_NOW);
         offerDBEntity.setExpiryDate(ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE);
         offerDBEntity.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
-        offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
-        offerDBEntity.setActualOfferRedemptions(1L);
+        offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
+        offerDBEntity.setActualOfferRedemptions(ValidateOfferForCreateInputData.TEST_ACTUAL_REDEMTION);
         offerDBEntity.setIsExpirable(true);
 
         Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
@@ -534,11 +551,11 @@ public class OfferServiceIntegrationTest {
         OfferVerifyDTO offerToCreate = new OfferVerifyDTO(ValidateOfferForCreateInputData.TEST_VALID_CODE);
 
         OfferDBEntity offerDBEntity = new OfferDBEntity();
-        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_START_DATE);
+        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_DATE_BEFORE_NOW);
         offerDBEntity.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerDBEntity.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
-        offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
-        offerDBEntity.setActualOfferRedemptions(1L);
+        offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
+        offerDBEntity.setActualOfferRedemptions(ValidateOfferForCreateInputData.TEST_ACTUAL_REDEMTION);
         offerDBEntity.setIsExpirable(false);
 
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
@@ -558,6 +575,75 @@ public class OfferServiceIntegrationTest {
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
     }
 
+    @Test
+    public void applyToOfferValidationCases(){
+        //test invalid format of email
+        OfferApplyDTO offerToApply = new OfferApplyDTO();
+        OfferDBEntity offerDBEntity = new OfferDBEntity();
+
+        offerToApply.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+        HttpEntity<OfferApplyDTO> request = new HttpEntity<>(offerToApply, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort(OffersServiceURLs.APPLY_TO_OFFER),
+                HttpMethod.POST, request, String.class);
+
+        assertEquals("Bad request status code was not returned", HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        ErrorMessageDTO messageDTO = null;
+        try {
+            messageDTO = objectMapper.reader().forType(ErrorMessageDTO.class).readValue(response.getBody());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assertEquals("Email format is not valid", CodeKeys.INVALID_EMAIL, messageDTO.getCode());
+        assertEquals("Offer expired error message missed in response",  ValidateOfferForCreateViolationConstraintMessages.INVALID_EMAIL, messageDTO.getMessage());
+    }
+
+    @Test
+    public void applyToOfferSuccessCase() throws IOException {
+        // test valid offer code should be stored and redeemed
+        OfferApplyDTO offerApplyDTO = new OfferApplyDTO();
+        offerApplyDTO.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+        offerApplyDTO.setEmail(ValidateOfferForCreateInputData.TEST_VALID_EMAIL);
+
+        OfferDBEntity offerDBEntity = new OfferDBEntity();
+        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_DATE_BEFORE_NOW);
+        offerDBEntity.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE);
+        offerDBEntity.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+        offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
+        offerDBEntity.setActualOfferRedemptions(ValidateOfferForCreateInputData.TEST_ACTUAL_REDEMTION);
+        offerDBEntity.setStatus(StatusType.ACTIVE);
+        offerDBEntity.setId(1L);
+        offerDBEntity.setIsExpirable(false);
+
+        OfferRedeemDBEntity offerRedeemDBEntity = new OfferRedeemDBEntity();
+        offerRedeemDBEntity.setEmail(ValidateOfferForCreateInputData.TEST_VALID_EMAIL);
+        offerRedeemDBEntity.setIdOffer(ValidateOfferForCreateInputData.TEST_OFFER_ID_REDEEMED);
+        offerRedeemDBEntity.setUpdatedOn(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE);
+
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
+        Mockito.when(offerRepository.save(any(OfferDBEntity.class))).thenReturn(offerDBEntity);
+        Mockito.when(offerRedeemRepository.save(any(OfferRedeemDBEntity.class))).thenReturn(offerRedeemDBEntity);
+        Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
+
+        HttpEntity<OfferApplyDTO> request = new HttpEntity<>(offerApplyDTO, headers);
+
+        ResponseEntity<OfferApplyDTO> response = restTemplate.exchange(
+                createURLWithPort(OffersServiceURLs.APPLY_TO_OFFER),
+                HttpMethod.POST, request, OfferApplyDTO.class);
+
+        assertEquals("OK status code was not returned", HttpStatus.OK, response.getStatusCode());
+        assertEquals("Offer was successfully applied for offer code", offerApplyDTO.getOfferCode(), response.getBody().getOfferCode());
+        assertEquals("Offer was successfully applied to email", offerApplyDTO.getEmail(), response.getBody().getEmail());
+        assertEquals("Offer was successfully applied on current date", ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE, response.getBody().getUpdatedOn());
+
+        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
+        Mockito.verify(offerRepository).save(any(OfferDBEntity.class));
+        Mockito.verify(offerRedeemRepository).save(any(OfferRedeemDBEntity.class));
+        Mockito.verify(jdbcTemplate).queryForObject(any(String.class), any(RowMapper.class));
+    }
 
     private void processInvalidOfferValidation(OfferVerifyDTO offerToVerify) throws IOException {
         HttpEntity<OfferVerifyDTO> entity = new HttpEntity<>(offerToVerify, headers);
@@ -585,7 +671,7 @@ public class OfferServiceIntegrationTest {
         offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
         offerDBEntity.setEligibilityCriteria(EligibilityCriteriaType.byValue(ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA));
         offerDBEntity.setChannel(ChannelType.byValue(ValidateOfferForCreateInputData.TEST_VALID_CHANEL));
-        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_START_DATE);
+        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE);
         offerDBEntity.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerDBEntity.setIsExpirable(true);
         offerDBEntity.setStatus(StatusType.ACTIVE);
@@ -604,7 +690,7 @@ public class OfferServiceIntegrationTest {
         assertEquals("Input value for Offer Redemption is valid",ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION,offerDTO.getMaxOfferRedemptions());
         assertEquals("Input value for Eligibility criteria is valid ",ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA,offerDTO.getEligibilityCriteria());
         assertEquals("Input value for Channel is valid",ValidateOfferForCreateInputData.TEST_VALID_CHANEL,offerDTO.getChannel());
-        assertEquals("Input value for START date is valid",ValidateOfferForCreateInputData.TEST_VALID_START_DATE, offerDTO.getStartDate());
+        assertEquals("Input value for START date is valid",ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE, offerDTO.getStartDate());
         assertEquals("Input value for EXPIRY date is valid ",ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE, offerDTO.getExpiryDate());
         assertNotNull("Id for offer is autogenerated ", offerDTO.getId());
         assertTrue("No Expiry Date is true",offerDTO.getIsExpirable());
