@@ -1,12 +1,10 @@
 package com.ovoenergy.offer.db.jdbc.impl;
 
-import com.ovoenergy.offer.db.jdbc.JdbcHelper;
-import com.ovoenergy.offer.test.utils.UnitTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -17,8 +15,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
-@UnitTest
+@RunWith(MockitoJUnitRunner.class)
 public class JdbcHelperImplTest {
 
     private static final Date TEST_NOW_DATE = new Date(System.currentTimeMillis());
@@ -27,7 +24,7 @@ public class JdbcHelperImplTest {
     private JdbcTemplate mockJdbc;
 
     @InjectMocks
-    private JdbcHelper unit = new JdbcHelperImpl();
+    private JdbcHelperImpl unit;
 
     @Test
     public void lookupCurrentDbTimeSuccess() {

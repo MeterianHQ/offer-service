@@ -4,19 +4,17 @@ import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
-@Profile("integrationtest")
 public class OfferRepositoryTestConfiguration {
 
-    @MockBean(name="offerRepository")
+    @MockBean(name = "offerRepository")
     public OfferRepository offerRepository;
 
-    @MockBean(name="offerRedeemRepository")
+    @MockBean(name = "offerRedeemRepository")
     public OfferRedeemRepository offerRedeemRepository;
 
-    @MockBean(name="jdbcTemplate")
+    @MockBean(name = "jdbcTemplate")
     public JdbcTemplate jdbcTemplate;
 }

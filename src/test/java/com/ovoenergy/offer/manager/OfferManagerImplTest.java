@@ -13,13 +13,12 @@ import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.manager.impl.OfferManagerImpl;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
-import com.ovoenergy.offer.test.utils.UnitTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 
@@ -34,8 +33,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@UnitTest
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class OfferManagerImplTest {
 
     private static final Long TEST_OFFER_ID = 11L;
@@ -81,9 +79,8 @@ public class OfferManagerImplTest {
     @Fixture
     private OfferRedeemDBEntity fxOfferRedeemDBEntity;
 
-
     @InjectMocks
-    private OfferManager unit = new OfferManagerImpl();
+    private OfferManagerImpl unit;
 
     @Test
     public void testGetOfferByIdSuccess() {
@@ -116,7 +113,7 @@ public class OfferManagerImplTest {
 
         List<OfferDTO> result = unit.getAllOffers();
 
-        assertTrue(1 == result.size());
+        assertEquals(1, result.size());
         verify(mockOfferRepository).findAll(any(Sort.class));
     }
 
@@ -170,7 +167,7 @@ public class OfferManagerImplTest {
     }
 
     @Test
-    public void ApplyOfferSuccess() {
+    public void applyOfferSuccess() {
         OfferApplyDTO offerApplyDTO = new OfferApplyDTO();
         offerApplyDTO.setEmail(TEST_EMAIL);
         offerApplyDTO.setOfferCode(TEST_OFFER_CODE);
