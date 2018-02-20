@@ -15,11 +15,16 @@ jobs:
 
       - run: gradle test integrationTest
 
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          when: always
       - store_test_results:
-          path: build/reports/tests
+          path: ~/junit
       - store_artifacts:
-          path: build/reports/tests
-          destination: results
+          path: ~/junit
 
       - run: ./service.sh dev_build
 
