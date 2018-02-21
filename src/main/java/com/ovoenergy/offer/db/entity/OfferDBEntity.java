@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.db.entity;
 
+import com.ovoenergy.offer.audit.Auditable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,10 +16,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+@Auditable
 @Entity(name = "offer")
 @Table(name = "offer", schema = "offers_db")
 @Data
-@EqualsAndHashCode(exclude = {"id"})
+@EqualsAndHashCode(exclude = "id")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
