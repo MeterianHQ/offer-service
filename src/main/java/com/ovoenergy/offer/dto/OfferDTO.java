@@ -1,11 +1,6 @@
 package com.ovoenergy.offer.dto;
 
-import com.ovoenergy.offer.validation.group.BaseOfferChecks;
-import com.ovoenergy.offer.validation.group.EmptyDraftOfferChecks;
-import com.ovoenergy.offer.validation.group.NonEmptyDraftOfferChecks;
-import com.ovoenergy.offer.validation.group.RequiredActiveOfferChecks;
-import com.ovoenergy.offer.validation.group.RequiredDraftOfferChecks;
-import com.ovoenergy.offer.validation.group.RequiredOfferUpdateChecks;
+import com.ovoenergy.offer.validation.group.*;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.validator.DateFieldsValueConstraint;
 import com.ovoenergy.offer.validation.validator.ExpiryDateFieldsValueConstraint;
@@ -35,6 +30,7 @@ import javax.validation.constraints.Pattern;
 @Builder
 public class OfferDTO {
 
+    @Null(groups = RequiredOfferCreateChecks.class, message = CodeKeys.NULL_FIELD)
     @NotNull(groups = RequiredOfferUpdateChecks.class, message = CodeKeys.NOT_NULL_FIELD)
     @ApiModelProperty(name = "id", required = true)
     private Long id;
@@ -46,7 +42,7 @@ public class OfferDTO {
 
     @ApiModelProperty(name = "offerName", required = true)
     @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = RequiredActiveOfferChecks.class)
-    @Null(groups = EmptyDraftOfferChecks.class)
+    @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private String offerName;
 
     @ApiModelProperty(name = "description", required = true)
@@ -66,14 +62,14 @@ public class OfferDTO {
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Min(value = 1, message = CodeKeys.INPUT_VALUE_ZERO, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Max(value = 999, message = CodeKeys.INPUT_VALUE_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Null(groups = EmptyDraftOfferChecks.class)
+    @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private Long value;
 
     @ApiModelProperty(name = "maxOfferRedemptions", required = true)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Min(value = 1, message = CodeKeys.INPUT_VALUE_ZERO, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Max(value = 99999999, message = CodeKeys.INPUT_REDEMPTION_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Null(groups = EmptyDraftOfferChecks.class)
+    @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private Long maxOfferRedemptions;
 
     @ApiModelProperty(name = "actualOfferRedemptions", notes = "response field only", required = true)
@@ -82,12 +78,12 @@ public class OfferDTO {
     @ApiModelProperty(name = "startDate", required = true)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @FutureDateConstraint(groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Null(groups = EmptyDraftOfferChecks.class)
+    @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private Long startDate;
 
     @ApiModelProperty(name = "expiryDate", required = true)
     @FutureDateConstraint(groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Null(groups = EmptyDraftOfferChecks.class)
+    @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private Long expiryDate;
 
     @ApiModelProperty(name = "isExpirable", required = true)

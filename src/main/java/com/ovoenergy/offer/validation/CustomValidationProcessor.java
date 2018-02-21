@@ -6,12 +6,7 @@ import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.exception.VariableNotValidException;
-import com.ovoenergy.offer.validation.group.BaseOfferChecks;
-import com.ovoenergy.offer.validation.group.EmptyDraftOfferChecks;
-import com.ovoenergy.offer.validation.group.NonEmptyDraftOfferChecks;
-import com.ovoenergy.offer.validation.group.RequiredActiveOfferChecks;
-import com.ovoenergy.offer.validation.group.RequiredDraftOfferChecks;
-import com.ovoenergy.offer.validation.group.RequiredOfferUpdateChecks;
+import com.ovoenergy.offer.validation.group.*;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.key.ValidationCodeMessageKeyPair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +32,9 @@ public class CustomValidationProcessor {
 
     public OfferValidationDTO processOfferCreateValidation(OfferDTO request) {
         if (StatusType.DRAFT.name().equalsIgnoreCase(request.getStatus())) {
-            return processDraftOfferCreateValidation(request, BaseOfferChecks.class, RequiredDraftOfferChecks.class);
+            return processDraftOfferCreateValidation(request, BaseOfferChecks.class, RequiredDraftOfferChecks.class, RequiredOfferCreateChecks.class);
         } else {
-            return processActiveOfferCreateValidation(request, BaseOfferChecks.class, RequiredActiveOfferChecks.class);
+            return processActiveOfferCreateValidation(request, BaseOfferChecks.class, RequiredActiveOfferChecks.class, RequiredOfferCreateChecks.class);
         }
     }
 

@@ -34,4 +34,6 @@ public interface CodeKeys {
 
     String OFFER_STATUS_TYPE_NOT_VALID = "OFR16";
 
+    String NULL_FIELD = "OFR17";
+
 }
