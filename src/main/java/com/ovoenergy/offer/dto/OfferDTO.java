@@ -14,11 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 
 @Data
 @NoArgsConstructor
@@ -36,16 +32,19 @@ public class OfferDTO {
     private Long id;
 
     @ApiModelProperty(name = "offerCode", required = true)
+    @Size(groups = BaseOfferChecks.class, message = CodeKeys.OFFER_CODE_FIELD_SIZE, max = 100)
     @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = BaseOfferChecks.class)
     @Pattern(regexp = "^[A-Za-z0-9]*$", message = CodeKeys.INVALID_OFFER_CODE, groups = BaseOfferChecks.class)
     private String offerCode;
 
     @ApiModelProperty(name = "offerName", required = true)
+    @Size(groups = BaseOfferChecks.class, message = CodeKeys.OFFER_NAME_FIELD_SIZE, max = 50)
     @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = RequiredActiveOfferChecks.class)
     @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private String offerName;
 
     @ApiModelProperty(name = "description", required = true)
+    @Size(groups = BaseOfferChecks.class, message = CodeKeys.OFFER_DESCRIPTION_FIELD_SIZE, max = 50)
     private String description;
 
     @ApiModelProperty(name = "supplier", required = true)
