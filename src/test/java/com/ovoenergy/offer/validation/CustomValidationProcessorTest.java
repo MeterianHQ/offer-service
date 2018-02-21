@@ -60,7 +60,7 @@ public class CustomValidationProcessorTest {
         when(mockValidator.validate(eq(fixtureOfferDTO), eq(BaseOfferChecks.class), eq(RequiredActiveOfferChecks.class))).thenReturn(constraintViolations);
         when(mockMsgSource.getMessage(any(), any(), any())).thenReturn("Error Message");
 
-        OfferValidationDTO result = unit.processActiveOfferInputDataValidationViolations(fixtureOfferDTO);
+        OfferValidationDTO result = unit.processOfferCreateValidation(fixtureOfferDTO);
 
         assertEquals(1, result.getConstraintViolations().get("propertyPath").size());
         verify(mockOfferDTOConstraintViolation).getPropertyPath();

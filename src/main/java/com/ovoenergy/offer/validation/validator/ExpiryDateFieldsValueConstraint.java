@@ -16,8 +16,6 @@ import static com.ovoenergy.offer.validation.key.CodeKeys.NO_EXPIRY_OFFER_COULD_
 @Documented
 public @interface ExpiryDateFieldsValueConstraint {
 
-    String propertyPath();
-
     String message() default NO_EXPIRY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE;
 
     Class<?>[] groups() default {};

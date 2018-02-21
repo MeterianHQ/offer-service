@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
 import static com.ovoenergy.offer.validation.key.CodeKeys.NOT_UNIQUE_OFFER_CODE;
 
 @Documented
-@Constraint(validatedBy = OfferCode.class)
-@Target(ElementType.FIELD)
+@Constraint(validatedBy = OfferCodeValidator.class)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OfferCodeConstraint {
     String message() default NOT_UNIQUE_OFFER_CODE;

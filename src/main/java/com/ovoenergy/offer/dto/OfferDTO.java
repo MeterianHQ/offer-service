@@ -5,10 +5,12 @@ import com.ovoenergy.offer.validation.group.EmptyDraftOfferChecks;
 import com.ovoenergy.offer.validation.group.NonEmptyDraftOfferChecks;
 import com.ovoenergy.offer.validation.group.RequiredActiveOfferChecks;
 import com.ovoenergy.offer.validation.group.RequiredDraftOfferChecks;
+import com.ovoenergy.offer.validation.group.RequiredOfferUpdateChecks;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.validator.DateFieldsValueConstraint;
 import com.ovoenergy.offer.validation.validator.ExpiryDateFieldsValueConstraint;
 import com.ovoenergy.offer.validation.validator.FutureDateConstraint;
+import com.ovoenergy.offer.validation.validator.OfferCodeConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -27,11 +29,13 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(value = "Offer", description = "Offer information")
-@ExpiryDateFieldsValueConstraint(propertyPath = "expiryDate", groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
-@DateFieldsValueConstraint(propertyPath = "expiryDate", groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
+@OfferCodeConstraint(groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
+@ExpiryDateFieldsValueConstraint(groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
+@DateFieldsValueConstraint(groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
 @Builder
 public class OfferDTO {
 
+    @NotNull(groups = RequiredOfferUpdateChecks.class, message = CodeKeys.NOT_NULL_FIELD)
     @ApiModelProperty(name = "id", required = true)
     private Long id;
 
@@ -41,7 +45,7 @@ public class OfferDTO {
     private String offerCode;
 
     @ApiModelProperty(name = "offerName", required = true)
-    @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = {RequiredActiveOfferChecks.class})
+    @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = RequiredActiveOfferChecks.class)
     @Null(groups = EmptyDraftOfferChecks.class)
     private String offerName;
 

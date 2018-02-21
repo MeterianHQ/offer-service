@@ -1,6 +1,7 @@
 package com.ovoenergy.offer.validation;
 
 import com.google.common.collect.Sets;
+import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferValidationDTO;
@@ -10,6 +11,7 @@ import com.ovoenergy.offer.validation.group.EmptyDraftOfferChecks;
 import com.ovoenergy.offer.validation.group.NonEmptyDraftOfferChecks;
 import com.ovoenergy.offer.validation.group.RequiredActiveOfferChecks;
 import com.ovoenergy.offer.validation.group.RequiredDraftOfferChecks;
+import com.ovoenergy.offer.validation.group.RequiredOfferUpdateChecks;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.key.ValidationCodeMessageKeyPair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,23 +35,39 @@ public class CustomValidationProcessor {
     @Autowired
     private MessageSource msgSource;
 
-    public OfferValidationDTO processActiveOfferInputDataValidationViolations(OfferDTO request) {
-        Set<ConstraintViolation<OfferDTO>> violations = validator.validate(request, BaseOfferChecks.class, RequiredActiveOfferChecks.class);
+    public OfferValidationDTO processOfferCreateValidation(OfferDTO request) {
+        if (StatusType.DRAFT.name().equalsIgnoreCase(request.getStatus())) {
+            return processDraftOfferCreateValidation(request, BaseOfferChecks.class, RequiredDraftOfferChecks.class);
+        } else {
+            return processActiveOfferCreateValidation(request, BaseOfferChecks.class, RequiredActiveOfferChecks.class);
+        }
+    }
+
+    public OfferValidationDTO processOfferUpdateValidation(OfferDTO request) {
+        if (StatusType.DRAFT.name().equalsIgnoreCase(request.getStatus())) {
+            return processDraftOfferCreateValidation(request, RequiredOfferUpdateChecks.class, BaseOfferChecks.class, RequiredDraftOfferChecks.class);
+        } else {
+            return processActiveOfferCreateValidation(request, RequiredOfferUpdateChecks.class, BaseOfferChecks.class, RequiredActiveOfferChecks.class);
+        }
+    }
+
+    private OfferValidationDTO processActiveOfferCreateValidation(OfferDTO request, Class<?>... groups) {
+        Set<ConstraintViolation<OfferDTO>> violations = validator.validate(request, groups);
         if (violations.size() == 0) {
             return null;
         }
         return prepareValidationDTO(request, violations);
     }
 
-    public OfferValidationDTO processDraftOfferInputDataValidationViolations(OfferDTO request) {
+    private OfferValidationDTO processDraftOfferCreateValidation(OfferDTO request, Class<?>... groups) {
         Set<ConstraintViolation<OfferDTO>> emptyFieldsViolations = validator.validate(request, EmptyDraftOfferChecks.class);
         Set<ConstraintViolation<OfferDTO>> violations = Sets.newHashSet();
-        if (emptyFieldsViolations != null && emptyFieldsViolations.size() > 0) {
+        if (emptyFieldsViolations.size() > 0) {
             Set<ConstraintViolation<OfferDTO>> nonEmptyFieldsViolations = validator.validate(request, NonEmptyDraftOfferChecks.class);
             Set<String> emptyFieldsToSkip = emptyFieldsViolations.stream().map(cv -> cv.getPropertyPath().toString()).collect(Collectors.toSet());
             violations = nonEmptyFieldsViolations.stream().filter(cv -> emptyFieldsToSkip.contains(cv.getPropertyPath().toString())).collect(Collectors.toSet());
         }
-        violations.addAll(validator.validate(request, BaseOfferChecks.class, RequiredDraftOfferChecks.class));
+        violations.addAll(validator.validate(request, groups));
 
         if (violations.size() == 0) {
             return null;

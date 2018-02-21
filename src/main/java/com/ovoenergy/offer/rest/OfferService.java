@@ -89,12 +89,7 @@ public class OfferService {
     public ResponseEntity<OfferDTO> createOffer(@RequestBody OfferDTO request) {
         LOGGER.debug("CREATE offer request has been received: {}", request);
 
-        OfferValidationDTO validationDTO;
-        if (StatusType.DRAFT.name().equalsIgnoreCase(request.getStatus())) {
-            validationDTO = customValidator.processDraftOfferInputDataValidationViolations(request);
-        } else {
-            validationDTO = customValidator.processActiveOfferInputDataValidationViolations(request);
-        }
+        OfferValidationDTO validationDTO = customValidator.processOfferCreateValidation(request);
 
         if (validationDTO != null) {
             return ResponseEntity.badRequest().body(validationDTO);
@@ -119,7 +114,18 @@ public class OfferService {
     public ResponseEntity<OfferDTO> updateOffer(@PathVariable Long id, @RequestBody OfferDTO request) {
         LOGGER.debug("UPDATE offer with id = {} request has been received: {}", id, request);
 
+        request.setId(id);
+        OfferValidationDTO validationDTO = customValidator.processOfferUpdateValidation(request);
+
+        if (validationDTO != null) {
+            return ResponseEntity.badRequest().body(validationDTO);
+        }
+
         OfferDTO response = offerManager.updateOffer(request, id);
+
+        if (response instanceof OfferValidationDTO) {
+            return ResponseEntity.badRequest().body(response);
+        }
 
         LOGGER.debug("Returning response for UPDATE offer with id = {}: {}", id, response);
         return ResponseEntity.ok(response);

@@ -16,8 +16,6 @@ import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_EXPIRY_DATE_BEFO
 @Documented
 public @interface DateFieldsValueConstraint {
 
-    String propertyPath();
-
     String message() default OFFER_EXPIRY_DATE_BEFORE_START_DATE;
 
     Class<?>[] groups() default {};

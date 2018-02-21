@@ -1,6 +1,5 @@
 package com.ovoenergy.offer.validation.validator;
 
-import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.OfferDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +9,12 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 @Component
-public class OfferCode implements ConstraintValidator<OfferCodeConstraint, OfferDTO> {
+public class OfferCodeValidator implements ConstraintValidator<OfferCodeConstraint, OfferDTO> {
 
     private final OfferRepository offerRepository;
 
     @Autowired
-    public OfferCode(OfferRepository offerRepository) {
+    public OfferCodeValidator(OfferRepository offerRepository) {
         this.offerRepository = offerRepository;
     }
 
@@ -25,10 +24,8 @@ public class OfferCode implements ConstraintValidator<OfferCodeConstraint, Offer
 
     @Override
     public boolean isValid(OfferDTO value, ConstraintValidatorContext context) {
-        if (value.getId() == null) {
-            return offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(value.getOfferCode(), StatusType.ACTIVE) == null;
-        } else {
-            return !offerRepository.existsByOfferCodeIgnoreCaseAndStatusAndIdIsNot(value.getOfferCode(), null, value.getId());
-        }
+        return value.getId() == null
+                ? offerRepository.findOneByOfferCodeIgnoreCase(value.getOfferCode()) == null
+                : !offerRepository.existsByOfferCodeIgnoreCaseAndIdIsNot(value.getOfferCode(), value.getId());
     }
 }

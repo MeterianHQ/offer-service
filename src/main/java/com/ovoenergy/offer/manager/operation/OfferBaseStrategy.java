@@ -42,7 +42,7 @@ public abstract class  OfferBaseStrategy {
     }
 
     public OfferRedeemDBEntity createOfferRedeemDBEntity(Long offerId, String emailAddress) {
-        Long currentDbTimeMidnightMilliseconds =  LocalDateTime.of(jdbcHelper.lookupCurrentDbTime().toInstant().atZone(ZoneId.of("UTC")).toLocalDate(), LocalTime.MIDNIGHT).toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli();
+        Long currentDbTimeMidnightMilliseconds =  getCurrentDbTimeMidnightMilliseconds();
         return new OfferRedeemDBEntity(offerId, emailAddress, currentDbTimeMidnightMilliseconds);
     }
 

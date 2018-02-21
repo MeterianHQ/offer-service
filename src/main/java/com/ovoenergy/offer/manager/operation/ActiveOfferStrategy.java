@@ -4,14 +4,10 @@ import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.mapper.OfferMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ActiveOfferStrategy extends OfferBaseStrategy {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActiveOfferStrategy.class);
 
     @Override
     public OfferDBEntity createOfferDBEntity(OfferDTO offerDTO) {
@@ -25,7 +21,11 @@ public class ActiveOfferStrategy extends OfferBaseStrategy {
 
     @Override
     public OfferDBEntity updateOfferDBEntity(OfferDBEntity ruleDBDoc, OfferDTO offerDTO) {
-        return null;
+        OfferDBEntity offerDBEntity = OfferMapper.fromOfferDTOTODBEntity(offerDTO);
+        offerDBEntity.setStatus(StatusType.ACTIVE);
+        offerDBEntity.setActualOfferRedemptions(ruleDBDoc.getActualOfferRedemptions());
+        offerDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
+        return offerDBEntity;
     }
 
     @Override
