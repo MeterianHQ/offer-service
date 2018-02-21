@@ -1,25 +1,24 @@
 package com.ovoenergy.offer.db.entity;
 
+import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+
+@RequiredArgsConstructor
 public enum EligibilityCriteriaType {
 
     SSD("SSD");
 
-    String value;
-
-    private EligibilityCriteriaType(String value) {
-        this.value = value;
-    }
-
-    public static EligibilityCriteriaType byValue(String value) {
-        for(EligibilityCriteriaType v : values()){
-            if( v.value().equals(value)){
-                return v;
-            }
-        }
-        return null;
-    }
+    private final String value;
 
     public String value() {
         return value;
+    }
+
+    public static EligibilityCriteriaType byValue(String value) {
+        return Arrays.stream(values())
+                .filter(v -> v.value().equals(value))
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -32,6 +32,14 @@ public interface MessageKeys {
 
     String OFFER_STATUS_TYPE_NOT_VALID = "offer.status.type.not.valid";
 
+    String NULL_FIELD = "null.field";
+
+    String OFFER_CODE_FIELD_SIZE = "size.offer.code.field";
+
+    String OFFER_NAME_FIELD_SIZE = "size.offer.name.field";
+
+    String OFFER_DESCRIPTION_FIELD_SIZE = "size.offer.description.field";
+
     interface Common {
 
         String GENERIC_SERVER_ERROR = "generic.server.error";

@@ -1,6 +1,5 @@
 package com.ovoenergy.offer.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,7 +16,6 @@ import javax.validation.constraints.Pattern;
 @ApiModel(value = "Apply to Offer Request", description = "Input request to apply to an offer")
 @Data
 @AllArgsConstructor
-@JsonSerialize
 @NoArgsConstructor
 @Builder
 public class OfferApplyDTO {

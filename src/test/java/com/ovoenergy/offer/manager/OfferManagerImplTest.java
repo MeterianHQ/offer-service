@@ -121,8 +121,7 @@ public class OfferManagerImplTest {
     public void testCreateActiveOfferSuccess() {
         fixtureOfferDTO.setOfferCode(TEST_OFFER_CODE);
         fixtureOfferDTO.setStatus(StatusType.ACTIVE.name());
-        when(mockOfferRepository.findOneByOfferCodeIgnoreCase(eq(TEST_OFFER_CODE))).thenReturn(null);
-        when(mockOfferOperationsRegistry.createOfferDBEtity(fixtureOfferDTO)).thenReturn(fixtureOfferDBEntity);
+        when(mockOfferOperationsRegistry.createOfferDBEntity(fixtureOfferDTO)).thenReturn(fixtureOfferDBEntity);
         when(mockOfferRepository.save(any(OfferDBEntity.class))).thenReturn(fixtureOfferDBEntity);
 
         OfferDTO result = unit.createOffer(fixtureOfferDTO);
@@ -144,8 +143,7 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getValue(), result.getValue());
         assertEquals(fixtureOfferDBEntity.getId(), result.getId());
         verify(mockOfferRepository).save(any(OfferDBEntity.class));
-        verify(mockOfferOperationsRegistry).createOfferDBEtity(fixtureOfferDTO);
-        verify(mockOfferRepository).findOneByOfferCodeIgnoreCase(eq(TEST_OFFER_CODE));
+        verify(mockOfferOperationsRegistry).createOfferDBEntity(fixtureOfferDTO);
     }
 
     @Test

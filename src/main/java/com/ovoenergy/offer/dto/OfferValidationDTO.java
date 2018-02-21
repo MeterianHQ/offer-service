@@ -1,26 +1,25 @@
 package com.ovoenergy.offer.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 @ApiModel(value = "Validation", description = "Validation information about every field that failed to pass internal validation system")
-@JsonSerialize
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @EqualsAndHashCode(callSuper = true)
 public class OfferValidationDTO extends OfferDTO {
 
     @ApiModelProperty(name = "constraintViolations", required = true)
-    private Map<String, Set<ErrorMessageDTO>> constraintViolations =  new HashMap<>();
+    private Map<String, Set<ErrorMessageDTO>> constraintViolations = new HashMap<>();
 
     public OfferValidationDTO(OfferDTO offerDTO) {
         super();

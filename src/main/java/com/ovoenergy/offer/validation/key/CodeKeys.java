@@ -34,4 +34,12 @@ public interface CodeKeys {
 
     String OFFER_STATUS_TYPE_NOT_VALID = "OFR16";
 
+    String NULL_FIELD = "OFR17";
+
+    String OFFER_CODE_FIELD_SIZE = "OFR18";
+
+    String OFFER_NAME_FIELD_SIZE = "OFR19";
+
+    String OFFER_DESCRIPTION_FIELD_SIZE = "OFR20";
+
 }

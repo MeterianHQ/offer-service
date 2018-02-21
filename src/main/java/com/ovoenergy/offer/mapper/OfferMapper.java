@@ -1,13 +1,18 @@
 package com.ovoenergy.offer.mapper;
 
-import com.ovoenergy.offer.db.entity.*;
+import com.ovoenergy.offer.db.entity.ChannelType;
+import com.ovoenergy.offer.db.entity.EligibilityCriteriaType;
+import com.ovoenergy.offer.db.entity.OfferDBEntity;
+import com.ovoenergy.offer.db.entity.OfferType;
+import com.ovoenergy.offer.db.entity.SupplierType;
 import com.ovoenergy.offer.dto.OfferDTO;
-import org.apache.el.lang.ELArithmetic;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class OfferMapper {
 
     public static OfferDTO fromOfferDBEntityToDTO(OfferDBEntity offerDBEntity) {
-       return OfferDTO
+        return OfferDTO
                 .builder()
                 .offerCode(offerDBEntity.getOfferCode())
                 .offerName(offerDBEntity.getOfferName())

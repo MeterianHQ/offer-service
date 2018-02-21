@@ -17,8 +17,6 @@ import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.dto.OfferVerifyDTO;
 import com.ovoenergy.offer.dto.OffersServiceURLs;
-import com.ovoenergy.offer.db.entity.StatusType;
-import com.ovoenergy.offer.integration.mock.MockApplication;
 import com.ovoenergy.offer.integration.mock.config.OfferRepositoryTestConfiguration;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import org.junit.Test;
@@ -55,7 +53,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {MockApplication.class, OfferRepositoryTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = OfferRepositoryTestConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class OfferServiceIntegrationTest {
 
     @Autowired
@@ -149,7 +147,7 @@ public class OfferServiceIntegrationTest {
         offerToValidate.setIsExpirable(true);
         offerToValidate.setStatus(StatusType.ACTIVE.name());
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToValidate, headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.CREATE_OFFER),
@@ -288,8 +286,8 @@ public class OfferServiceIntegrationTest {
         Set<ErrorMessageDTO> offerNameValidations = validationDTO.getConstraintViolations().get("offerName");
         Set<String> offerNameAllErrorCodes = offerNameValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerNameAllErrorMessages = offerNameValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code for null value in offer name field", offerNameAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-        assertTrue("Validation constraints missed error message for  null value in offer name field", offerNameAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
+        assertTrue("Validation constraints missed error code for null value in offer name field", offerNameAllErrorCodes.contains(CodeKeys.FIELD_REQUIRED));
+        assertTrue("Validation constraints missed error message for  null value in offer name field", offerNameAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.REQUIRED_FIELD));
 
         //Checking validation codes and messages for OfferRedemption
         Set<ErrorMessageDTO> offerRedemptionValidations = validationDTO.getConstraintViolations().get("maxOfferRedemptions");
@@ -302,8 +300,8 @@ public class OfferServiceIntegrationTest {
         Set<ErrorMessageDTO> offerCodeValidations = validationDTO.getConstraintViolations().get("offerCode");
         Set<String> offerCodeAllErrorCodes = offerCodeValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerCodeAllErrorMessages = offerCodeValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code for null value in offer code field", offerCodeAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-        assertTrue("Validation constraints missed error message for null value in offer code field", offerCodeAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
+        assertTrue("Validation constraints missed error code for null value in offer code field", offerCodeAllErrorCodes.contains(CodeKeys.FIELD_REQUIRED));
+        assertTrue("Validation constraints missed error message for null value in offer code field", offerCodeAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.REQUIRED_FIELD));
 
         //Checking validation codes and messages for offer supplier dropdown
         Set<ErrorMessageDTO> offerSupplierValidations = validationDTO.getConstraintViolations().get("supplier");
@@ -357,7 +355,7 @@ public class OfferServiceIntegrationTest {
         offerToValidate.setIsExpirable(true);
         offerToValidate.setStatus(StatusType.ACTIVE.name());
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToValidate, headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.CREATE_OFFER),
@@ -460,7 +458,7 @@ public class OfferServiceIntegrationTest {
                 HttpMethod.POST, entity, String.class);
         assertEquals("Success: Offer created", HttpStatus.OK, response.getStatusCode());
 
-        OfferDTO offerDTO =  objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
+        OfferDTO offerDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
         assertEquals("Offer status set as ACTIVE", StatusType.ACTIVE.name(), offerDTO.getStatus());
 
         verifyValidOfferDTO(offerDTO);

@@ -1,11 +1,11 @@
-package com.ovoenergy.offer.dto  ;
+package com.ovoenergy.offer.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ovoenergy.offer.validation.group.*;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.validator.DateFieldsValueConstraint;
 import com.ovoenergy.offer.validation.validator.ExpiryDateFieldsValueConstraint;
 import com.ovoenergy.offer.validation.validator.FutureDateConstraint;
+import com.ovoenergy.offer.validation.validator.OfferCodeConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -17,31 +17,34 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.*;
 
 @Data
-@JsonSerialize
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(value = "Offer", description = "Offer information")
-@ExpiryDateFieldsValueConstraint(message = CodeKeys.NO_EXPIRY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE, propertyPath = "expiryDate", groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
-@DateFieldsValueConstraint(message = CodeKeys.OFFER_EXPIRY_DATE_BEFORE_START_DATE, propertyPath = "expiryDate", groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
+@OfferCodeConstraint(groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
+@ExpiryDateFieldsValueConstraint(groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
+@DateFieldsValueConstraint(groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
 @Builder
 public class OfferDTO {
 
+    @Null(groups = RequiredOfferCreateChecks.class, message = CodeKeys.NULL_FIELD)
+    @NotNull(groups = RequiredOfferUpdateChecks.class, message = CodeKeys.NOT_NULL_FIELD)
     @ApiModelProperty(name = "id", required = true)
     private Long id;
 
     @ApiModelProperty(name = "offerCode", required = true)
+    @Size(groups = BaseOfferChecks.class, message = CodeKeys.OFFER_CODE_FIELD_SIZE, max = 100)
     @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = BaseOfferChecks.class)
-    @NotNull(message = CodeKeys.NOT_NULL_FIELD , groups = BaseOfferChecks.class)
     @Pattern(regexp = "^[A-Za-z0-9]*$", message = CodeKeys.INVALID_OFFER_CODE, groups = BaseOfferChecks.class)
     private String offerCode;
 
     @ApiModelProperty(name = "offerName", required = true)
-    @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = {RequiredActiveOfferChecks.class})
-    @Null(groups = EmptyDraftOfferChecks.class)
+    @Size(groups = BaseOfferChecks.class, message = CodeKeys.OFFER_NAME_FIELD_SIZE, max = 50)
+    @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = RequiredActiveOfferChecks.class)
+    @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private String offerName;
 
     @ApiModelProperty(name = "description", required = true)
+    @Size(groups = BaseOfferChecks.class, message = CodeKeys.OFFER_DESCRIPTION_FIELD_SIZE, max = 50)
     private String description;
 
     @ApiModelProperty(name = "supplier", required = true)
@@ -58,14 +61,14 @@ public class OfferDTO {
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Min(value = 1, message = CodeKeys.INPUT_VALUE_ZERO, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Max(value = 999, message = CodeKeys.INPUT_VALUE_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Null(groups = EmptyDraftOfferChecks.class)
+    @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private Long value;
 
     @ApiModelProperty(name = "maxOfferRedemptions", required = true)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Min(value = 1, message = CodeKeys.INPUT_VALUE_ZERO, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Max(value = 99999999, message = CodeKeys.INPUT_REDEMPTION_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Null(groups = EmptyDraftOfferChecks.class)
+    @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private Long maxOfferRedemptions;
 
     @ApiModelProperty(name = "actualOfferRedemptions", notes = "response field only", required = true)
@@ -73,13 +76,13 @@ public class OfferDTO {
 
     @ApiModelProperty(name = "startDate", required = true)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @FutureDateConstraint(message = CodeKeys.NON_IN_FUTURE_DATE, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Null(groups = EmptyDraftOfferChecks.class)
+    @FutureDateConstraint(groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private Long startDate;
 
     @ApiModelProperty(name = "expiryDate", required = true)
-    @FutureDateConstraint(message = CodeKeys.NON_IN_FUTURE_DATE, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Null(groups = EmptyDraftOfferChecks.class)
+    @FutureDateConstraint(groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private Long expiryDate;
 
     @ApiModelProperty(name = "isExpirable", required = true)
@@ -87,7 +90,7 @@ public class OfferDTO {
     private Boolean isExpirable;
 
     @ApiModelProperty(name = "eligibilityCriteria", required = true)
-    @Pattern(regexp = "^(?i)(SSD)$", message = CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED,groups = BaseOfferChecks.class)
+    @Pattern(regexp = "^(?i)(SSD)$", message = CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED, groups = BaseOfferChecks.class)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = BaseOfferChecks.class)
     private String eligibilityCriteria;
 

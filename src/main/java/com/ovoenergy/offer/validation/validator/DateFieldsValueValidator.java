@@ -1,6 +1,7 @@
 package com.ovoenergy.offer.validation.validator;
 
 import com.ovoenergy.offer.dto.OfferDTO;
+import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 import org.springframework.beans.BeanWrapperImpl;
 
 import javax.validation.ConstraintValidator;
@@ -8,24 +9,27 @@ import javax.validation.ConstraintValidatorContext;
 
 public class DateFieldsValueValidator implements ConstraintValidator<DateFieldsValueConstraint, OfferDTO> {
 
-private String startDateField = "startDate";
+    private final String startDateField = "startDate";
+    private final String expiryDateField = "expiryDate";
+    private final String isExpirableField = "isExpirable";
 
-private String expiryDateField = "expiryDate";
+    public void initialize(DateFieldsValueConstraint dateFieldsValueConstraint) {
+    }
 
-private String isExpirableField = "isExpirable";
-
-public void initialize(DateFieldsValueConstraint dateFieldsValueConstraint) {
-}
-
-public boolean isValid(OfferDTO value, ConstraintValidatorContext context) {
-
-        Long startDateFieldValue = (Long) new BeanWrapperImpl(value)
-        .getPropertyValue(startDateField);
-        Long expiyDateFieldValue = (Long) new BeanWrapperImpl(value)
-        .getPropertyValue(expiryDateField);
-        Boolean isExpirableFieldValue =  (Boolean) new BeanWrapperImpl(value)
-                .getPropertyValue(isExpirableField);
-         return !isExpirableFieldValue || ((expiyDateFieldValue != null && startDateFieldValue != null) && startDateFieldValue <= expiyDateFieldValue);
-}
-
+    public boolean isValid(OfferDTO value, ConstraintValidatorContext context) {
+        BeanWrapperImpl beanWrapper = new BeanWrapperImpl(value);
+        Long startDateFieldValue = (Long) beanWrapper.getPropertyValue(startDateField);
+        Long expiyDateFieldValue = (Long) beanWrapper.getPropertyValue(expiryDateField);
+        Boolean isExpirableFieldValue = (Boolean) beanWrapper.getPropertyValue(isExpirableField);
+        boolean isValid = !isExpirableFieldValue || ((expiyDateFieldValue != null && startDateFieldValue != null) && startDateFieldValue <= expiyDateFieldValue);
+        if (!isValid) {
+            HibernateConstraintValidatorContext hibernateContext = context.unwrap(HibernateConstraintValidatorContext.class);
+            hibernateContext.disableDefaultConstraintViolation();
+            hibernateContext
+                    .buildConstraintViolationWithTemplate(hibernateContext.getDefaultConstraintMessageTemplate())
+                    .addPropertyNode("expiryDate")
+                    .addConstraintViolation();
+        }
+        return isValid;
+    }
 }

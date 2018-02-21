@@ -2,20 +2,21 @@ package com.ovoenergy.offer.validation.validator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import static com.ovoenergy.offer.validation.key.CodeKeys.NON_IN_FUTURE_DATE;
+import static com.ovoenergy.offer.validation.key.CodeKeys.NOT_UNIQUE_OFFER_CODE;
 
 @Documented
-@Constraint(validatedBy = FutureDateValidator.class)
-@Target(ElementType.FIELD)
+@Constraint(validatedBy = OfferCodeValidator.class)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FutureDateConstraint {
-    String message() default NON_IN_FUTURE_DATE;
+public @interface OfferCodeConstraint {
+    String message() default NOT_UNIQUE_OFFER_CODE;
 
     Class<?>[] groups() default {};
 
