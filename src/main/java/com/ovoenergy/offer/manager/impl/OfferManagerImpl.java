@@ -86,19 +86,14 @@ public class OfferManagerImpl implements OfferManager {
 
     @Override
     public Boolean verifyOffer(String offerCode) {
-        OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerCode, StatusType.ACTIVE);
-        if(offerDBEntity == null) {
-            throw new VariableNotValidException(OFFER_INVALID);
-        } else {
-            offerOperationsRegistry.processOfferDBEntityValidation(offerDBEntity);
-        }
+        fetchActiveOfferByOfferCode(offerCode);
         return true;
     }
 
     @Override
     @Transactional(Transactional.TxType.REQUIRED)
     public OfferApplyDTO applyUserToOffer(String offerCode, String emailAddress) {
-        OfferDBEntity offerDBEntity = offerOperationsRegistry.processOfferDBEntityValidation(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerCode, StatusType.ACTIVE));
+        OfferDBEntity offerDBEntity =  fetchActiveOfferByOfferCode(offerCode);
         offerDBEntity.setActualOfferRedemptions(offerDBEntity.getActualOfferRedemptions() + 1);
 
         OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.save(offerOperationsRegistry.createOfferRedeemDBEntity(offerDBEntity, emailAddress));
@@ -110,6 +105,16 @@ public class OfferManagerImpl implements OfferManager {
                 .offerCode(offerCode)
                 .updatedOn(offerRedeemDBEntity.getUpdatedOn())
                 .build();
+    }
+
+    private OfferDBEntity fetchActiveOfferByOfferCode(String offerCode) {
+        OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerCode, StatusType.ACTIVE);
+        if(offerDBEntity == null) {
+            throw new VariableNotValidException(OFFER_INVALID);
+        } else {
+            offerOperationsRegistry.processOfferDBEntityValidation(offerDBEntity);
+        }
+        return offerDBEntity;
     }
 
     private OfferValidationDTO processOfferCodeInputValidation(OfferDTO offerDTO) {
