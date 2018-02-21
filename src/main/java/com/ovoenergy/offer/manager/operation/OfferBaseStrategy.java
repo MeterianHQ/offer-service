@@ -5,8 +5,6 @@ import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.jdbc.JdbcHelper;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.exception.VariableNotValidException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
@@ -17,16 +15,14 @@ import java.time.ZoneOffset;
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_EXPIRED;
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
 
-public abstract class  OfferBaseStrategy {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OfferBaseStrategy.class);
+public abstract class OfferBaseStrategy {
 
     @Autowired
     protected JdbcHelper jdbcHelper;
 
     public abstract OfferDBEntity createOfferDBEntity(OfferDTO offerDTO);
 
-    public abstract OfferDBEntity updateOfferDBEntity(OfferDBEntity ruleDBDoc, OfferDTO offerDTO);
+    public abstract OfferDBEntity updateOfferDBEntity(OfferDBEntity oldOfferDBEntity, OfferDTO offerDTO);
 
     public abstract boolean anyChangesInOfferDetected(OfferDBEntity ruleDBDoc, OfferDTO offerDTO);
 
@@ -42,7 +38,7 @@ public abstract class  OfferBaseStrategy {
     }
 
     public OfferRedeemDBEntity createOfferRedeemDBEntity(Long offerId, String emailAddress) {
-        Long currentDbTimeMidnightMilliseconds =  getCurrentDbTimeMidnightMilliseconds();
+        Long currentDbTimeMidnightMilliseconds = getCurrentDbTimeMidnightMilliseconds();
         return new OfferRedeemDBEntity(offerId, emailAddress, currentDbTimeMidnightMilliseconds);
     }
 

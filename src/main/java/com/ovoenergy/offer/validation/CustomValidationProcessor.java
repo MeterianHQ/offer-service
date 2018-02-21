@@ -5,6 +5,7 @@ import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferValidationDTO;
+import com.ovoenergy.offer.exception.RequestIdsInValidException;
 import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.validation.group.*;
 import com.ovoenergy.offer.validation.key.CodeKeys;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,7 +40,10 @@ public class CustomValidationProcessor {
         }
     }
 
-    public OfferValidationDTO processOfferUpdateValidation(OfferDTO request) {
+    public OfferValidationDTO processOfferUpdateValidation(OfferDTO request, Long id) {
+        if (!Objects.equals(request.getId(), id)) {
+            throw new RequestIdsInValidException(CodeKeys.PROVIDED_TWO_DIFFERENT_IDS);
+        }
         if (StatusType.DRAFT.name().equalsIgnoreCase(request.getStatus())) {
             return processDraftOfferCreateValidation(request, RequiredOfferUpdateChecks.class, BaseOfferChecks.class, RequiredDraftOfferChecks.class);
         } else {

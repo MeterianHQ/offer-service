@@ -2,6 +2,7 @@ package com.ovoenergy.offer.rest;
 
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.exception.InternalBaseException;
+import com.ovoenergy.offer.exception.RequestIdsInValidException;
 import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import com.ovoenergy.offer.validation.key.MessageKeys;
@@ -21,8 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @ControllerAdvice
@@ -44,7 +43,7 @@ public class InternalExceptionHandler {
     @ExceptionHandler(IOException.class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     @ResponseBody
-    public ResponseEntity<ErrorMessageDTO> processIOException(HttpServletRequest req, HttpServletResponse res, IOException ex) {
+    public ResponseEntity<ErrorMessageDTO> processIOException(IOException ex) {
         LOGGER.error("Unexpected error occurred", ex);
         if (StringUtils.containsIgnoreCase(ExceptionUtils.getRootCauseMessage(ex), "Broken pipe")) {
             return null;
@@ -59,7 +58,7 @@ public class InternalExceptionHandler {
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public ResponseEntity<ErrorMessageDTO> processGenericError(HttpServletRequest req, HttpServletResponse res, Throwable t) throws Throwable {
+    public ResponseEntity<ErrorMessageDTO> processGenericError(Throwable t) {
         LOGGER.error("Unexpected error occurred", t);
         return new ResponseEntity<>(new ErrorMessageDTO(
                 CodeKeys.GENERIC_SERVER_ERROR,
@@ -71,6 +70,16 @@ public class InternalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ResponseEntity<ErrorMessageDTO> processVariableNotValidError(InternalBaseException e) {
+        String messageErrorCode = e.getErrorMessageProperty();
+        return new ResponseEntity<>(new ErrorMessageDTO(
+                messageErrorCode,
+                msgSource.getMessage(ValidationCodeMessageKeyPair.getMessageByCode(messageErrorCode), null, LocaleContextHolder.getLocale())), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RequestIdsInValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ResponseEntity<ErrorMessageDTO> processVariableNotValidError(RequestIdsInValidException e) {
         String messageErrorCode = e.getErrorMessageProperty();
         return new ResponseEntity<>(new ErrorMessageDTO(
                 messageErrorCode,
