@@ -1,6 +1,7 @@
 package com.ovoenergy.offer.db.entity;
 
 import com.ovoenergy.offer.audit.Auditable;
+import com.ovoenergy.offer.audit.AuditableField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +36,7 @@ public class OfferDBEntity {
     @Enumerated(EnumType.STRING)
     private StatusType status;
 
+    @AuditableField
     @Column(name = "offer_code")
     private String offerCode;
 

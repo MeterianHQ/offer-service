@@ -14,9 +14,9 @@ import static com.google.common.collect.Lists.newArrayList;
 @EnableSwagger2
 @SpringBootApplication
 @EnableAutoConfiguration
-@ComponentScan("com.ovoenergy.offer")
-@EntityScan(basePackages = { "com.ovoenergy.offer.db.entity" })
-@EnableJpaRepositories(basePackages = { "com.ovoenergy.offer.db.repository" })
+@ComponentScan(basePackages = "com.ovoenergy.offer")
+@EntityScan(basePackages =  "com.ovoenergy.offer.db.entity" )
+@EnableJpaRepositories(basePackages =  "com.ovoenergy.offer.db.repository" )
 public class Application {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
