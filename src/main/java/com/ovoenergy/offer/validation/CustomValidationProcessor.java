@@ -74,15 +74,10 @@ public class CustomValidationProcessor {
         OfferValidationDTO validationDTO = new OfferValidationDTO(request);
         for (ConstraintViolation<OfferDTO> constraintViolation : violations) {
             String propertyPath = constraintViolation.getPropertyPath().toString();
-            propertyPath = propertyPath == null || propertyPath.isEmpty() ? "expiryDate" : propertyPath;
             String messageErrorCode = constraintViolation.getMessage();
-            Set<ErrorMessageDTO> errorMessageDTOS = validationDTO.getConstraintViolations().get(propertyPath);
-            errorMessageDTOS = errorMessageDTOS == null ? Sets.newHashSet() : errorMessageDTOS;
-            errorMessageDTOS.add(
-                    new ErrorMessageDTO(
-                            messageErrorCode,
+            validationDTO.getConstraintViolations().computeIfAbsent(propertyPath, s -> Sets.newHashSet())
+                    .add(new ErrorMessageDTO(messageErrorCode,
                             msgSource.getMessage(ValidationCodeMessageKeyPair.getMessageByCode(messageErrorCode), null, LocaleContextHolder.getLocale())));
-            validationDTO.getConstraintViolations().put(propertyPath, errorMessageDTOS);
         }
         return validationDTO;
 

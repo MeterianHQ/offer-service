@@ -1,6 +1,7 @@
 package com.ovoenergy.offer.validation.validator;
 
 import com.ovoenergy.offer.dto.OfferDTO;
+import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 import org.springframework.beans.BeanWrapperImpl;
 
 import javax.validation.ConstraintValidator;
@@ -19,7 +20,16 @@ public class ExpiryFieldsValueValidator implements ConstraintValidator<ExpiryDat
         Long expiyDateFieldValue = (Long) beanWrapper.getPropertyValue(expiryDateField);
         Boolean isExpirableFieldValue = (Boolean) beanWrapper.getPropertyValue(isExpirableField);
 
-        return (isExpirableFieldValue && expiyDateFieldValue != null) || (!isExpirableFieldValue && expiyDateFieldValue == null);
+        boolean isValid = (isExpirableFieldValue && expiyDateFieldValue != null) || (!isExpirableFieldValue && expiyDateFieldValue == null);
+        if (!isValid) {
+            HibernateConstraintValidatorContext hibernateContext = context.unwrap(HibernateConstraintValidatorContext.class);
+            hibernateContext.disableDefaultConstraintViolation();
+            hibernateContext
+                    .buildConstraintViolationWithTemplate(hibernateContext.getDefaultConstraintMessageTemplate())
+                    .addPropertyNode("expiryDate")
+                    .addConstraintViolation();
+        }
+        return isValid;
     }
 
 }
