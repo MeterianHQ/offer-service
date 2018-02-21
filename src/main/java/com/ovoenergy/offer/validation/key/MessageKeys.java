@@ -40,6 +40,10 @@ public interface MessageKeys {
 
     String OFFER_DESCRIPTION_FIELD_SIZE = "size.offer.description.field";
 
+    String PROVIDED_TWO_DIFFERENT_IDS = "provided.ids.different";
+
+    String ENTITY_NOT_EXIST = "entity.not.exist";
+
     interface Common {
 
         String GENERIC_SERVER_ERROR = "generic.server.error";

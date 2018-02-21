@@ -114,9 +114,7 @@ public class OfferService {
     public ResponseEntity<OfferDTO> updateOffer(@PathVariable Long id, @RequestBody OfferDTO request) {
         LOGGER.debug("UPDATE offer with id = {} request has been received: {}", id, request);
 
-        request.setId(id);
-        OfferValidationDTO validationDTO = customValidator.processOfferUpdateValidation(request);
-
+        OfferValidationDTO validationDTO = customValidator.processOfferUpdateValidation(request, id);
         if (validationDTO != null) {
             return ResponseEntity.badRequest().body(validationDTO);
         }

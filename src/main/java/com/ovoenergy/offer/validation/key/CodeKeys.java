@@ -42,4 +42,8 @@ public interface CodeKeys {
 
     String OFFER_DESCRIPTION_FIELD_SIZE = "OFR20";
 
+    String PROVIDED_TWO_DIFFERENT_IDS = "OFR21";
+
+    String ENTITY_NOT_EXIST = "OFR22";
+
 }

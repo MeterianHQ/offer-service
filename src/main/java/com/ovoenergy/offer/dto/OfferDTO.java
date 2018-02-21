@@ -1,11 +1,9 @@
 package com.ovoenergy.offer.dto;
 
+import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.validation.group.*;
 import com.ovoenergy.offer.validation.key.CodeKeys;
-import com.ovoenergy.offer.validation.validator.DateFieldsValueConstraint;
-import com.ovoenergy.offer.validation.validator.ExpiryDateFieldsValueConstraint;
-import com.ovoenergy.offer.validation.validator.FutureDateConstraint;
-import com.ovoenergy.offer.validation.validator.OfferCodeConstraint;
+import com.ovoenergy.offer.validation.validator.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -26,6 +24,7 @@ import javax.validation.constraints.*;
 @Builder
 public class OfferDTO {
 
+    @EntityExistsConstraint(groups = RequiredOfferUpdateChecks.class, repository = OfferRepository.class)
     @Null(groups = RequiredOfferCreateChecks.class, message = CodeKeys.NULL_FIELD)
     @NotNull(groups = RequiredOfferUpdateChecks.class, message = CodeKeys.NOT_NULL_FIELD)
     @ApiModelProperty(name = "id", required = true)

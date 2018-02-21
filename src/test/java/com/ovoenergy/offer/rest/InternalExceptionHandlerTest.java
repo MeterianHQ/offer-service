@@ -17,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -40,12 +38,6 @@ public class InternalExceptionHandlerTest {
 
     @InjectMocks
     private InternalExceptionHandler handler;
-
-    @Mock
-    private HttpServletRequest mockReq;
-
-    @Mock
-    private HttpServletResponse mockRes;
 
     @Mock
     private MessageSource msgSource;
@@ -70,31 +62,27 @@ public class InternalExceptionHandlerTest {
     }
 
     @Test
-    public void testProcessGenericError() throws Throwable {
+    public void testProcessGenericError() {
         Exception ex = new RuntimeException("smth went wrong");
-        ResponseEntity<ErrorMessageDTO> response = handler.processGenericError(mockReq, mockRes, ex);
+        ResponseEntity<ErrorMessageDTO> response = handler.processGenericError(ex);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 
     @Test
     public void testProcessIOExceptionBrokenPipe() {
-        HttpServletRequest mockReq = mock(HttpServletRequest.class);
-        HttpServletResponse mockRes = mock(HttpServletResponse.class);
         IOException ex = new IOException("Broken pipe");
 
 
-        ResponseEntity<ErrorMessageDTO> result = handler.processIOException(mockReq, mockRes, ex);
+        ResponseEntity<ErrorMessageDTO> result = handler.processIOException(ex);
         assertNull(result);
     }
 
     @Test
     public void testProcessIOException() {
-        HttpServletRequest mockReq = mock(HttpServletRequest.class);
-        HttpServletResponse mockRes = mock(HttpServletResponse.class);
         IOException ex = new IOException("");
         when(msgSource.getMessage(any(), any(), eq(LOCALE))).thenReturn(ERROR_MESSAGE);
 
-        ResponseEntity<ErrorMessageDTO> result = handler.processIOException(mockReq, mockRes, ex);
+        ResponseEntity<ErrorMessageDTO> result = handler.processIOException(ex);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
         assertEquals(ERROR_MESSAGE, result.getBody().getMessage());
