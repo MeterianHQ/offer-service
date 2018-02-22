@@ -19,8 +19,8 @@ import javax.validation.constraints.*;
 @AllArgsConstructor
 @ApiModel(value = "Offer", description = "Offer information")
 @OfferCodeConstraint(groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
-@ExpiryDateFieldsValueConstraint(groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
-@DateFieldsValueConstraint(groups = {RequiredActiveOfferChecks.class, RequiredDraftOfferChecks.class})
+@ExpiryDateFieldsValueConstraint(groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+@DateFieldsValueConstraint(groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
 @Builder
 public class OfferDTO {
 
