@@ -20,9 +20,9 @@ import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.dto.OfferVerifyDTO;
 import com.ovoenergy.offer.dto.OffersServiceURLs;
 import com.ovoenergy.offer.db.entity.StatusType;
-import com.ovoenergy.offer.integration.mock.MockApplication;
 import com.ovoenergy.offer.integration.mock.config.OfferRepositoryTestConfiguration;
 import com.ovoenergy.offer.validation.key.CodeKeys;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -57,7 +57,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {MockApplication.class, OfferRepositoryTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {OfferRepositoryTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
 
 
@@ -85,7 +85,7 @@ public class CreateDraftOfferTest {
         Long TEST_INVALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).minusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         Long TEST_INVALID_DATE_BEFORE_NOW = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
-        String TEST_NOT_UNIQUE_CODE = "NotUniqueCode";
+        String TEST_NOT_UNIQUE_CODE = "validcode";
 
 
         // Valid data
@@ -162,7 +162,7 @@ public class CreateDraftOfferTest {
         assertEquals("Success: Offer created as DRAFT", HttpStatus.OK, response.getStatusCode());
 
         OfferDTO offerDTO =  objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
-        //TODO: fix with  draft save commit
+
         assertEquals("Offer status set as DRAFT", StatusType.DRAFT.name(), offerDTO.getStatus());
 
         verifyValidOfferDTO(offerDTO);
@@ -209,14 +209,6 @@ public class CreateDraftOfferTest {
         assertEquals("Input value for START date is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_DATE_BEFORE_NOW, validationDTO.getStartDate());
         assertEquals("Input value for EXPIRY date is incorrect ", ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE, validationDTO.getExpiryDate());
         assertTrue("No Expiry Date selected value is incorrect", validationDTO.getIsExpirable());
-        assertEquals("Input value for Offer TYPE is expected", ValidateOfferForCreateInputData.TEST_INVALID_OFFER_TYPE, validationDTO.getOfferType());
-        assertEquals("Input value for Value is expected", ValidateOfferForCreateInputData.TEST_INVALID_MAX_VALUE, validationDTO.getValue());
-        assertEquals("Input value for Offer Redemption is expected", ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION, validationDTO.getMaxOfferRedemptions());
-        assertEquals("Input value for Eligibility criteria is expected", ValidateOfferForCreateInputData.TEST_INVALID_ELIGIBILITY_CRITERIA, validationDTO.getEligibilityCriteria());
-        assertEquals("Input value for Channel is expected", ValidateOfferForCreateInputData.TEST_INVALID_CHANEL, validationDTO.getChannel());
-        assertEquals("Input value for START date is expected", ValidateOfferForCreateInputData.TEST_INVALID_DATE_BEFORE_NOW, validationDTO.getStartDate());
-        assertEquals("Input value for EXPIRY date is expected ", ValidateOfferForCreateInputData.TEST_INVALID_EXPIRY_DATE, validationDTO.getExpiryDate());
-        assertTrue("No Expiry Date selected value is expected", validationDTO.getIsExpirable());
         assertEquals("Status of offer is expected", StatusType.DRAFT.name(), validationDTO.getStatus());
 
         //Checking validation codes and messages for expiryDate
@@ -327,8 +319,8 @@ public class CreateDraftOfferTest {
         Set<ErrorMessageDTO> offerNameValidations = validationDTO.getConstraintViolations().get("offerName");
         Set<String> offerNameAllErrorCodes = offerNameValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerNameAllErrorMessages = offerNameValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code for null value in offer name field", offerNameAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-        assertTrue("Validation constraints missed error message for  null value in offer name field", offerNameAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
+        assertTrue("Validation constraints missed error code for null value in offer name field", offerNameAllErrorCodes.contains(CodeKeys.FIELD_REQUIRED));
+        assertTrue("Validation constraints missed error message for  null value in offer name field", offerNameAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.REQUIRED_FIELD));
 
         //Checking validation codes and messages for OfferRedemption
         Set<ErrorMessageDTO> offerRedemptionValidations = validationDTO.getConstraintViolations().get("maxOfferRedemptions");
@@ -341,8 +333,8 @@ public class CreateDraftOfferTest {
         Set<ErrorMessageDTO> offerCodeValidations = validationDTO.getConstraintViolations().get("offerCode");
         Set<String> offerCodeAllErrorCodes = offerCodeValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerCodeAllErrorMessages = offerCodeValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code for null value in offer code field", offerCodeAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-        assertTrue("Validation constraints missed error message for null value in offer code field", offerCodeAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
+        assertTrue("Validation constraints missed error code for null value in offer code field", offerCodeAllErrorCodes.contains(CodeKeys.FIELD_REQUIRED));
+        assertTrue("Validation constraints missed error message for null value in offer code field", offerCodeAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.REQUIRED_FIELD));
 
         //Checking validation codes and messages for offer supplier dropdown
         Set<ErrorMessageDTO> offerSupplierValidations = validationDTO.getConstraintViolations().get("supplier");
@@ -467,7 +459,7 @@ public class CreateDraftOfferTest {
         assertTrue("Validation constraints missed error code if eligibility criteria field is empty ", offerEligibilityAllErrorCodes.contains(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED));
         assertTrue("Validation constraints missed error message if eligibility criteria field is empty", offerEligibilityAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.PROVIDED_VALUE_NOT_SUPPORTED));
 
-        //TODO: fix with  draft save commit
+
         // Checking validation codes and messages for STATUS
         Set<ErrorMessageDTO> statusOfferValidations = validationDTO.getConstraintViolations().get("status");
         Set<String> statusOfferAllErrorCodes = statusOfferValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
@@ -475,7 +467,7 @@ public class CreateDraftOfferTest {
         assertTrue(" Validation constraints missed error code if status empty ", statusOfferAllErrorCodes.contains(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED));
         assertTrue(" Validation constraints missed error message if status empty", statusOfferAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.PROVIDED_VALUE_NOT_SUPPORTED));
     }
-
+    
 
     private OfferDBEntity prepareForTestValidOfferDBEntity() {
         OfferDBEntity offerDBEntity = new OfferDBEntity();

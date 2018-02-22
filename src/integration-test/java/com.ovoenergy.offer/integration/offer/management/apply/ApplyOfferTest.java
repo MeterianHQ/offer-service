@@ -18,7 +18,6 @@ import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.dto.OfferVerifyDTO;
 import com.ovoenergy.offer.dto.OffersServiceURLs;
 import com.ovoenergy.offer.db.entity.StatusType;
-import com.ovoenergy.offer.integration.mock.MockApplication;
 import com.ovoenergy.offer.integration.mock.config.OfferRepositoryTestConfiguration;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import org.junit.Test;
@@ -55,7 +54,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {MockApplication.class, OfferRepositoryTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {OfferRepositoryTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ApplyOfferTest {
 
     @Autowired
