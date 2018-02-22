@@ -38,13 +38,14 @@ public class AuditListener implements PostUpdateEventListener, PostInsertEventLi
             Object[] state = event.getState();
 
             List<AuditDBEntity> auditDBEntities = new ArrayList<>();
-            for (String fieldName: fieldNames) {
+            long time = jdbcHelper.lookupCurrentDbTime().getTime();
+            for (String fieldName : fieldNames) {
                 int index = getIndexByFieldName(event.getPersister(), fieldName);
                 Object o = state[index];
                 AuditDBEntity auditDBEntity = AuditDBEntity.builder()
                         .entityId((Long) event.getId())
                         .entityName(getEntityName(event.getPersister()))
-                        .updatedOn(jdbcHelper.lookupCurrentDbTime().getTime())
+                        .updatedOn(time)
                         .fieldName(fieldName)
                         .newValue(Objects.toString(o))
                         .build();
@@ -64,7 +65,8 @@ public class AuditListener implements PostUpdateEventListener, PostInsertEventLi
             List<Integer> dirtyPropertyIndexes = Ints.asList(event.getDirtyProperties());
 
             List<AuditDBEntity> auditDBEntities = new ArrayList<>();
-            for (String fieldName: fieldNames) {
+            long time = jdbcHelper.lookupCurrentDbTime().getTime();
+            for (String fieldName : fieldNames) {
                 int index = getIndexByFieldName(event.getPersister(), fieldName);
                 if (dirtyPropertyIndexes.contains(index)) {
                     Object newValue = state[index];
@@ -72,7 +74,7 @@ public class AuditListener implements PostUpdateEventListener, PostInsertEventLi
                     AuditDBEntity auditDBEntity = AuditDBEntity.builder()
                             .entityId((Long) event.getId())
                             .entityName(getEntityName(event.getPersister()))
-                            .updatedOn(jdbcHelper.lookupCurrentDbTime().getTime())
+                            .updatedOn(time)
                             .fieldName(fieldName)
                             .newValue(Objects.toString(newValue))
                             .oldValue(Objects.toString(oldValue))

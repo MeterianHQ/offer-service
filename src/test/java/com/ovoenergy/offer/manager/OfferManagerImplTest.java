@@ -6,11 +6,11 @@ import com.google.common.collect.Lists;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.entity.StatusType;
-import com.ovoenergy.offer.db.jdbc.JdbcHelper;
 import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
+import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.manager.impl.OfferManagerImpl;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
 import org.junit.Rule;
@@ -19,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 
 import java.time.ZoneId;
@@ -29,8 +28,13 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,9 +57,6 @@ public class OfferManagerImplTest {
     private static final Long ACTUAL_REDEMPTIONS_VALID = 1L;
 
     @Mock
-    private JdbcHelper mockJdbcHelper;
-
-    @Mock
     private OfferRepository mockOfferRepository;
 
     @Mock
@@ -63,9 +64,6 @@ public class OfferManagerImplTest {
 
     @Mock
     private OfferOperationsRegistry mockOfferOperationsRegistry;
-
-    @Mock
-    private MessageSource mockMsgSource;
 
     @Rule
     public FixtureRule fixtures = FixtureRule.initFixtures();
@@ -104,7 +102,10 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getUpdatedOn(), result.getUpdatedOn());
         assertEquals(fixtureOfferDBEntity.getValue(), result.getValue());
         assertEquals(fixtureOfferDBEntity.getId(), result.getId());
-        verify(mockOfferRepository).findOneById(eq(TEST_OFFER_ID));
+
+        verify(mockOfferRepository, only()).findOneById(eq(TEST_OFFER_ID));
+        verifyNoMoreInteractions(mockOfferRepository);
+        verifyZeroInteractions(mockOfferRedeemRepository, mockOfferOperationsRegistry);
     }
 
     @Test
@@ -114,14 +115,18 @@ public class OfferManagerImplTest {
         List<OfferDTO> result = unit.getAllOffers();
 
         assertEquals(1, result.size());
-        verify(mockOfferRepository).findAll(any(Sort.class));
+
+        verify(mockOfferRepository, only()).findAll(any(Sort.class));
+        verifyNoMoreInteractions(mockOfferRepository);
+        verifyZeroInteractions(mockOfferRedeemRepository, mockOfferOperationsRegistry);
     }
 
     @Test
-    public void testCreateActiveOfferSuccess() {
+    public void testCreateOfferSuccess() {
         fixtureOfferDTO.setOfferCode(TEST_OFFER_CODE);
         fixtureOfferDTO.setStatus(StatusType.ACTIVE.name());
-        when(mockOfferOperationsRegistry.createOfferDBEntity(fixtureOfferDTO)).thenReturn(fixtureOfferDBEntity);
+        when(mockOfferRepository.findOneById(anyLong())).thenReturn(fixtureOfferDBEntity);
+        when(mockOfferOperationsRegistry.updateOfferDBEntity(fixtureOfferDBEntity, fixtureOfferDTO)).thenReturn(fixtureOfferDBEntity);
         when(mockOfferRepository.save(any(OfferDBEntity.class))).thenReturn(fixtureOfferDBEntity);
 
         OfferDTO result = unit.createOffer(fixtureOfferDTO);
@@ -142,8 +147,45 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getUpdatedOn(), result.getUpdatedOn());
         assertEquals(fixtureOfferDBEntity.getValue(), result.getValue());
         assertEquals(fixtureOfferDBEntity.getId(), result.getId());
-        verify(mockOfferRepository).save(any(OfferDBEntity.class));
-        verify(mockOfferOperationsRegistry).createOfferDBEntity(fixtureOfferDTO);
+
+        verify(mockOfferRepository, only()).save(any(OfferDBEntity.class));
+        verify(mockOfferOperationsRegistry, only()).createOfferDBEntity(fixtureOfferDTO);
+        verifyNoMoreInteractions(mockOfferRepository, mockOfferOperationsRegistry);
+        verifyZeroInteractions(mockOfferRedeemRepository);
+    }
+
+    @Test
+    public void testUpdateOfferSuccess() {
+        Long id = 1L;
+        fixtureOfferDTO.setOfferCode(TEST_OFFER_CODE);
+        fixtureOfferDTO.setStatus(StatusType.ACTIVE.name());
+        when(mockOfferOperationsRegistry.updateOfferDBEntity(fixtureOfferDBEntity, fixtureOfferDTO)).thenReturn(fixtureOfferDBEntity);
+        when(mockOfferRepository.save(any(OfferDBEntity.class))).thenReturn(fixtureOfferDBEntity);
+
+        OfferDTO result = unit.updateOffer(fixtureOfferDTO, id);
+
+        assertEquals(fixtureOfferDBEntity.getOfferCode(), result.getOfferCode());
+        assertEquals(fixtureOfferDBEntity.getDescription(), result.getDescription());
+        assertEquals(fixtureOfferDBEntity.getOfferName(), result.getOfferName());
+        assertEquals(fixtureOfferDBEntity.getChannel().value(), result.getChannel());
+        assertEquals(fixtureOfferDBEntity.getActualOfferRedemptions(), result.getActualOfferRedemptions());
+        assertEquals(fixtureOfferDBEntity.getMaxOfferRedemptions(), result.getMaxOfferRedemptions());
+        assertEquals(fixtureOfferDBEntity.getExpiryDate(), result.getExpiryDate());
+        assertEquals(fixtureOfferDBEntity.getStartDate(), result.getStartDate());
+        assertEquals(fixtureOfferDBEntity.getIsExpirable(), result.getIsExpirable());
+        assertEquals(fixtureOfferDBEntity.getEligibilityCriteria().value(), result.getEligibilityCriteria());
+        assertEquals(fixtureOfferDBEntity.getOfferType().value(), result.getOfferType());
+        assertEquals(fixtureOfferDBEntity.getStatus().name(), result.getStatus());
+        assertEquals(fixtureOfferDBEntity.getSupplier().value(), result.getSupplier());
+        assertEquals(fixtureOfferDBEntity.getUpdatedOn(), result.getUpdatedOn());
+        assertEquals(fixtureOfferDBEntity.getValue(), result.getValue());
+        assertEquals(fixtureOfferDBEntity.getId(), result.getId());
+
+        verify(mockOfferRepository, times(1)).save(any(OfferDBEntity.class));
+        verify(mockOfferRepository, times(1)).findOneById(anyLong());
+        verify(mockOfferOperationsRegistry, only()).updateOfferDBEntity(any(OfferDBEntity.class), any(OfferDTO.class));
+        verifyNoMoreInteractions(mockOfferRepository, mockOfferOperationsRegistry);
+        verifyZeroInteractions(mockOfferRedeemRepository);
     }
 
     @Test
@@ -160,8 +202,21 @@ public class OfferManagerImplTest {
         Boolean result = unit.verifyOffer(TEST_OFFER_CODE);
 
         assertTrue(result);
-        verify(mockOfferRepository).findOneByOfferCodeIgnoreCaseAndStatus(eq(TEST_OFFER_CODE), eq(StatusType.ACTIVE));
-        verify(mockOfferOperationsRegistry).processOfferDBEntityValidation(eq(fixtureOfferDBEntity));
+        verify(mockOfferRepository, only()).findOneByOfferCodeIgnoreCaseAndStatus(eq(TEST_OFFER_CODE), eq(StatusType.ACTIVE));
+        verify(mockOfferOperationsRegistry, only()).processOfferDBEntityValidation(eq(fixtureOfferDBEntity));
+        verifyNoMoreInteractions(mockOfferRepository, mockOfferOperationsRegistry);
+        verifyZeroInteractions(mockOfferRedeemRepository);
+    }
+
+    @Test(expected = VariableNotValidException.class)
+    public void verifyOfferThrowException() {
+        when(mockOfferRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(TEST_OFFER_CODE), eq(StatusType.ACTIVE))).thenReturn(null);
+
+        unit.verifyOffer(TEST_OFFER_CODE);
+
+        verify(mockOfferRepository, only()).findOneByOfferCodeIgnoreCaseAndStatus(eq(TEST_OFFER_CODE), eq(StatusType.ACTIVE));
+        verifyNoMoreInteractions(mockOfferRepository);
+        verifyZeroInteractions(mockOfferRedeemRepository, mockOfferOperationsRegistry);
     }
 
     @Test
@@ -188,9 +243,11 @@ public class OfferManagerImplTest {
         assertEquals(fxOfferRedeemDBEntity.getUpdatedOn(), result.getUpdatedOn());
         assertEquals(TEST_EMAIL, result.getEmail());
         assertEquals(TEST_OFFER_CODE, result.getOfferCode());
-        verify(mockOfferRepository).findOneByOfferCodeIgnoreCaseAndStatus(eq(TEST_OFFER_CODE), eq(StatusType.ACTIVE));
-        verify(mockOfferRepository).save(any(OfferDBEntity.class));
-        verify(mockOfferRedeemRepository).save(any(OfferRedeemDBEntity.class));
-        verify(mockOfferOperationsRegistry).processOfferDBEntityValidation(eq(fixtureOfferDBEntity));
+        verify(mockOfferRepository, times(1)).findOneByOfferCodeIgnoreCaseAndStatus(eq(TEST_OFFER_CODE), eq(StatusType.ACTIVE));
+        verify(mockOfferRepository, times(1)).save(any(OfferDBEntity.class));
+        verify(mockOfferRedeemRepository, only()).save(any(OfferRedeemDBEntity.class));
+        verify(mockOfferOperationsRegistry, times(1)).processOfferDBEntityValidation(eq(fixtureOfferDBEntity));
+        verify(mockOfferOperationsRegistry, times(1)).createOfferRedeemDBEntity(eq(fixtureOfferDBEntity), eq(TEST_EMAIL));
+        verifyNoMoreInteractions(mockOfferRepository, mockOfferOperationsRegistry, mockOfferRedeemRepository);
     }
 }

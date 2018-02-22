@@ -1,6 +1,7 @@
 package com.ovoenergy.offer.rest;
 
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
+import com.ovoenergy.offer.exception.RequestIdsInValidException;
 import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.validation.key.ValidationCodeMessageKeyPair;
 import org.junit.Before;
@@ -72,7 +73,6 @@ public class InternalExceptionHandlerTest {
     public void testProcessIOExceptionBrokenPipe() {
         IOException ex = new IOException("Broken pipe");
 
-
         ResponseEntity<ErrorMessageDTO> result = handler.processIOException(ex);
         assertNull(result);
     }
@@ -91,6 +91,16 @@ public class InternalExceptionHandlerTest {
     @Test
     public void processVariableNotValidError() {
         VariableNotValidException ex = new VariableNotValidException("input interface validation exception");
+
+        ResponseEntity<ErrorMessageDTO> response = handler.processVariableNotValidError(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(ERROR_MESSAGE, response.getBody().getMessage());
+    }
+
+    @Test
+    public void processRequestIdsInValidException() {
+        RequestIdsInValidException ex = new RequestIdsInValidException("input interface validation exception");
 
         ResponseEntity<ErrorMessageDTO> response = handler.processVariableNotValidError(ex);
 

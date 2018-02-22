@@ -1,6 +1,5 @@
 package com.ovoenergy.offer.rest;
 
-import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
