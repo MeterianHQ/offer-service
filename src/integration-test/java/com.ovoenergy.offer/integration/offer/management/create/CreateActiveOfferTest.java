@@ -1,24 +1,19 @@
 package com.ovoenergy.offer.integration.offer.management.create;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.ovoenergy.offer.db.entity.ChannelType;
 import com.ovoenergy.offer.db.entity.EligibilityCriteriaType;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
-import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.entity.OfferType;
 import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.db.entity.SupplierType;
 import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
-import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferValidationDTO;
-import com.ovoenergy.offer.dto.OfferVerifyDTO;
 import com.ovoenergy.offer.dto.OffersServiceURLs;
-import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.integration.mock.config.OfferRepositoryTestConfiguration;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import org.junit.Test;
@@ -51,13 +46,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {OfferRepositoryTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-
-
 public class CreateActiveOfferTest {
 
     @Autowired
@@ -96,8 +89,6 @@ public class CreateActiveOfferTest {
         Long TEST_VALID_DATE_IN_FUTURE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         Long TEST_VALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         Long TEST_VALID_UPDATE_ON_DATE = LocalDateTime.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-
-
     }
 
     private interface ValidateOfferForCreateViolationConstraintMessages {
@@ -357,7 +348,7 @@ public class CreateActiveOfferTest {
         offerToValidate.setIsExpirable(true);
         offerToValidate.setStatus("");
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToValidate, headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.CREATE_OFFER),
@@ -448,7 +439,7 @@ public class CreateActiveOfferTest {
 
         OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToCreate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToCreate, headers);
 
         Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(offerToCreate.getOfferCode()))).thenReturn(null);
         Mockito.when(offerRepository.save(any(OfferDBEntity.class))).thenReturn(offerDBEntity);
@@ -459,12 +450,49 @@ public class CreateActiveOfferTest {
                 HttpMethod.POST, entity, String.class);
         assertEquals("Success: Offer created", HttpStatus.OK, response.getStatusCode());
 
-        OfferDTO offerDTO =  objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
+        OfferDTO offerDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
         assertEquals("Offer status set as ACTIVE", StatusType.ACTIVE.name(), offerDTO.getStatus());
 
         verifyValidOfferDTO(offerDTO);
         Mockito.verify(offerRepository).save(any(OfferDBEntity.class));
         Mockito.verify(jdbcTemplate).queryForObject(any(String.class), any(RowMapper.class));
+    }
+
+    @Test
+    public void testCreateOfferDuplicatedCodeError() throws IOException {
+        OfferDTO offerToCreate = new OfferDTO();
+        offerToCreate.setDescription(ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION);
+        offerToCreate.setOfferName(ValidateOfferForCreateInputData.TEST_VALID_NAME);
+        offerToCreate.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
+        offerToCreate.setSupplier(ValidateOfferForCreateInputData.TEST_VALID_SUPPLIER);
+        offerToCreate.setOfferType(ValidateOfferForCreateInputData.TEST_VALID_OFFER_TYPE);
+        offerToCreate.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
+        offerToCreate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
+        offerToCreate.setEligibilityCriteria(ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA);
+        offerToCreate.setChannel(ValidateOfferForCreateInputData.TEST_VALID_CHANEL);
+        offerToCreate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE);
+        offerToCreate.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
+        offerToCreate.setIsExpirable(true);
+        offerToCreate.setStatus(StatusType.ACTIVE.name());
+
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(anyString())).thenReturn(new OfferDBEntity());
+
+        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToCreate, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort(OffersServiceURLs.CREATE_OFFER),
+                HttpMethod.POST, entity, String.class);
+        assertEquals("Failure 400 http", HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        OfferValidationDTO validationDTO = objectMapper.reader().forType(OfferValidationDTO.class).readValue(response.getBody());
+
+        Set<ErrorMessageDTO> offerCodeValidations = validationDTO.getConstraintViolations().get("offerCode");
+        Set<String> offerCodeAllErrorCodes = offerCodeValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
+        Set<String> offerCodeAllErrorMessages = offerCodeValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
+        assertTrue("Validation constraints missed error code if offer code field is empty ", offerCodeAllErrorCodes.contains(CodeKeys.NOT_UNIQUE_OFFER_CODE));
+        assertTrue("Validation constraints missed error message if offer code field is empty", offerCodeAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_UNIQUE_OFFER_CODE));
+
+        Mockito.verify(offerRepository, Mockito.only()).findOneByOfferCodeIgnoreCase(anyString());
     }
 
     @Test

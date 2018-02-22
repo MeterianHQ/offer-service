@@ -14,12 +14,14 @@ public class DBEntitiesTest extends BaseBeansTest {
         verify(OfferDBEntity.class);
         verify(OfferRedeemDBEntity.class);
         verify(OfferRedeemId.class);
+        verify(AuditDBEntity.class);
     }
 
     @Test
     public void testEquality() {
         equality(OfferDBEntity.class);
         equality(OfferRedeemDBEntity.class);
+        equality(AuditDBEntity.class);
     }
 
     @Test
@@ -27,6 +29,7 @@ public class DBEntitiesTest extends BaseBeansTest {
         hashCodeEquality(OfferDBEntity.class);
         hashCodeEquality(OfferRedeemDBEntity.class);
         hashCodeEquality(OfferRedeemId.class);
+        hashCodeEquality(AuditDBEntity.class);
     }
 
     /*
