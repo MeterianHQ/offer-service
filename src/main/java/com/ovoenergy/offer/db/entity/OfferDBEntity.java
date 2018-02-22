@@ -40,42 +40,54 @@ public class OfferDBEntity {
     @Column(name = "offer_code")
     private String offerCode;
 
+    @AuditableField
     @Column(name = "offer_name")
     private String offerName;
 
+    @AuditableField
     @Column(name = "description")
     private String description;
 
+    @AuditableField
     @Column(name = "supplier")
     @Enumerated(EnumType.STRING)
     private SupplierType supplier;
 
+    @AuditableField
     @Column(name = "offer_type")
     @Enumerated(EnumType.STRING)
     private OfferType offerType;
 
+    @AuditableField
     @Column(name = "value")
     private Long value;
 
+    @AuditableField
     @Column(name = "max_offer_redemptions")
     private Long maxOfferRedemptions;
 
+    @AuditableField
     @Column(name = "actual_offer_redemptions")
     private Long actualOfferRedemptions;
 
+    @AuditableField
     @Column(name = "start_date")
     private Long startDate;
 
+    @AuditableField
     @Column(name = "expiry_date")
     private Long expiryDate;
 
+    @AuditableField
     @Column(name = "is_expirable")
     private Boolean isExpirable;
 
+    @AuditableField
     @Column(name = "eligibility_criteria")
     @Enumerated(EnumType.STRING)
     private EligibilityCriteriaType eligibilityCriteria;
 
+    @AuditableField
     @Column(name = "channel")
     @Enumerated(EnumType.STRING)
     private ChannelType channel;

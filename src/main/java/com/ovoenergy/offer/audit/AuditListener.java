@@ -1,7 +1,9 @@
 package com.ovoenergy.offer.audit;
 
 import com.google.common.primitives.Ints;
+import com.ovoenergy.offer.db.entity.AuditDBEntity;
 import com.ovoenergy.offer.db.jdbc.JdbcHelper;
+import com.ovoenergy.offer.db.repository.AuditRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostInsertEventListener;
@@ -19,30 +21,31 @@ import java.util.Set;
 @Slf4j
 public class AuditListener implements PostUpdateEventListener, PostInsertEventListener {
 
-    private final Map<Class<?>, Set<AuditableFieldInfo>> classWithAuditableFieldInfo;
+    private final Map<Class<?>, Set<String>> classWithAuditableFieldNames;
     private final AuditRepository auditRepository;
     private final JdbcHelper jdbcHelper;
 
-    public AuditListener(Map<Class<?>, Set<AuditableFieldInfo>> classWithAuditableFieldInfo, AuditRepository auditRepository, JdbcHelper jdbcHelper) {
-        this.classWithAuditableFieldInfo = classWithAuditableFieldInfo;
+    public AuditListener(Map<Class<?>, Set<String>> classWithAuditableFieldNames, AuditRepository auditRepository, JdbcHelper jdbcHelper) {
+        this.classWithAuditableFieldNames = classWithAuditableFieldNames;
         this.auditRepository = auditRepository;
         this.jdbcHelper = jdbcHelper;
     }
 
     @Override
     public void onPostInsert(PostInsertEvent event) {
-        if (classWithAuditableFieldInfo.containsKey(event.getClass())) {
-            Set<AuditableFieldInfo> fieldInfoSet = classWithAuditableFieldInfo.get(event.getClass());
+        if (classWithAuditableFieldNames.containsKey(event.getEntity().getClass())) {
+            Set<String> fieldNames = classWithAuditableFieldNames.get(event.getEntity().getClass());
             Object[] state = event.getState();
 
             List<AuditDBEntity> auditDBEntities = new ArrayList<>();
-            for (AuditableFieldInfo auditableFieldInfo : fieldInfoSet) {
-                Object o = state[auditableFieldInfo.getFieldIndex()];
+            for (String fieldName: fieldNames) {
+                int index = getIndexByFieldName(event.getPersister(), fieldName);
+                Object o = state[index];
                 AuditDBEntity auditDBEntity = AuditDBEntity.builder()
                         .entityId((Long) event.getId())
                         .entityName(getEntityName(event.getPersister()))
-                        .updateOn(jdbcHelper.lookupCurrentDbTime().getTime())
-                        .fieldName(auditableFieldInfo.getFieldName())
+                        .updatedOn(jdbcHelper.lookupCurrentDbTime().getTime())
+                        .fieldName(fieldName)
                         .newValue(Objects.toString(o))
                         .build();
                 auditDBEntities.add(auditDBEntity);
@@ -54,22 +57,23 @@ public class AuditListener implements PostUpdateEventListener, PostInsertEventLi
 
     @Override
     public void onPostUpdate(PostUpdateEvent event) {
-        if (classWithAuditableFieldInfo.containsKey(event.getClass())) {
-            Set<AuditableFieldInfo> fieldInfoSet = classWithAuditableFieldInfo.get(event.getClass());
+        if (classWithAuditableFieldNames.containsKey(event.getEntity().getClass())) {
+            Set<String> fieldNames = classWithAuditableFieldNames.get(event.getEntity().getClass());
             Object[] state = event.getState();
             Object[] oldState = event.getOldState();
             List<Integer> dirtyPropertyIndexes = Ints.asList(event.getDirtyProperties());
 
             List<AuditDBEntity> auditDBEntities = new ArrayList<>();
-            for (AuditableFieldInfo auditableFieldInfo : fieldInfoSet) {
-                if (dirtyPropertyIndexes.contains(auditableFieldInfo.getFieldIndex())) {
-                    Object newValue = state[auditableFieldInfo.getFieldIndex()];
-                    Object oldValue = oldState[auditableFieldInfo.getFieldIndex()];
+            for (String fieldName: fieldNames) {
+                int index = getIndexByFieldName(event.getPersister(), fieldName);
+                if (dirtyPropertyIndexes.contains(index)) {
+                    Object newValue = state[index];
+                    Object oldValue = oldState[index];
                     AuditDBEntity auditDBEntity = AuditDBEntity.builder()
                             .entityId((Long) event.getId())
                             .entityName(getEntityName(event.getPersister()))
-                            .updateOn(jdbcHelper.lookupCurrentDbTime().getTime())
-                            .fieldName(auditableFieldInfo.getFieldName())
+                            .updatedOn(jdbcHelper.lookupCurrentDbTime().getTime())
+                            .fieldName(fieldName)
                             .newValue(Objects.toString(newValue))
                             .oldValue(Objects.toString(oldValue))
                             .build();
@@ -83,6 +87,10 @@ public class AuditListener implements PostUpdateEventListener, PostInsertEventLi
 
     private String getEntityName(EntityPersister persister) {
         return ((AbstractEntityPersister) persister).getTableName();
+    }
+
+    private int getIndexByFieldName(EntityPersister persister, String fieldName) {
+        return ((AbstractEntityPersister) persister).getPropertyIndex(fieldName);
     }
 
     @Override

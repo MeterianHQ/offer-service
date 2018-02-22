@@ -4,8 +4,8 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
     <changeSet id="changelog_add_audit_table" author="roman.khomyshyn" runAlways="false" failOnError="true">
-        <createSequence sequenceName="audit_id_seq" schemaName="offer_db"/>
-        <createTable tableName="audit" schemaName="offer_db">
+        <createSequence sequenceName="audit_id_seq" schemaName="offers_db"/>
+        <createTable tableName="audit" schemaName="offers_db">
             <column name="id" type="BIGINT" defaultValueSequenceNext="audit_id_seq">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
@@ -26,8 +26,8 @@
         </createTable>
 
         <rollback>
-            <dropSequence sequenceName="audit_id_seq" schemaName="offer_db"/>
-            <dropTable tableName="audit" schemaName="offer_db"/>
+            <dropSequence sequenceName="audit_id_seq" schemaName="offers_db"/>
+            <dropTable tableName="audit" schemaName="offers_db"/>
         </rollback>
     </changeSet>
 

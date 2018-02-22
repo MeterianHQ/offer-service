@@ -1,4 +1,4 @@
-package com.ovoenergy.offer.audit;
+package com.ovoenergy.offer.db.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,7 +42,7 @@ public class AuditDBEntity {
     @Column(name = "new_value")
     private String newValue;
 
-    @Column(name = "update_on", nullable = false)
-    private Long updateOn;
+    @Column(name = "updated_on", nullable = false)
+    private Long updatedOn;
 
 }

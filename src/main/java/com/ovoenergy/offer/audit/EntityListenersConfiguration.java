@@ -1,6 +1,7 @@
 package com.ovoenergy.offer.audit;
 
 import com.ovoenergy.offer.db.jdbc.JdbcHelper;
+import com.ovoenergy.offer.db.repository.AuditRepository;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -41,29 +42,27 @@ public class EntityListenersConfiguration {
 
     @Bean("listener")
     @Autowired
-    public AuditListener auditListener(Map<Class<?>, Set<AuditableFieldInfo>> classWithAuditableFieldInfo,
-                                       AuditRepository auditRepository, JdbcHelper jdbcHelper) {
-        return new AuditListener(classWithAuditableFieldInfo, auditRepository, jdbcHelper);
+    public AuditListener auditListener(AuditRepository auditRepository, JdbcHelper jdbcHelper) {
+        return new AuditListener(classWithAuditableFieldNames(), auditRepository, jdbcHelper);
     }
 
     @Bean
-    public Map<Class<?>, Set<AuditableFieldInfo>> classWithAuditableFieldInfo() {
+    public Map<Class<?>, Set<String>> classWithAuditableFieldNames() {
         final Reflections reflections = new Reflections(
                 "com.ovoenergy.offer",
                 new TypeAnnotationsScanner(),
                 new SubTypesScanner(true)
         );
 
-        Map<Class<?>, Set<AuditableFieldInfo>> classWithAuditableFieldInfo = new HashMap<>();
+        Map<Class<?>, Set<String>> classWithAuditableFieldNames = new HashMap<>();
         Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Auditable.class);
         for (Class<?> clazz : classes) {
-            List<Field> allFieldsList = FieldUtils.getAllFieldsList(clazz);
             List<Field> annotatedFields = FieldUtils.getFieldsListWithAnnotation(clazz, AuditableField.class);
-            Set<AuditableFieldInfo> indexes = annotatedFields.stream()
-                    .map(field -> new AuditableFieldInfo(allFieldsList.indexOf(field), field.getName()))
+            Set<String> auditableFieldNames = annotatedFields.stream()
+                    .map(Field::getName)
                     .collect(Collectors.toSet());
-            classWithAuditableFieldInfo.put(clazz, indexes);
+            classWithAuditableFieldNames.put(clazz, auditableFieldNames);
         }
-        return classWithAuditableFieldInfo;
+        return classWithAuditableFieldNames;
     }
 }
