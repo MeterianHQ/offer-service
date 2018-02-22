@@ -9,6 +9,10 @@ import org.mockito.MockitoAnnotations;
 
 import javax.validation.ConstraintValidatorContext;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Proxy;
+import java.util.Map;
+
 import static org.mockito.Mockito.when;
 
 public class AbstractConstraintValidatorTest {
@@ -43,6 +47,14 @@ public class AbstractConstraintValidatorTest {
         ).thenReturn(context);
         when(context.buildConstraintViolationWithTemplate(messageCaptor.capture())).thenReturn(builder);
         when(builder.addPropertyNode(propertyNodeCaptor.capture())).thenReturn(nodeBuilderContext);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <A extends Annotation> A annotation(final Class<A> annotationType, final Map<String, Object> methodNameToValue) {
+        return (A) Proxy.newProxyInstance(annotationType.getClassLoader(),
+                new Class[]{annotationType},
+                (proxy, method, args) -> methodNameToValue.get(method.getName())
+        );
     }
 
 }

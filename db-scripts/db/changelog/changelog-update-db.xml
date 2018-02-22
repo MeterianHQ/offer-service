@@ -7,4 +7,5 @@
     <include file="1.1/changelog-add-status-updated-on-act-redemptions-columns-db-1.1.xml" relativeToChangelogFile="true" />
     <include file="1.2/changelog-add-offer-redeem-table-db-1.2.xml" relativeToChangelogFile="true" />
     <include file="1.3/changelog-drop-not-null-constraints-for-draft-case-db-1.3.xml" relativeToChangelogFile="true" />
+    <include file="1.4/changelog-add-audit-table-db-1.4.xml" relativeToChangelogFile="true" />
 </databaseChangeLog>

@@ -29,7 +29,7 @@ public class DraftOfferStrategy extends OfferBaseStrategy {
                 .description(offerDTO.getDescription())
                 .channel(ChannelType.byValue(offerDTO.getChannel()))
                 .eligibilityCriteria(EligibilityCriteriaType.byValue(offerDTO.getEligibilityCriteria()))
-                .startDate(oldOfferDBEntity.getStartDate())
+                .startDate(offerDTO.getStartDate())
                 .expiryDate(offerDTO.getExpiryDate())
                 .isExpirable(offerDTO.getIsExpirable())
                 .maxOfferRedemptions(offerDTO.getMaxOfferRedemptions())
