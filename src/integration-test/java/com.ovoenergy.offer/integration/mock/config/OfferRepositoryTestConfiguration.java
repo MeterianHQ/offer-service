@@ -1,6 +1,7 @@
 package com.ovoenergy.offer.integration.mock.config;
 
 import com.ovoenergy.offer.Application;
+import com.ovoenergy.offer.audit.EntityListenersConfiguration;
 import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -18,7 +19,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "com.ovoenergy.offer", excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = Application.class)})
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {Application.class, EntityListenersConfiguration.class})})
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class, JpaRepositoriesAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, SpringDataWebAutoConfiguration.class})
 @Configuration

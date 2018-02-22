@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public class FieldInfo {
+public class AuditableFieldInfo {
     private final Integer fieldIndex;
     private final String fieldName;
 }

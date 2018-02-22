@@ -23,9 +23,6 @@
             <column name="updated_on" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="entity_updated_on" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
 
         <rollback>

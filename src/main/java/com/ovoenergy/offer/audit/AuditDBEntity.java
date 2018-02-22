@@ -16,7 +16,7 @@ import javax.persistence.Table;
 @Entity(name = "audit")
 @Table(name = "audit", schema = "offers_db")
 @Data
-@EqualsAndHashCode(exclude = {"id"})
+@EqualsAndHashCode(exclude = "id")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -41,9 +41,6 @@ public class AuditDBEntity {
 
     @Column(name = "new_value")
     private String newValue;
-
-    @Column(name = "entity_updated_on", nullable = false)
-    private Long entityUpdatedOn;
 
     @Column(name = "update_on", nullable = false)
     private Long updateOn;
