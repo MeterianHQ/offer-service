@@ -13,9 +13,11 @@ public class DateFieldsValueValidator implements ConstraintValidator<DateFieldsV
     private final String expiryDateField = "expiryDate";
     private final String isExpirableField = "isExpirable";
 
+    @Override
     public void initialize(DateFieldsValueConstraint dateFieldsValueConstraint) {
     }
 
+    @Override
     public boolean isValid(OfferDTO value, ConstraintValidatorContext context) {
         BeanWrapperImpl beanWrapper = new BeanWrapperImpl(value);
         Long startDateFieldValue = (Long) beanWrapper.getPropertyValue(startDateField);
