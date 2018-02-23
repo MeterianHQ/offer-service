@@ -15,4 +15,8 @@ public interface OffersServiceURLs {
     String VERIFY_OFFER = "/offers/verify";
 
     String APPLY_TO_OFFER = "/offers/apply";
+
+    String GENERATE_LINK = "/offers/test/link/generation";
+
+    String CHECK_LINK = "/offers/redemption/link/{hash}";
 }

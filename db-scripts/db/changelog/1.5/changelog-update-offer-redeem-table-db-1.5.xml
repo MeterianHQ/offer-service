@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="changelog_update_offer_redeem_table" author="roman.khomyshyn" runAlways="false" failOnError="true">
+        <dropPrimaryKey tableName="offer_redeem" constraintName="pk_offer_redeem" schemaName="offers_db"/>
+
+        <addPrimaryKey catalogName="offers_db" columnNames="id" constraintName="pk_offer_redeem"
+                       schemaName="offers_db" tableName="offer_redeem"/>
+
+        <addColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem">
+            <column name="link" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem">
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <createSequence sequenceName="offer_redeem_event_id_seq" schemaName="offers_db"/>
+        <createTable tableName="offer_redeem_event" schemaName="offers_db">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="offer_redeem_event_id_seq">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="offer_redeem_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_on" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="offer_redeem_event"
+                                 baseColumnNames="offer_redeem_id"
+                                 constraintName="fk_offer_redeem_event"
+                                 referencedTableName="offer_redeem"
+                                 referencedColumnNames="id"
+                                 baseTableSchemaName="offers_db"
+                                 referencedTableSchemaName="offers_db"/>
+
+        <rollback>
+            <dropPrimaryKey tableName="offer_redeem" constraintName="pk_offer_redeem"/>
+            <addPrimaryKey catalogName="offers_db" columnNames="id_offer, email, updated_on"
+                           constraintName="pk_offer_redeem" schemaName="offers_db" tableName="offer_redeem"/>
+            <dropColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem" columnName="link"/>
+            <dropColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem" columnName="status"/>
+            <dropSequence sequenceName="offer_redeem_event_id_seq" schemaName="offers_db"/>
+            <dropForeignKeyConstraint baseTableName="offer_redeem_event" constraintName="fk_offer_redeem_event"
+                                      baseTableSchemaName="offers_db"/>
+            <dropTable tableName="offer_redeem_event" schemaName="offers_db"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

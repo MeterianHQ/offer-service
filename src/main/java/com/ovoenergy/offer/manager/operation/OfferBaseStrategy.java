@@ -39,7 +39,7 @@ public abstract class OfferBaseStrategy {
 
     public OfferRedeemDBEntity createOfferRedeemDBEntity(Long offerId, String emailAddress) {
         Long currentDbTimeMidnightMilliseconds = getCurrentDbTimeMidnightMilliseconds();
-        return new OfferRedeemDBEntity(offerId, emailAddress, currentDbTimeMidnightMilliseconds);
+        return null;
     }
 
     private Long getCurrentDbTimeMidnightMilliseconds() {

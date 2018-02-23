@@ -23,14 +23,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 import static com.ovoenergy.offer.dto.OffersServiceURLs.APPLY_TO_OFFER;
+import static com.ovoenergy.offer.dto.OffersServiceURLs.CHECK_LINK;
 import static com.ovoenergy.offer.dto.OffersServiceURLs.CREATE_OFFER;
 import static com.ovoenergy.offer.dto.OffersServiceURLs.DELETE_OFFER;
+import static com.ovoenergy.offer.dto.OffersServiceURLs.GENERATE_LINK;
 import static com.ovoenergy.offer.dto.OffersServiceURLs.GET_ALL_OFFERS;
 import static com.ovoenergy.offer.dto.OffersServiceURLs.GET_OFFER;
 import static com.ovoenergy.offer.dto.OffersServiceURLs.UPDATE_OFFER;
@@ -173,5 +176,27 @@ public class OfferService {
 
         LOGGER.debug("Returning response for APPLY user to offer: {}", response);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(GENERATE_LINK)
+    @ResponseBody
+    @ApiResponses({@ApiResponse(code = 200, message = "Ok", response = OfferVerifyDTO.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
+            @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class)})
+    @ApiOperation(value = APPLY_TO_OFFER, notes = "Create offer", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> generateLink(@RequestBody Object request) {
+        return null;
+    }
+
+    @GetMapping(value = CHECK_LINK, params = {"user", "offer_id"})
+    @ResponseBody
+    @ApiResponses({@ApiResponse(code = 200, message = "Ok", response = OfferVerifyDTO.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
+            @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class)})
+    @ApiOperation(value = APPLY_TO_OFFER, notes = "Create offer", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> generateLink(@PathVariable("hash") String hash,
+                                          @RequestParam("user") String user,
+                                          @RequestParam("offer_id") Long offerId) {
+        return null;
     }
 }

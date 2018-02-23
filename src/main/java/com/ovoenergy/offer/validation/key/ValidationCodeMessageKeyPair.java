@@ -54,7 +54,7 @@ public enum ValidationCodeMessageKeyPair {
 
     ValidationCodeMessageKeyPair(String code, String messageKey) {
         this.code = code;
-        this.messageKey  = messageKey;
+        this.messageKey = messageKey;
     }
 
     public String getCode() {
@@ -68,7 +68,8 @@ public enum ValidationCodeMessageKeyPair {
     public static String getMessageByCode(String code) {
         ValidationCodeMessageKeyPair actualPair = Arrays.stream(ValidationCodeMessageKeyPair.values())
                 .filter(mp -> code.equals(mp.getCode()))
-                .findFirst().orElseThrow( () ->  new NotSupportedErrorCodeException("Not Supported Error Code"));
-        return  actualPair.getMessageKey();
+                .findFirst()
+                .orElseThrow(() -> new NotSupportedErrorCodeException("Not Supported Error Code"));
+        return actualPair.getMessageKey();
     }
 }
