@@ -32,4 +32,20 @@ public interface CodeKeys {
 
     String OFFER_EXPIRED = "OFR15";
 
+    String OFFER_STATUS_TYPE_NOT_VALID = "OFR16";
+
+    String NULL_FIELD = "OFR17";
+
+    String OFFER_CODE_FIELD_SIZE = "OFR18";
+
+    String OFFER_NAME_FIELD_SIZE = "OFR19";
+
+    String OFFER_DESCRIPTION_FIELD_SIZE = "OFR20";
+
+    String PROVIDED_TWO_DIFFERENT_IDS = "OFR21";
+
+    String ENTITY_NOT_EXIST = "OFR22";
+
+    String START_DATE_NOT_UPDATABLE = "OFR23";
+
 }

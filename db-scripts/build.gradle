@@ -32,13 +32,13 @@ dependencies {
 apply plugin: 'java'
 apply plugin: 'maven'
 
-def urlProperty = System.getProperty("url");
-def url = (urlProperty != null) ? urlProperty : System.getenv("RDS_OFFERS_DB_URL");
-def userProperty = System.getProperty("userName");
-def userName = (userProperty != null) ? userProperty : System.getenv("RDS_OFFERS_DB_USERNAME");
-def passwordProperty = System.getProperty("password");
-def type = System.getProperty("type");
-def password = (passwordProperty != null) ? passwordProperty : System.getenv("RDS_OFFERS_DB_PASSWORD");
+def urlProperty = System.getProperty("url")
+def url = urlProperty == null ? System.getenv("RDS_OFFERS_DB_URL") : urlProperty
+def userProperty = System.getProperty("userName")
+def userName = userProperty == null ? System.getenv("RDS_OFFERS_DB_USERNAME") : userProperty
+def passwordProperty = System.getProperty("password")
+def type = System.getProperty("type")
+def password = passwordProperty == null ? System.getenv("RDS_OFFERS_DB_PASSWORD") : passwordProperty
 
 task liquibaseCreate(type: JavaExec) {
     description 'Liquibase updates DB by all not used changesets'

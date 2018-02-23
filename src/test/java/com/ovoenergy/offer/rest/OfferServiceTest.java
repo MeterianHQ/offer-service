@@ -26,11 +26,14 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,14 +62,14 @@ public class OfferServiceTest {
 
     @Test
     public void testCreateOfferSuccess() {
-        when(mockCustomValidator.processOfferInputDataValidationViolations(any())).thenReturn(null);
+        when(mockCustomValidator.processOfferCreateValidation(any())).thenReturn(null);
         when(mockOfferManager.createOffer(eq(fixtureOfferDTO))).thenReturn(fixtureOfferDTO);
 
         ResponseEntity<OfferDTO> response = unit.createOffer(fixtureOfferDTO);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(fixtureOfferDTO, fixtureOfferDTO);
-        verify(mockCustomValidator, only()).processOfferInputDataValidationViolations(fixtureOfferDTO);
+        verify(mockCustomValidator, only()).processOfferCreateValidation(fixtureOfferDTO);
         verify(mockOfferManager).createOffer(eq(fixtureOfferDTO));
     }
 
@@ -76,12 +79,12 @@ public class OfferServiceTest {
         Map<String, Set<ErrorMessageDTO>> violations = new HashMap<>();
         violations.put(TEST_FIELD, Sets.newHashSet(new ErrorMessageDTO("ERR1", "ERR1")));
         validationDTO.setConstraintViolations(violations);
-        when(mockCustomValidator.processOfferInputDataValidationViolations(any())).thenReturn(validationDTO);
+        when(mockCustomValidator.processOfferCreateValidation(any())).thenReturn(validationDTO);
 
         ResponseEntity<OfferDTO> response = unit.createOffer(fixtureOfferDTO);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        verify(mockCustomValidator, only()).processOfferInputDataValidationViolations(eq(fixtureOfferDTO));
+        verify(mockCustomValidator, only()).processOfferCreateValidation(eq(fixtureOfferDTO));
         assertEquals(fixtureOfferDTO.getChannel(), response.getBody().getChannel());
         assertEquals(fixtureOfferDTO.getDescription(), response.getBody().getDescription());
         assertEquals(fixtureOfferDTO.getEligibilityCriteria(), response.getBody().getEligibilityCriteria());
@@ -105,6 +108,59 @@ public class OfferServiceTest {
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(1, result.getBody().size());
         verify(mockOfferManager).getAllOffers();
+    }
+
+    @Test
+    public void testGetByIdOfferSuccess() {
+        Long id = 1L;
+        when(mockOfferManager.getOfferById(anyLong())).thenReturn(fixtureOfferDTO);
+
+        ResponseEntity<OfferDTO> result = unit.getOfferById(id);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        verify(mockOfferManager, only()).getOfferById(anyLong());
+        verifyNoMoreInteractions(mockOfferManager);
+    }
+
+    @Test
+    public void testUpdateOfferSuccess() {
+        when(mockCustomValidator.processOfferUpdateValidation(any(OfferDTO.class), anyLong())).thenReturn(null);
+        when(mockOfferManager.updateOffer(eq(fixtureOfferDTO), anyLong())).thenReturn(fixtureOfferDTO);
+
+        ResponseEntity<OfferDTO> response = unit.updateOffer(1L, fixtureOfferDTO);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(fixtureOfferDTO, fixtureOfferDTO);
+        verify(mockCustomValidator, only()).processOfferUpdateValidation(eq(fixtureOfferDTO), anyLong());
+        verify(mockOfferManager, only()).updateOffer(eq(fixtureOfferDTO), anyLong());
+        verifyNoMoreInteractions(mockOfferManager, mockCustomValidator);
+    }
+
+    @Test
+    public void testUpdateOfferValidationError() {
+        OfferValidationDTO validationDTO = new OfferValidationDTO(fixtureOfferDTO);
+        Map<String, Set<ErrorMessageDTO>> violations = new HashMap<>();
+        violations.put(TEST_FIELD, Sets.newHashSet(new ErrorMessageDTO("ERR1", "ERR1")));
+        validationDTO.setConstraintViolations(violations);
+        when(mockCustomValidator.processOfferUpdateValidation(any(OfferDTO.class), anyLong())).thenReturn(validationDTO);
+
+        ResponseEntity<OfferDTO> response = unit.updateOffer(1L, fixtureOfferDTO);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(fixtureOfferDTO.getChannel(), response.getBody().getChannel());
+        assertEquals(fixtureOfferDTO.getDescription(), response.getBody().getDescription());
+        assertEquals(fixtureOfferDTO.getEligibilityCriteria(), response.getBody().getEligibilityCriteria());
+        assertEquals(fixtureOfferDTO.getExpiryDate(), response.getBody().getExpiryDate());
+        assertEquals(fixtureOfferDTO.getMaxOfferRedemptions(), response.getBody().getMaxOfferRedemptions());
+        assertEquals(fixtureOfferDTO.getIsExpirable(), response.getBody().getIsExpirable());
+        assertEquals(fixtureOfferDTO.getOfferCode(), response.getBody().getOfferCode());
+        assertEquals(fixtureOfferDTO.getOfferName(), response.getBody().getOfferName());
+        assertEquals(fixtureOfferDTO.getOfferType(), response.getBody().getOfferType());
+        assertEquals(fixtureOfferDTO.getSupplier(), response.getBody().getSupplier());
+        assertEquals(fixtureOfferDTO.getStartDate(), response.getBody().getStartDate());
+        assertEquals(1, ((OfferValidationDTO) response.getBody()).getConstraintViolations().get(TEST_FIELD).size());
+        verify(mockCustomValidator, only()).processOfferUpdateValidation(eq(fixtureOfferDTO), anyLong());
     }
 
     @Test
