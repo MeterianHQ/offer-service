@@ -46,4 +46,6 @@ public interface CodeKeys {
 
     String ENTITY_NOT_EXIST = "OFR22";
 
+    String START_DATE_NOT_UPDATABLE = "OFR23";
+
 }
