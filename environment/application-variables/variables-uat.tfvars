@@ -9,6 +9,6 @@ service_url = "offer-engine.uat.ovotech.org.uk"
 
 // Postgres DB properties
 rds_offers_engine_db_url = "jdbc:postgresql://offers-engine-uat.c5uvlyzspgpa.eu-west-1.rds.amazonaws.com/offers_engine"
-rds_offers_engine_db_username = "root"
+rds_offers_engine_db_user = "root"
 rds_offers_engine_db_password = "Qwer1234"
 

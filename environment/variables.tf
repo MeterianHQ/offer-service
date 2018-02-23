@@ -21,8 +21,8 @@ variable "key_pair_name" {
 }
 
 variable "offer_service_name" {
-  default = "offer-"
-  description = "name prefix used for consistency in service, cluster and other names"
+  default = "offer-service"
+  description = "The name of offer service."
 }
 
 variable "offer_service_image" {
@@ -41,6 +41,29 @@ variable "offer_service_version" {
 variable "offer_service_port" {
   description = "The port the offer service Docker container listens on for HTTP requests."
   default = 8080
+}
+
+variable "offer_management_ui_name" {
+  default = "offer-management-ui"
+  description = "The name of offer management ui"
+}
+
+variable "offer_management_ui_image" {
+  description = "The name of the Docker image to deploy for the offer management ui."
+  type = "map"
+  default = {
+    uat  = "293486771097.dkr.ecr.eu-west-1.amazonaws.com/offer-management-ui"
+  }
+}
+
+variable "offer_management_ui_version" {
+  description = "The version (i.e. tag) of the Docker container to deploy for the offer management ui"
+  default = "latest"
+}
+
+variable "offer_managment_iu_port" {
+  description = "The port the offer management ui Docker container listens on for HTTP requests."
+  default = 4200
 }
 
 /*variable "public_zone_id" {

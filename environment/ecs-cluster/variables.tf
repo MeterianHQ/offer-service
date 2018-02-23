@@ -58,4 +58,3 @@ variable "allow_ssh_from_cidr_blocks" {
   type = "list"
   default = []
 }
-

@@ -8,7 +8,7 @@ module "ecs_cluster" {
   name = "${var.offer_service_name}cluster"
   min_size = 1
   max_size = 5
-  desired_capacity = 1
+  desired_capacity = 2
   instance_type = "t2.micro"
   key_pair_name = "${var.key_pair_name}"
 
@@ -19,15 +19,15 @@ module "ecs_cluster" {
   # this down just to trusted IP addresses.
   allow_ssh_from_cidr_blocks = ["0.0.0.0/0"]
 
-  # Here, we allow the EC2 Instances in the ECS Cluster to recieve requests on the ports used by the rails-frontend
-  # and sinatra-backend. To keep the example simple to test, we allow these requests from any IP, but in real-world
-  # use cases, you should lock this down to just the IP addresses of the ELB and other trusted parties.
+  # Here, we allow the EC2 Instances in the ECS Cluster to recieve requests on the ports used by the offers-service
+  # and offers-management-ui. Lock this down to just the IP addresses of the ALB and other trusted parties.
   allow_inbound_ports_and_cidr_blocks = "${map(
-    var.offer_service_port, "0.0.0.0/0"
+    var.offer_service_port, "0.0.0.0/0",
+    var.offer_managment_iu_port, "0.0.0.0/0"
   )}"
 }
 
-resource "aws_security_group_rule" "allow_rds_access" {
+resource "aws_security_group_rule" "allow_offer_rds_access" {
   type = "  ingress"
   from_port = 5432
   to_port = 5432
