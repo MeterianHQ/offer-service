@@ -22,7 +22,6 @@ public class OfferApplyDTO {
 
     @ApiModelProperty(name = "offerCode", required = true)
     @NotEmpty(message = CodeKeys.OFFER_INVALID)
-    @NotNull(message = CodeKeys.OFFER_INVALID)
     @Pattern(regexp = "^[A-Za-z0-9]*$", message = CodeKeys.OFFER_INVALID)
     private String offerCode;
 

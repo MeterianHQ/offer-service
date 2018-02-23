@@ -6,13 +6,14 @@
     <changeSet id="changelog_update_offer_redeem_table" author="roman.khomyshyn" runAlways="false" failOnError="true">
         <dropPrimaryKey tableName="offer_redeem" constraintName="pk_offer_redeem" schemaName="offers_db"/>
 
-        <addPrimaryKey catalogName="offers_db" columnNames="id" constraintName="pk_offer_redeem"
-                       schemaName="offers_db" tableName="offer_redeem"/>
-
-        <addColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem">
-            <column name="link" type="TEXT">
-                <constraints nullable="false"/>
+        <createSequence sequenceName="offer_redeem_id_seq" schemaName="offers_db"/>
+        <addColumn schemaName="offers_db" tableName="offer_redeem">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="offer_redeem_id_seq">
+                <constraints nullable="false" primaryKey="true" unique="true"/>
             </column>
+        </addColumn>
+        <addColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem">
+            <column name="hash" type="TEXT"/>
         </addColumn>
         <addColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem">
             <column name="status" type="VARCHAR(50)">
@@ -45,9 +46,11 @@
                                  referencedTableSchemaName="offers_db"/>
 
         <rollback>
+            <dropSequence sequenceName="offer_redeem_id_seq" schemaName="offers_db"/>
             <dropPrimaryKey tableName="offer_redeem" constraintName="pk_offer_redeem"/>
             <addPrimaryKey catalogName="offers_db" columnNames="id_offer, email, updated_on"
                            constraintName="pk_offer_redeem" schemaName="offers_db" tableName="offer_redeem"/>
+            <dropColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem" columnName="id"/>
             <dropColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem" columnName="link"/>
             <dropColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem" columnName="status"/>
             <dropSequence sequenceName="offer_redeem_event_id_seq" schemaName="offers_db"/>

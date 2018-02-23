@@ -53,7 +53,7 @@ public class OfferOperationsRegistry {
     public OfferRedeemDBEntity createOfferRedeemDBEntity(OfferDBEntity offerDBEntity, String emailAddress) {
         StatusType statusType = processStatusType(offerDBEntity.getStatus().name());
         OfferBaseStrategy offerBaseStrategy = offerStrategiesRegistry.get(statusType);
-        return offerBaseStrategy.createOfferRedeemDBEntity(offerDBEntity.getId(), emailAddress);
+        return offerBaseStrategy.createOfferRedeemDBEntity(offerDBEntity, emailAddress);
     }
 
     private StatusType processStatusType(String statusTypeStr) {

@@ -2,12 +2,17 @@ package com.ovoenergy.offer.manager.impl;
 
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
+import com.ovoenergy.offer.db.entity.OfferRedeemStatusType;
 import com.ovoenergy.offer.db.entity.StatusType;
+import com.ovoenergy.offer.db.jdbc.JdbcHelper;
 import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
+import com.ovoenergy.offer.dto.OfferLinkGenerateDTO;
+import com.ovoenergy.offer.dto.OfferRedeemInfoDTO;
 import com.ovoenergy.offer.exception.VariableNotValidException;
+import com.ovoenergy.offer.manager.HashGenerator;
 import com.ovoenergy.offer.manager.OfferManager;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
 import com.ovoenergy.offer.mapper.OfferMapper;
@@ -24,6 +29,9 @@ import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
 @Service
 public class OfferManagerImpl implements OfferManager {
 
+    // TODO: 2/23/18 refactoring
+    private static final String LINK_TEMPLATE = "localhost:8080/offers/redemption/link/%1$s?user=%2$s&offer_id=%3$d";
+
     @Autowired
     private OfferRepository offerRepository;
 
@@ -32,6 +40,12 @@ public class OfferManagerImpl implements OfferManager {
 
     @Autowired
     private OfferOperationsRegistry offerOperationsRegistry;
+
+    @Autowired
+    private HashGenerator hashGenerator;
+
+    @Autowired
+    private JdbcHelper jdbcHelper;
 
     @Override
     public OfferDTO getOfferById(Long id) {
@@ -88,6 +102,28 @@ public class OfferManagerImpl implements OfferManager {
                 .offerCode(offerCode)
                 .updatedOn(offerRedeemDBEntity.getUpdatedOn())
                 .build();
+    }
+
+    @Override
+    @Transactional(Transactional.TxType.REQUIRED)
+    public String generateOfferLink(OfferLinkGenerateDTO offerLinkGenerateDTO) {
+        OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDBEntityId(offerLinkGenerateDTO.getEmail(), offerLinkGenerateDTO.getOfferId());
+        String hash = hashGenerator.generateHash(offerRedeemDBEntity);
+        offerRedeemDBEntity.setHash(hash);
+        offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
+        offerRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
+        offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
+        return String.format(LINK_TEMPLATE, hash, offerLinkGenerateDTO.getEmail(), offerLinkGenerateDTO.getOfferId());
+    }
+
+    @Override
+    @Transactional(Transactional.TxType.REQUIRED)
+    public OfferRedeemInfoDTO getOfferRedeemInfo(String hash, String email, Long id) {
+        OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(email, id, hash);
+        offerRedeemDBEntity.setStatus(OfferRedeemStatusType.CLICKED);
+        offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
+        offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
+        return null;
     }
 
     private OfferDBEntity fetchActiveOfferByOfferCode(String offerCode) {

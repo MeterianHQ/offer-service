@@ -1,27 +1,14 @@
 package com.ovoenergy.offer.db.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import com.ovoenergy.offer.audit.Auditable;
+import com.ovoenergy.offer.audit.AuditableField;
+import lombok.*;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Auditable
 @Entity(name = "offer_redeem")
 @Table(name = "offer_redeem", schema = "offers_db")
 @Data
@@ -38,22 +25,46 @@ public class OfferRedeemDBEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "offer_id", nullable = false)
+    @JoinColumn(name = "id_offer", nullable = false)
     private OfferDBEntity offerDBEntity;
 
+    @AuditableField
     @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "updated_on", nullable = false)
     private Long updatedOn;
 
-    @Column(name = "link", nullable = false)
-    private String link;
+    @AuditableField
+    @Column(name = "hash")
+    private String hash;
 
+    @AuditableField
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private LinkStatusType status;
+    private OfferRedeemStatusType status;
 
-    @OneToMany(mappedBy = "offerRedeemDBEntity", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @Builder.Default
+    @OneToMany(mappedBy = "offerRedeemDBEntity", cascade = {CascadeType.ALL})
     private List<OfferRedeemEventDBEntity> offerRedeemEventDBEntities = new ArrayList<>();
+
+    @PrePersist
+    public void onPersist() {
+        OfferRedeemEventDBEntity offerRedeemEventDBEntity = OfferRedeemEventDBEntity.builder()
+                .offerRedeemDBEntity(this)
+                .status(status)
+                .updatedOn(updatedOn)
+                .build();
+        offerRedeemEventDBEntities.add(offerRedeemEventDBEntity);
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        OfferRedeemEventDBEntity offerRedeemEventDBEntity = OfferRedeemEventDBEntity.builder()
+                .offerRedeemDBEntity(this)
+                .status(status)
+                .updatedOn(updatedOn)
+                .build();
+        offerRedeemEventDBEntities.add(offerRedeemEventDBEntity);
+    }
 }
