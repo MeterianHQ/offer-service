@@ -4,6 +4,8 @@ import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.StatusType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface OfferRepository extends JpaRepository<OfferDBEntity, Long> {
 
     OfferDBEntity findOneById(Long id);
@@ -13,4 +15,6 @@ public interface OfferRepository extends JpaRepository<OfferDBEntity, Long> {
     boolean existsByOfferCodeIgnoreCaseAndIdIsNot(String offerCode, Long id);
 
     OfferDBEntity findOneByOfferCodeIgnoreCase(String offerCode);
+
+    List<OfferDBEntity> findAllByStatusAndExpiryDateLessThan(StatusType status, Long expiryDate);
 }
