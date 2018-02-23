@@ -24,8 +24,8 @@ public class DBEntitiesTest extends BaseBeansTest {
     @Test
     public void testHashCode() {
         hashCodeEquality(OfferDBEntity.class);
-//        hashCodeEquality(OfferRedeemDBEntity.class);
-//        hashCodeEquality(OfferRedeemEventDBEntity.class);
+        hashCodeEquality(OfferRedeemDBEntity.class);
+        hashCodeEquality(OfferRedeemEventDBEntity.class);
         hashCodeEquality(AuditDBEntity.class);
     }
 }

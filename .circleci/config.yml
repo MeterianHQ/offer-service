@@ -29,10 +29,6 @@ jobs:
       - run: ./service.sh dev_build
 
   uat:
-    branch:
-      - only:
-          - master
-
     docker:
       - image: circleci/openjdk:8-jdk
 
@@ -64,5 +60,9 @@ workflows:
     jobs:
       - build
       - uat:
+          filters:
+            branches:
+              only:
+                - master
           requires:
             - build

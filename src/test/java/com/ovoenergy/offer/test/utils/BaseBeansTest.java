@@ -24,6 +24,7 @@ public abstract class BaseBeansTest {
 
     public static <T> void hashCodeEquality(Class<T> clazz) {
         JFixture fixture = new JFixture();
+        fixture.customise().circularDependencyBehaviour().omitSpecimen();
         T firtsInstance = fixture.create(clazz);
         T secondInstance = fixture.create(clazz);
         assertTrue(firtsInstance.hashCode() != secondInstance.hashCode());
