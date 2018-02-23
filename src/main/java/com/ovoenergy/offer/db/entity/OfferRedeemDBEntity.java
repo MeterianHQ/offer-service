@@ -5,8 +5,8 @@ import com.ovoenergy.offer.audit.AuditableField;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Auditable
 @Entity(name = "offer_redeem")
@@ -45,8 +45,8 @@ public class OfferRedeemDBEntity {
     private OfferRedeemStatusType status;
 
     @Builder.Default
-    @OneToMany(mappedBy = "offerRedeemDBEntity", cascade = {CascadeType.ALL})
-    private List<OfferRedeemEventDBEntity> offerRedeemEventDBEntities = new ArrayList<>();
+    @OneToMany(mappedBy = "offerRedeemDBEntity", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<OfferRedeemEventDBEntity> offerRedeemEventDBEntities = new HashSet<>();
 
     @PrePersist
     public void onPersist() {

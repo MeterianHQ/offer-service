@@ -123,7 +123,12 @@ public class OfferManagerImpl implements OfferManager {
         offerRedeemDBEntity.setStatus(OfferRedeemStatusType.CLICKED);
         offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
         offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
-        return null;
+        return OfferRedeemInfoDTO.builder()
+                .email(email)
+                .updatedOn(offerRedeemDBEntity.getUpdatedOn())
+                .offerCode(offerRedeemDBEntity.getOfferDBEntity().getOfferCode())
+                .offerName(offerRedeemDBEntity.getOfferDBEntity().getOfferName())
+                .build();
     }
 
     private OfferDBEntity fetchActiveOfferByOfferCode(String offerCode) {

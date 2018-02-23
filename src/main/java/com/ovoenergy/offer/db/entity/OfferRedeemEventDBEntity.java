@@ -19,8 +19,8 @@ public class OfferRedeemEventDBEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne(cascade = {CascadeType.ALL})
-    @JoinColumn(name = "offer_redeem_id", nullable = false)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "offer_redeem_id", nullable = false, referencedColumnName = "id")
     private OfferRedeemDBEntity offerRedeemDBEntity;
 
     @Column(name = "updated_on", nullable = false)
