@@ -44,6 +44,8 @@ public interface MessageKeys {
 
     String ENTITY_NOT_EXIST = "entity.not.exist";
 
+    String START_DATE_NOT_UPDATABLE = "start.date.not.updatable";
+
     interface Common {
 
         String GENERIC_SERVER_ERROR = "generic.server.error";
