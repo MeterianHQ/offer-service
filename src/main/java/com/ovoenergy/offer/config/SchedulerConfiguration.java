@@ -13,7 +13,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 
 import java.util.TimeZone;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Configuration
@@ -33,7 +33,6 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
     @Qualifier("offerStatusUpdateTaskExecutor")
     private BaseTaskExecutor offerStatusUpdateTaskExecutor;
 
-
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         taskRegistrar.setScheduler(taskScheduler());
@@ -41,7 +40,7 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
     }
 
     @Bean(destroyMethod = "shutdown")
-    public Executor taskScheduler() {
+    public ExecutorService taskScheduler() {
         return Executors.newScheduledThreadPool(corePoolSize);
     }
 
