@@ -31,12 +31,12 @@ jobs:
       - store_artifacts:
           path: ~/junit
 
+      - run: ./service.sh dev_build
+
       - save_cache:
           key: gradle-{{ checksum "build.gradle" }}
           paths:
             - ~/.gradle
-
-      - run: ./service.sh dev_build
 
   uat:
     docker:

@@ -1,6 +1,11 @@
 package com.ovoenergy.offer.manager.operation;
 
-import com.ovoenergy.offer.db.entity.*;
+import com.ovoenergy.offer.db.entity.ChannelType;
+import com.ovoenergy.offer.db.entity.EligibilityCriteriaType;
+import com.ovoenergy.offer.db.entity.OfferDBEntity;
+import com.ovoenergy.offer.db.entity.OfferType;
+import com.ovoenergy.offer.db.entity.StatusType;
+import com.ovoenergy.offer.db.entity.SupplierType;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.mapper.OfferMapper;
 import org.springframework.stereotype.Component;
@@ -39,10 +44,5 @@ public class DraftOfferStrategy extends OfferBaseStrategy {
                 .status(StatusType.DRAFT)
                 .updatedOn(jdbcHelper.lookupCurrentDbTime().getTime())
                 .build();
-    }
-
-    @Override
-    public boolean anyChangesInOfferDetected(OfferDBEntity ruleDBDoc, OfferDTO offerDTO) {
-        return false;
     }
 }

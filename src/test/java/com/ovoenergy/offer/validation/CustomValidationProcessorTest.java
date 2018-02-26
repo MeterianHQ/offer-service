@@ -9,6 +9,7 @@ import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.validation.group.BaseOfferChecks;
 import com.ovoenergy.offer.validation.group.EmptyDraftOfferChecks;
 import com.ovoenergy.offer.validation.group.RequiredActiveOfferChecks;
+import com.ovoenergy.offer.validation.group.RequiredCreateActiveOfferChecks;
 import com.ovoenergy.offer.validation.group.RequiredDraftOfferChecks;
 import com.ovoenergy.offer.validation.group.RequiredOfferCreateChecks;
 import com.ovoenergy.offer.validation.group.RequiredOfferUpdateChecks;
@@ -69,14 +70,16 @@ public class CustomValidationProcessorTest {
     @Test
     public void testProcessOfferCreateValidationSuccess() {
         when(mockValidator.validate(eq(fixtureOfferDTO), eq(BaseOfferChecks.class),
-                eq(RequiredActiveOfferChecks.class), eq(RequiredOfferCreateChecks.class))).thenReturn(Collections.emptySet());
+                eq(RequiredActiveOfferChecks.class), eq(RequiredCreateActiveOfferChecks.class),
+                eq(RequiredOfferCreateChecks.class))).thenReturn(Collections.emptySet());
 
         OfferValidationDTO result = unit.processOfferCreateValidation(fixtureOfferDTO);
 
         assertThat(result, is(nullValue()));
 
         verify(mockValidator).validate(eq(fixtureOfferDTO), eq(BaseOfferChecks.class),
-                eq(RequiredActiveOfferChecks.class), eq(RequiredOfferCreateChecks.class));
+                eq(RequiredActiveOfferChecks.class), eq(RequiredCreateActiveOfferChecks.class),
+                eq(RequiredOfferCreateChecks.class));
     }
 
     @Test
@@ -86,7 +89,8 @@ public class CustomValidationProcessorTest {
         when(mockOfferDTOConstraintViolation.getPropertyPath()).thenReturn(mockPropertyPath);
         when(mockMsgSource.getMessage(any(), any(), any())).thenReturn("Error Message");
         when(mockValidator.validate(eq(fixtureOfferDTO), eq(BaseOfferChecks.class),
-                eq(RequiredActiveOfferChecks.class), eq(RequiredOfferCreateChecks.class))).thenReturn(constraintViolations);
+                eq(RequiredActiveOfferChecks.class), eq(RequiredCreateActiveOfferChecks.class),
+                eq(RequiredOfferCreateChecks.class))).thenReturn(constraintViolations);
 
         OfferValidationDTO result = unit.processOfferCreateValidation(fixtureOfferDTO);
 
@@ -96,7 +100,8 @@ public class CustomValidationProcessorTest {
         verify(mockOfferDTOConstraintViolation).getMessage();
         verify(mockMsgSource).getMessage(any(), any(), any());
         verify(mockValidator).validate(eq(fixtureOfferDTO), eq(BaseOfferChecks.class),
-                eq(RequiredActiveOfferChecks.class), eq(RequiredOfferCreateChecks.class));
+                eq(RequiredActiveOfferChecks.class), eq(RequiredCreateActiveOfferChecks.class),
+                eq(RequiredOfferCreateChecks.class));
     }
 
     @Test

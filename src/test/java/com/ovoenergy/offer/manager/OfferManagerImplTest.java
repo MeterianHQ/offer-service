@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.manager;
 
+import com.flextrade.jfixture.JFixture;
 import com.flextrade.jfixture.annotations.Fixture;
 import com.flextrade.jfixture.rules.FixtureRule;
 import com.google.common.collect.Lists;
@@ -13,7 +14,6 @@ import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.manager.impl.OfferManagerImpl;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,6 +57,15 @@ public class OfferManagerImplTest {
 
     private static final Long ACTUAL_REDEMPTIONS_VALID = 1L;
 
+    private JFixture jFixture = new JFixture();
+
+    {
+        jFixture.customise().circularDependencyBehaviour().omitSpecimen();
+    }
+
+    @Rule
+    public FixtureRule fixtures = FixtureRule.initFixtures(jFixture);
+
     @Mock
     private OfferRepository mockOfferRepository;
 
@@ -66,16 +75,13 @@ public class OfferManagerImplTest {
     @Mock
     private OfferOperationsRegistry mockOfferOperationsRegistry;
 
-    @Rule
-    public FixtureRule fixtures = FixtureRule.initFixtures();
-
     @Fixture
     private OfferDTO fixtureOfferDTO;
 
     @Fixture
     private OfferDBEntity fixtureOfferDBEntity;
 
-//    @Fixture
+    @Fixture
     private OfferRedeemDBEntity fxOfferRedeemDBEntity;
 
     @InjectMocks
@@ -220,7 +226,6 @@ public class OfferManagerImplTest {
         verifyZeroInteractions(mockOfferRedeemRepository, mockOfferOperationsRegistry);
     }
 
-    @Ignore
     @Test
     public void applyOfferSuccess() {
         OfferApplyDTO offerApplyDTO = new OfferApplyDTO();

@@ -37,14 +37,14 @@ public class OfferStatusUpdateTaskExecutor extends BaseTaskExecutor {
         List<OfferDBEntity> offersToExpire = offerCustomRepository.findAllByStatusAndExpiryDateLessThan(StatusType.ACTIVE, getDateTimeMidnightMilliseconds(now));
         Set<Long> idsToExpire = offersToExpire.stream().map(OfferDBEntity::getId).collect(Collectors.toSet());
 
-        if (!CollectionUtils.isEmpty(offersToExpire)) {
+        if (CollectionUtils.isEmpty(offersToExpire)) {
+            LOGGER.info("Skipped offers update with Expired status");
+        } else {
             LOGGER.debug("Started offers status update to process");
             LOGGER.info("Updating offers with IDs = {} with Expired status. Count {}. Execution time {}", idsToExpire, idsToExpire.size(), now);
             int updated = offerCustomRepository.updateExpiredOffersStatus(now.getTime(), getDateTimeMidnightMilliseconds(now));
             LOGGER.info("Updated offers with Expired status. Count {}. Execution time {}", updated, now);
             LOGGER.info("Task completed for offers status update process");
-        } else {
-            LOGGER.info("Skipped offers update with Expired status");
         }
     }
 
