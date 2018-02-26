@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @ApiModel(value = "Apply to Offer Request", description = "Input request to apply to an offer")
@@ -27,7 +26,6 @@ public class OfferApplyDTO {
 
     @ApiModelProperty(name = "email", required = true)
     @NotEmpty(message = CodeKeys.INVALID_EMAIL)
-    @NotNull(message = CodeKeys.INVALID_EMAIL)
     @Email(message = CodeKeys.INVALID_EMAIL)
     private String email;
 

@@ -30,7 +30,7 @@ import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
 public class OfferManagerImpl implements OfferManager {
 
     // TODO: 2/23/18 refactoring
-    private static final String LINK_TEMPLATE = "localhost:8080/offers/redemption/link/%1$s?user=%2$s&offer_id=%3$d";
+    private static final String LINK_TEMPLATE = "http://localhost:8080/offers/redemption/link/%1$s?user=%2$s&offer_id=%3$d";
 
     @Autowired
     private OfferRepository offerRepository;

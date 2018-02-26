@@ -40,7 +40,6 @@ public class OfferOperationsRegistry {
     public OfferDBEntity updateOfferDBEntity(OfferDBEntity offerDBEntity, OfferDTO offerDTO) {
         StatusType statusType = processStatusType(offerDTO.getStatus());
         OfferBaseStrategy offerBaseStrategy = offerStrategiesRegistry.get(statusType);
-        offerDBEntity.setActualOfferRedemptions(offerDBEntity.getActualOfferRedemptions());
         return offerBaseStrategy.updateOfferDBEntity(offerDBEntity, offerDTO);
     }
 

@@ -19,7 +19,6 @@ public class OfferLinkGenerateDTO {
     private Long offerId;
 
     @NotEmpty(message = CodeKeys.INVALID_EMAIL)
-    @NotNull(message = CodeKeys.INVALID_EMAIL)
     @Email(message = CodeKeys.INVALID_EMAIL)
     private String email;
 }
