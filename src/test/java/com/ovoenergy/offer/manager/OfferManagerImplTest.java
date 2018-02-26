@@ -7,11 +7,14 @@ import com.google.common.collect.Lists;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.entity.StatusType;
+import com.ovoenergy.offer.db.jdbc.JdbcHelper;
 import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
+import com.ovoenergy.offer.dto.OfferLinkGenerateDTO;
 import com.ovoenergy.offer.exception.VariableNotValidException;
+import com.ovoenergy.offer.manager.impl.HashGeneratorImpl;
 import com.ovoenergy.offer.manager.impl.OfferManagerImpl;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
 import org.junit.Rule;
@@ -19,6 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
 
@@ -26,10 +30,13 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.times;
@@ -75,6 +82,12 @@ public class OfferManagerImplTest {
     @Mock
     private OfferOperationsRegistry mockOfferOperationsRegistry;
 
+    @Spy
+    private HashGenerator hashGenerator = new HashGeneratorImpl();
+
+    @Mock
+    private JdbcHelper jdbcHelper;
+
     @Fixture
     private OfferDTO fixtureOfferDTO;
 
@@ -86,6 +99,9 @@ public class OfferManagerImplTest {
 
     @InjectMocks
     private OfferManagerImpl unit;
+
+    @Fixture
+    private OfferLinkGenerateDTO fixtureOfferLinkGenerateDTO;
 
     @Test
     public void testGetOfferByIdSuccess() {
@@ -256,5 +272,23 @@ public class OfferManagerImplTest {
         verify(mockOfferOperationsRegistry, times(1)).processOfferDBEntityValidation(eq(fixtureOfferDBEntity));
         verify(mockOfferOperationsRegistry, times(1)).createOfferRedeemDBEntity(eq(fixtureOfferDBEntity), eq(TEST_EMAIL));
         verifyNoMoreInteractions(mockOfferRepository, mockOfferOperationsRegistry, mockOfferRedeemRepository);
+    }
+
+    @Test
+    public void testGenerateOfferLink() {
+        when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityId(anyString(), anyLong())).thenReturn(fxOfferRedeemDBEntity);
+        when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).thenReturn(fxOfferRedeemDBEntity);
+        when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date());
+
+        String offerLink = unit.generateOfferLink(fixtureOfferLinkGenerateDTO);
+
+        assertThat(offerLink, containsString(fixtureOfferLinkGenerateDTO.getOfferId().toString()));
+        assertThat(offerLink, containsString(fixtureOfferLinkGenerateDTO.getEmail()));
+
+        verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDBEntityId(eq(fixtureOfferLinkGenerateDTO.getEmail()), eq(fixtureOfferLinkGenerateDTO.getOfferId()));
+        verify(hashGenerator, only()).generateHash(eq(fxOfferRedeemDBEntity));
+        verify(mockOfferRedeemRepository, times(1)).saveAndFlush(any(OfferRedeemDBEntity.class));
+        verify(jdbcHelper, only()).lookupCurrentDbTime();
+        verifyNoMoreInteractions(mockOfferRedeemRepository, hashGenerator, mockOfferRedeemRepository, jdbcHelper);
     }
 }
