@@ -24,6 +24,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_EXPIRED;
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
 
 @Service
@@ -132,9 +133,11 @@ public class OfferManagerImpl implements OfferManager {
     }
 
     private OfferDBEntity fetchActiveOfferByOfferCode(String offerCode) {
-        OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(offerCode, StatusType.ACTIVE);
-        if (offerDBEntity == null) {
+        OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCase(offerCode);
+        if (offerDBEntity == null || StatusType.DRAFT.equals(offerDBEntity.getStatus())) {
             throw new VariableNotValidException(OFFER_INVALID);
+        } else if (StatusType.EXPIRED.equals(offerDBEntity.getStatus())) {
+            throw new VariableNotValidException(OFFER_EXPIRED);
         } else {
             offerOperationsRegistry.processOfferDBEntityValidation(offerDBEntity);
         }

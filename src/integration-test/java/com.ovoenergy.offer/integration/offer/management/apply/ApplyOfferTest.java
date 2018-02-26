@@ -128,7 +128,7 @@ public class ApplyOfferTest {
 
         // test non existing offer code shouldn't pass validation
         offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_NON_EXISTING_CODE);
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_NON_EXISTING_CODE), eq(StatusType.ACTIVE))).thenReturn(null);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_NON_EXISTING_CODE))).thenReturn(null);
         processInvalidOfferValidation(offerToVerify);
 
         // test non started offer code shouldn't pass validation
@@ -137,9 +137,9 @@ public class ApplyOfferTest {
         offerDBEntityNotStarted.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
         offerDBEntityNotStarted.setStatus(StatusType.ACTIVE);
         offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE))).thenReturn(offerDBEntityNotStarted);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntityNotStarted);
         processInvalidOfferValidation(offerToVerify);
-        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE));
+        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
 
         // test expired offer shouldn't pass validation
         offerToVerify.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
@@ -152,7 +152,7 @@ public class ApplyOfferTest {
         offerDBEntity.setIsExpirable(true);
         offerDBEntity.setStatus(StatusType.ACTIVE);
 
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE))).thenReturn(offerDBEntity);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
 
         HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToVerify, headers);
 
@@ -166,7 +166,7 @@ public class ApplyOfferTest {
 
         assertEquals("Offer expired error code missed in response", CodeKeys.OFFER_EXPIRED, messageDTO.getCode());
         assertEquals("Offer expired error message missed in response", ValidateOfferForCreateViolationConstraintMessages.OFFER_EXPIRED, messageDTO.getMessage());
-        Mockito.verify(offerRepository, Mockito.times(2)).findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE));
+        Mockito.verify(offerRepository, Mockito.times(2)).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
     }
 
     @Test
@@ -184,7 +184,7 @@ public class ApplyOfferTest {
         offerDBEntity.setStatus(StatusType.ACTIVE);
 
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE))).thenReturn(offerDBEntity);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
 
         HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToCreate, headers);
 
@@ -196,7 +196,7 @@ public class ApplyOfferTest {
 
         assertTrue("Offer was successfully verified", response.getBody());
 
-        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE));
+        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
     }
 
@@ -248,7 +248,7 @@ public class ApplyOfferTest {
         offerRedeemDBEntity.setOfferDBEntity(OfferDBEntity.builder().id(ValidateOfferForCreateInputData.TEST_OFFER_ID_REDEEMED).build());
         offerRedeemDBEntity.setUpdatedOn(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE);
 
-        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE))).thenReturn(offerDBEntity);
+        Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
         Mockito.when(offerRepository.save(any(OfferDBEntity.class))).thenReturn(offerDBEntity);
         Mockito.when(offerRedeemRepository.save(any(OfferRedeemDBEntity.class))).thenReturn(offerRedeemDBEntity);
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
@@ -264,7 +264,7 @@ public class ApplyOfferTest {
         assertEquals("Offer was successfully applied to email", offerApplyDTO.getEmail(), response.getBody().getEmail());
         assertEquals("Offer was successfully applied on current date", ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE, response.getBody().getUpdatedOn());
 
-        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE));
+        Mockito.verify(offerRepository).findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE));
         Mockito.verify(offerRepository).save(any(OfferDBEntity.class));
         Mockito.verify(offerRedeemRepository).save(any(OfferRedeemDBEntity.class));
         Mockito.verify(jdbcTemplate, times(2)).queryForObject(any(String.class), any(RowMapper.class));

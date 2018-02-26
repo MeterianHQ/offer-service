@@ -219,13 +219,13 @@ public class OfferManagerImplTest {
         fixtureOfferDBEntity.setActualOfferRedemptions(ACTUAL_REDEMPTIONS_VALID);
         fixtureOfferDBEntity.setIsExpirable(false);
         fixtureOfferDBEntity.setStatus(StatusType.ACTIVE);
-        when(mockOfferRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(TEST_OFFER_CODE), eq(StatusType.ACTIVE))).thenReturn(fixtureOfferDBEntity);
+        when(mockOfferRepository.findOneByOfferCodeIgnoreCase(eq(TEST_OFFER_CODE))).thenReturn(fixtureOfferDBEntity);
         when(mockOfferOperationsRegistry.processOfferDBEntityValidation(eq(fixtureOfferDBEntity))).thenReturn(fixtureOfferDBEntity);
 
         Boolean result = unit.verifyOffer(TEST_OFFER_CODE);
 
         assertTrue(result);
-        verify(mockOfferRepository, only()).findOneByOfferCodeIgnoreCaseAndStatus(eq(TEST_OFFER_CODE), eq(StatusType.ACTIVE));
+        verify(mockOfferRepository, only()).findOneByOfferCodeIgnoreCase(eq(TEST_OFFER_CODE));
         verify(mockOfferOperationsRegistry, only()).processOfferDBEntityValidation(eq(fixtureOfferDBEntity));
         verifyNoMoreInteractions(mockOfferRepository, mockOfferOperationsRegistry);
         verifyZeroInteractions(mockOfferRedeemRepository);
