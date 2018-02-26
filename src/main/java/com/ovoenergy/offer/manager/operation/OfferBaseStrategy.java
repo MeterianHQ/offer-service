@@ -2,6 +2,7 @@ package com.ovoenergy.offer.manager.operation;
 
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
+import com.ovoenergy.offer.db.entity.OfferRedeemStatusType;
 import com.ovoenergy.offer.db.jdbc.JdbcHelper;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.exception.VariableNotValidException;
@@ -37,9 +38,14 @@ public abstract class OfferBaseStrategy {
         return offerDBEntity;
     }
 
-    public OfferRedeemDBEntity createOfferRedeemDBEntity(Long offerId, String emailAddress) {
+    public OfferRedeemDBEntity createOfferRedeemDBEntity(OfferDBEntity offerDBEntity, String emailAddress) {
         Long currentDbTimeMidnightMilliseconds = getCurrentDbTimeMidnightMilliseconds();
-        return new OfferRedeemDBEntity(offerId, emailAddress, currentDbTimeMidnightMilliseconds);
+        return OfferRedeemDBEntity.builder()
+                .offerDBEntity(offerDBEntity)
+                .email(emailAddress)
+                .updatedOn(currentDbTimeMidnightMilliseconds)
+                .status(OfferRedeemStatusType.CREATED)
+                .build();
     }
 
     private Long getCurrentDbTimeMidnightMilliseconds() {

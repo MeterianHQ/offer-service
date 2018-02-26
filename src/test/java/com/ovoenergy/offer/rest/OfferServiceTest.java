@@ -5,7 +5,6 @@ import com.flextrade.jfixture.rules.FixtureRule;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
-import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.dto.OfferVerifyDTO;
@@ -25,28 +24,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OfferServiceTest {
 
-    @InjectMocks
-    private OfferService unit = new OfferService();
-
     private static final String TEST_FIELD = "testField";
-
     private static final String TEST_OFFER_CODE = "testOfferCode";
 
-    private static final String TEST_EMAIL = "test@email.com";
+    @InjectMocks
+    private OfferService unit;
 
     @Mock
     private CustomValidationProcessor mockCustomValidator;
@@ -177,20 +168,6 @@ public class OfferServiceTest {
         verify(mockOfferManager).verifyOffer(eq(offerVerifyDTO.getOfferCode()));
     }
 
-    @Test
-    public void testApplyOfferSuccess() {
-        OfferApplyDTO offerApplyDTO = new OfferApplyDTO();
-        offerApplyDTO.setOfferCode(TEST_OFFER_CODE);
-        offerApplyDTO.setEmail(TEST_EMAIL);
 
-        when(mockOfferManager.applyUserToOffer(eq(offerApplyDTO.getOfferCode()), eq(offerApplyDTO.getEmail()))).thenReturn(offerApplyDTO);
-
-        ResponseEntity<OfferApplyDTO> result = unit.applyToOfferOffer(offerApplyDTO);
-
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(TEST_EMAIL, result.getBody().getEmail());
-        assertEquals(TEST_OFFER_CODE, result.getBody().getOfferCode());
-        verify(mockOfferManager).applyUserToOffer(eq(offerApplyDTO.getOfferCode()), eq(offerApplyDTO.getEmail()));
-    }
 
 }

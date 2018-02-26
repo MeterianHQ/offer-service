@@ -40,7 +40,6 @@ public class OfferOperationsRegistry {
     public OfferDBEntity updateOfferDBEntity(OfferDBEntity offerDBEntity, OfferDTO offerDTO) {
         StatusType statusType = processStatusType(offerDTO.getStatus());
         OfferBaseStrategy offerBaseStrategy = offerStrategiesRegistry.get(statusType);
-        offerDBEntity.setActualOfferRedemptions(offerDBEntity.getActualOfferRedemptions());
         return offerBaseStrategy.updateOfferDBEntity(offerDBEntity, offerDTO);
     }
 
@@ -53,7 +52,7 @@ public class OfferOperationsRegistry {
     public OfferRedeemDBEntity createOfferRedeemDBEntity(OfferDBEntity offerDBEntity, String emailAddress) {
         StatusType statusType = processStatusType(offerDBEntity.getStatus().name());
         OfferBaseStrategy offerBaseStrategy = offerStrategiesRegistry.get(statusType);
-        return offerBaseStrategy.createOfferRedeemDBEntity(offerDBEntity.getId(), emailAddress);
+        return offerBaseStrategy.createOfferRedeemDBEntity(offerDBEntity, emailAddress);
     }
 
     private StatusType processStatusType(String statusTypeStr) {

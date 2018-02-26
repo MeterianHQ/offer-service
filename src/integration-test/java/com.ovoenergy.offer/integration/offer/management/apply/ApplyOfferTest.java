@@ -245,7 +245,7 @@ public class ApplyOfferTest {
 
         OfferRedeemDBEntity offerRedeemDBEntity = new OfferRedeemDBEntity();
         offerRedeemDBEntity.setEmail(ValidateOfferForCreateInputData.TEST_VALID_EMAIL);
-        offerRedeemDBEntity.setIdOffer(ValidateOfferForCreateInputData.TEST_OFFER_ID_REDEEMED);
+        offerRedeemDBEntity.setOfferDBEntity(OfferDBEntity.builder().id(ValidateOfferForCreateInputData.TEST_OFFER_ID_REDEEMED).build());
         offerRedeemDBEntity.setUpdatedOn(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE);
 
         Mockito.when(offerRepository.findOneByOfferCodeIgnoreCaseAndStatus(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE), eq(StatusType.ACTIVE))).thenReturn(offerDBEntity);

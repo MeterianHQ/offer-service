@@ -60,5 +60,9 @@ workflows:
     jobs:
       - build
       - uat:
+          filters:
+            branches:
+              only:
+                - master
           requires:
             - build
