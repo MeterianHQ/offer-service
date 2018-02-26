@@ -12,6 +12,8 @@ public class DTOEntitiesTest extends BaseBeansTest {
         verify(MessageDTO.class);
         verify(OfferApplyDTO.class);
         verify(OfferVerifyDTO.class);
+        verify(OfferLinkGenerateDTO.class);
+        verify(OfferRedeemInfoDTO.class);
     }
 
     @Test
@@ -21,6 +23,8 @@ public class DTOEntitiesTest extends BaseBeansTest {
         equality(MessageDTO.class);
         equality(OfferApplyDTO.class);
         equality(OfferVerifyDTO.class);
+        equality(OfferLinkGenerateDTO.class);
+        equality(OfferRedeemInfoDTO.class);
     }
 
     @Test
@@ -30,5 +34,7 @@ public class DTOEntitiesTest extends BaseBeansTest {
         hashCodeEquality(MessageDTO.class);
         hashCodeEquality(OfferApplyDTO.class);
         hashCodeEquality(OfferVerifyDTO.class);
+        hashCodeEquality(OfferLinkGenerateDTO.class);
+        hashCodeEquality(OfferRedeemInfoDTO.class);
     }
 }
