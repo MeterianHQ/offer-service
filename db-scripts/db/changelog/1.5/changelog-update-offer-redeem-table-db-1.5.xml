@@ -16,7 +16,7 @@
             <column name="hash" type="TEXT"/>
         </addColumn>
         <addColumn catalogName="offers_db" schemaName="offers_db" tableName="offer_redeem">
-            <column name="status" type="VARCHAR(50)">
+            <column name="status" type="VARCHAR(50)" defaultValue="CREATED">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
