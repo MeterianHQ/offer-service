@@ -29,7 +29,7 @@
             <column name="offer_redeem_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="status" type="VARCHAR(50)" defaultValue="GENERATED">
+            <column name="status" type="VARCHAR(50)" defaultValue="CREATED">
                 <constraints nullable="false"/>
             </column>
             <column name="updated_on" type="BIGINT">
