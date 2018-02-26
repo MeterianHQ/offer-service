@@ -25,8 +25,6 @@ public abstract class OfferBaseStrategy {
 
     public abstract OfferDBEntity updateOfferDBEntity(OfferDBEntity oldOfferDBEntity, OfferDTO offerDTO);
 
-    public abstract boolean anyChangesInOfferDetected(OfferDBEntity ruleDBDoc, OfferDTO offerDTO);
-
     public OfferDBEntity processOfferDBEntityValidation(OfferDBEntity offerDBEntity) {
         Long currentDbTimeMidnightMilliseconds = getCurrentDbTimeMidnightMilliseconds();
 
