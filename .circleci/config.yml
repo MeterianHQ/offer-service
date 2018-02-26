@@ -14,9 +14,9 @@ jobs:
       - checkout
 
       - restore_cache:
-        keys:
-          - gradle-{{ checksum "build.gradle" }}
-          - gradle- # used if checksum fails
+          keys:
+            - gradle-{{ checksum "build.gradle" }}
+            - gradle- # used if checksum fails
 
       - run: gradle test integrationTest
 
@@ -32,9 +32,9 @@ jobs:
           path: ~/junit
 
       - save_cache:
-        key: gradle-{{ checksum "build.gradle" }}
-        paths:
-          - ~/.gradle
+          key: gradle-{{ checksum "build.gradle" }}
+          paths:
+            - ~/.gradle
 
       - run: ./service.sh dev_build
 
