@@ -91,6 +91,15 @@ public class OfferManagerImpl implements OfferManager {
     @Override
     @Transactional(Transactional.TxType.REQUIRED)
     public OfferApplyDTO applyUserToOffer(String offerCode, String emailAddress) {
+        OfferRedeemDBEntity existingOfferRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDbEntityCodeIgnoreCase(emailAddress, offerCode);
+        if (existingOfferRedeemDBEntity != null) {
+            return OfferApplyDTO
+                    .builder()
+                    .email(emailAddress)
+                    .offerCode(offerCode)
+                    .updatedOn(existingOfferRedeemDBEntity.getUpdatedOn())
+                    .build();
+        }
         OfferDBEntity offerDBEntity = fetchActiveOfferByOfferCode(offerCode);
         offerDBEntity.setActualOfferRedemptions(offerDBEntity.getActualOfferRedemptions() + 1);
 
@@ -109,12 +118,14 @@ public class OfferManagerImpl implements OfferManager {
     @Transactional(Transactional.TxType.REQUIRED)
     public String generateOfferLink(OfferLinkGenerateDTO offerLinkGenerateDTO) {
         OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDBEntityId(offerLinkGenerateDTO.getEmail(), offerLinkGenerateDTO.getOfferId());
-        String hash = hashGenerator.generateHash(offerRedeemDBEntity);
-        offerRedeemDBEntity.setHash(hash);
-        offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
-        offerRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
-        offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
-        return String.format(LINK_TEMPLATE, hash, offerLinkGenerateDTO.getEmail(), offerLinkGenerateDTO.getOfferId());
+        if (offerRedeemDBEntity.getStatus() == OfferRedeemStatusType.CREATED) {
+            String hash = hashGenerator.generateHash(offerRedeemDBEntity);
+            offerRedeemDBEntity.setHash(hash);
+            offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
+            offerRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
+            offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
+        }
+        return String.format(LINK_TEMPLATE, offerRedeemDBEntity.getHash(), offerLinkGenerateDTO.getEmail(), offerLinkGenerateDTO.getOfferId());
     }
 
     @Override

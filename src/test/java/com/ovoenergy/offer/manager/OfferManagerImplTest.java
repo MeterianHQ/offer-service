@@ -6,6 +6,7 @@ import com.flextrade.jfixture.rules.FixtureRule;
 import com.google.common.collect.Lists;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
+import com.ovoenergy.offer.db.entity.OfferRedeemStatusType;
 import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.db.jdbc.JdbcHelper;
 import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
@@ -255,6 +256,7 @@ public class OfferManagerImplTest {
         fixtureOfferDBEntity.setIsExpirable(false);
         fixtureOfferDBEntity.setStatus(StatusType.ACTIVE);
 
+        when(mockOfferRedeemRepository.findByEmailAndOfferDbEntityCodeIgnoreCase(anyString(), anyString())).thenReturn(null);
         when(mockOfferOperationsRegistry.createOfferRedeemDBEntity(eq(fixtureOfferDBEntity), eq(TEST_EMAIL))).thenReturn(fxOfferRedeemDBEntity);
         when(mockOfferOperationsRegistry.processOfferDBEntityValidation(eq(fixtureOfferDBEntity))).thenReturn(fixtureOfferDBEntity);
         when(mockOfferRepository.findOneByOfferCodeIgnoreCase(eq(TEST_OFFER_CODE))).thenReturn(fixtureOfferDBEntity);
@@ -268,14 +270,41 @@ public class OfferManagerImplTest {
         assertEquals(TEST_OFFER_CODE, result.getOfferCode());
         verify(mockOfferRepository, times(1)).findOneByOfferCodeIgnoreCase(eq(TEST_OFFER_CODE));
         verify(mockOfferRepository, times(1)).save(any(OfferDBEntity.class));
-        verify(mockOfferRedeemRepository, only()).save(any(OfferRedeemDBEntity.class));
+        verify(mockOfferRedeemRepository, times(1)).save(any(OfferRedeemDBEntity.class));
         verify(mockOfferOperationsRegistry, times(1)).processOfferDBEntityValidation(eq(fixtureOfferDBEntity));
         verify(mockOfferOperationsRegistry, times(1)).createOfferRedeemDBEntity(eq(fixtureOfferDBEntity), eq(TEST_EMAIL));
+        verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDbEntityCodeIgnoreCase(anyString(), anyString());
         verifyNoMoreInteractions(mockOfferRepository, mockOfferOperationsRegistry, mockOfferRedeemRepository);
     }
 
     @Test
+    public void applyOfferSuccessExists() {
+        OfferApplyDTO offerApplyDTO = new OfferApplyDTO();
+        offerApplyDTO.setEmail(TEST_EMAIL);
+        offerApplyDTO.setOfferCode(TEST_OFFER_CODE);
+
+        fixtureOfferDBEntity.setStartDate(TEST_DAY_BEFORE_NOW_MILLISECONDS);
+        fixtureOfferDBEntity.setExpiryDate(TEST_NOW_MILLISECONDS);
+        fixtureOfferDBEntity.setMaxOfferRedemptions(TEST_MAX_REDEMPTIONS_VALID);
+        fixtureOfferDBEntity.setActualOfferRedemptions(ACTUAL_REDEMPTIONS_VALID);
+        fixtureOfferDBEntity.setIsExpirable(false);
+        fixtureOfferDBEntity.setStatus(StatusType.ACTIVE);
+
+        when(mockOfferRedeemRepository.findByEmailAndOfferDbEntityCodeIgnoreCase(anyString(), anyString())).thenReturn(fxOfferRedeemDBEntity);
+
+        OfferApplyDTO result = unit.applyUserToOffer(TEST_OFFER_CODE, TEST_EMAIL);
+
+        assertEquals(fxOfferRedeemDBEntity.getUpdatedOn(), result.getUpdatedOn());
+        assertEquals(TEST_EMAIL, result.getEmail());
+        assertEquals(TEST_OFFER_CODE, result.getOfferCode());
+        verify(mockOfferRedeemRepository, only()).findByEmailAndOfferDbEntityCodeIgnoreCase(anyString(), anyString());
+        verifyNoMoreInteractions(mockOfferRedeemRepository);
+        verifyZeroInteractions(mockOfferRepository, mockOfferOperationsRegistry);
+    }
+
+    @Test
     public void testGenerateOfferLink() {
+        fxOfferRedeemDBEntity.setStatus(OfferRedeemStatusType.CREATED);
         when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityId(anyString(), anyLong())).thenReturn(fxOfferRedeemDBEntity);
         when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).thenReturn(fxOfferRedeemDBEntity);
         when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date());
@@ -289,6 +318,20 @@ public class OfferManagerImplTest {
         verify(hashGenerator, only()).generateHash(eq(fxOfferRedeemDBEntity));
         verify(mockOfferRedeemRepository, times(1)).saveAndFlush(any(OfferRedeemDBEntity.class));
         verify(jdbcHelper, only()).lookupCurrentDbTime();
+        verifyNoMoreInteractions(mockOfferRedeemRepository, hashGenerator, mockOfferRedeemRepository, jdbcHelper);
+    }
+
+    @Test
+    public void testGenerateOfferLinkExists() {
+        fxOfferRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
+        when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityId(anyString(), anyLong())).thenReturn(fxOfferRedeemDBEntity);
+
+        String offerLink = unit.generateOfferLink(fixtureOfferLinkGenerateDTO);
+
+        assertThat(offerLink, containsString(fixtureOfferLinkGenerateDTO.getOfferId().toString()));
+        assertThat(offerLink, containsString(fixtureOfferLinkGenerateDTO.getEmail()));
+
+        verify(mockOfferRedeemRepository, only()).findByEmailAndOfferDBEntityId(anyString(), anyLong());
         verifyNoMoreInteractions(mockOfferRedeemRepository, hashGenerator, mockOfferRedeemRepository, jdbcHelper);
     }
 }
