@@ -118,7 +118,7 @@ public class OfferManagerImpl implements OfferManager {
     @Transactional(Transactional.TxType.REQUIRED)
     public String generateOfferLink(OfferLinkGenerateDTO offerLinkGenerateDTO) {
         OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDBEntityId(offerLinkGenerateDTO.getEmail(), offerLinkGenerateDTO.getOfferId());
-        if (offerRedeemDBEntity.getStatus() == OfferRedeemStatusType.GENERATED) {
+        if (offerRedeemDBEntity.getStatus() == OfferRedeemStatusType.CREATED) {
             String hash = hashGenerator.generateHash(offerRedeemDBEntity);
             offerRedeemDBEntity.setHash(hash);
             offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());

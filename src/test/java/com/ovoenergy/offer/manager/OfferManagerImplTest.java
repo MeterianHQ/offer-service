@@ -304,7 +304,7 @@ public class OfferManagerImplTest {
 
     @Test
     public void testGenerateOfferLink() {
-        fxOfferRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
+        fxOfferRedeemDBEntity.setStatus(OfferRedeemStatusType.CREATED);
         when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityId(anyString(), anyLong())).thenReturn(fxOfferRedeemDBEntity);
         when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).thenReturn(fxOfferRedeemDBEntity);
         when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date());
@@ -323,7 +323,7 @@ public class OfferManagerImplTest {
 
     @Test
     public void testGenerateOfferLinkExists() {
-        fxOfferRedeemDBEntity.setStatus(OfferRedeemStatusType.CREATED);
+        fxOfferRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
         when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityId(anyString(), anyLong())).thenReturn(fxOfferRedeemDBEntity);
 
         String offerLink = unit.generateOfferLink(fixtureOfferLinkGenerateDTO);
