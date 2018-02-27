@@ -9,5 +9,5 @@ public interface OfferRedeemRepository extends JpaRepository<OfferRedeemDBEntity
 
     OfferRedeemDBEntity findByEmailAndOfferDBEntityIdAndHash(String email, Long id, String hash);
 
-    OfferRedeemDBEntity findByEmailAndOfferDbEntityCodeIgnoreCase(String email, String code);
+    OfferRedeemDBEntity findByEmailAndOfferDBEntityOfferCodeIgnoreCase(String email, String offerCode);
 }
