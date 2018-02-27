@@ -1,23 +1,15 @@
 package com.ovoenergy.offer.integration.offer.management.apply;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import com.ovoenergy.offer.db.entity.ChannelType;
-import com.ovoenergy.offer.db.entity.EligibilityCriteriaType;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
-import com.ovoenergy.offer.db.entity.OfferType;
 import com.ovoenergy.offer.db.entity.StatusType;
-import com.ovoenergy.offer.db.entity.SupplierType;
 import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferApplyDTO;
-import com.ovoenergy.offer.dto.OfferDTO;
-import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.dto.OfferVerifyDTO;
 import com.ovoenergy.offer.dto.OffersServiceURLs;
-import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.integration.mock.config.OfferRepositoryTestConfiguration;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import org.junit.Test;
@@ -27,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,20 +31,15 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {OfferRepositoryTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = OfferRepositoryTestConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ApplyOfferTest {
 
     @Autowired
@@ -67,7 +52,6 @@ public class ApplyOfferTest {
     private ObjectMapper objectMapper;
 
     private interface ValidateOfferForCreateInputData {
-
         // Invalid data
         String TEST_INVALID_CODE = "code*";
         Long TEST_INVALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).minusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
@@ -75,20 +59,11 @@ public class ApplyOfferTest {
         String TEST_NON_EXISTING_CODE = "nonexisting";
 
         // Valid data
-        String TEST_VALID_DESCRIPTION = "Valid description 100%";
-        String TEST_VALID_NAME = "Valid name 100%";
         String TEST_VALID_CODE = "validCODE";
-        String TEST_VALID_SUPPLIER = "Amazon";
-        String TEST_VALID_OFFER_TYPE = "Giftcard";
-        String TEST_VALID_ELIGIBILITY_CRITERIA = "SSD";
-        String TEST_VALID_CHANEL = "Email";
-        Long TEST_VALID_MAX_VALUE = 333L;
         Long TEST_VALID_MAX_REDEMPTION = 88888888L;
         Long TEST_VALID_DATE_IN_FUTURE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         Long TEST_VALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         Long TEST_VALID_UPDATE_ON_DATE = LocalDateTime.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-
-
 
         //valid code for Q&S flow:
         String TEST_VALID_EMAIL = "valid.email@mail.ru";
@@ -97,7 +72,6 @@ public class ApplyOfferTest {
     }
 
     private interface ValidateOfferForCreateViolationConstraintMessages {
-
         String INVALID_EMAIL = "Email format is not valid";
         String OFFER_EXPIRED = "Offer has expired";
         String OFFER_INVALID = "Offer code invalid";
@@ -108,8 +82,6 @@ public class ApplyOfferTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    private HttpHeaders headers = new HttpHeaders();
 
     @Test
     public void verifyOfferValidationCases() throws IOException {
@@ -154,7 +126,7 @@ public class ApplyOfferTest {
 
         Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
 
-        HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToVerify, headers);
+        HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToVerify);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.VERIFY_OFFER),
@@ -170,7 +142,7 @@ public class ApplyOfferTest {
     }
 
     @Test
-    public void verifyOfferSuccessCase() throws IOException {
+    public void verifyOfferSuccessCase() {
         // test valid offer code should be stored and redeemed
         OfferVerifyDTO offerToCreate = new OfferVerifyDTO(ValidateOfferForCreateInputData.TEST_VALID_CODE);
 
@@ -186,7 +158,7 @@ public class ApplyOfferTest {
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
         Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(ValidateOfferForCreateInputData.TEST_VALID_CODE))).thenReturn(offerDBEntity);
 
-        HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToCreate, headers);
+        HttpEntity<OfferVerifyDTO> request = new HttpEntity<>(offerToCreate);
 
         ResponseEntity<Boolean> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.VERIFY_OFFER),
@@ -201,13 +173,11 @@ public class ApplyOfferTest {
     }
 
     @Test
-    public void applyToOfferValidationCases() {
+    public void applyToOfferValidationCases() throws Exception {
         //test invalid format of email
         OfferApplyDTO offerToApply = new OfferApplyDTO();
-        OfferDBEntity offerDBEntity = new OfferDBEntity();
-
         offerToApply.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
-        HttpEntity<OfferApplyDTO> request = new HttpEntity<>(offerToApply, headers);
+        HttpEntity<OfferApplyDTO> request = new HttpEntity<>(offerToApply);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.APPLY_TO_OFFER),
@@ -215,19 +185,14 @@ public class ApplyOfferTest {
 
         assertEquals("Bad request status code was not returned", HttpStatus.BAD_REQUEST, response.getStatusCode());
 
-        ErrorMessageDTO messageDTO = null;
-        try {
-            messageDTO = objectMapper.reader().forType(ErrorMessageDTO.class).readValue(response.getBody());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ErrorMessageDTO messageDTO = objectMapper.reader().forType(ErrorMessageDTO.class).readValue(response.getBody());
 
         assertEquals("Email format is not valid", CodeKeys.INVALID_EMAIL, messageDTO.getCode());
         assertEquals("Offer expired error message missed in response", ValidateOfferForCreateViolationConstraintMessages.INVALID_EMAIL, messageDTO.getMessage());
     }
 
     @Test
-    public void applyToOfferSuccessCase() throws IOException {
+    public void applyToOfferSuccessCase() {
         // test valid offer code should be stored and redeemed
         OfferApplyDTO offerApplyDTO = new OfferApplyDTO();
         offerApplyDTO.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
@@ -253,7 +218,7 @@ public class ApplyOfferTest {
         Mockito.when(offerRedeemRepository.save(any(OfferRedeemDBEntity.class))).thenReturn(offerRedeemDBEntity);
         Mockito.when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE));
 
-        HttpEntity<OfferApplyDTO> request = new HttpEntity<>(offerApplyDTO, headers);
+        HttpEntity<OfferApplyDTO> request = new HttpEntity<>(offerApplyDTO);
 
         ResponseEntity<OfferApplyDTO> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.APPLY_TO_OFFER),
@@ -271,7 +236,7 @@ public class ApplyOfferTest {
     }
 
     private void processInvalidOfferValidation(OfferVerifyDTO offerToVerify) throws IOException {
-        HttpEntity<OfferVerifyDTO> entity = new HttpEntity<>(offerToVerify, headers);
+        HttpEntity<OfferVerifyDTO> entity = new HttpEntity<>(offerToVerify);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.VERIFY_OFFER),
@@ -283,44 +248,6 @@ public class ApplyOfferTest {
 
         assertEquals("Offer invalid error code missed in response", CodeKeys.OFFER_INVALID, messageDTO.getCode());
         assertEquals("Offer invalid error message missed in response", ValidateOfferForCreateViolationConstraintMessages.OFFER_INVALID, messageDTO.getMessage());
-    }
-
-    private OfferDBEntity prepareForTestValidOfferDBEntity() {
-        OfferDBEntity offerDBEntity = new OfferDBEntity();
-        offerDBEntity.setDescription(ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION);
-        offerDBEntity.setOfferName(ValidateOfferForCreateInputData.TEST_VALID_NAME);
-        offerDBEntity.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
-        offerDBEntity.setSupplier(SupplierType.byValue(ValidateOfferForCreateInputData.TEST_VALID_SUPPLIER));
-        offerDBEntity.setOfferType(OfferType.byValue(ValidateOfferForCreateInputData.TEST_VALID_OFFER_TYPE));
-        offerDBEntity.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
-        offerDBEntity.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
-        offerDBEntity.setEligibilityCriteria(EligibilityCriteriaType.byValue(ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA));
-        offerDBEntity.setChannel(ChannelType.byValue(ValidateOfferForCreateInputData.TEST_VALID_CHANEL));
-        offerDBEntity.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE);
-        offerDBEntity.setExpiryDate(ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE);
-        offerDBEntity.setIsExpirable(true);
-        offerDBEntity.setStatus(StatusType.ACTIVE);
-        offerDBEntity.setUpdatedOn(ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE);
-        offerDBEntity.setId(1L);
-        return offerDBEntity;
-    }
-
-    private void verifyValidOfferDTO(OfferDTO offerDTO) {
-        assertEquals("Input value for field description is valid", ValidateOfferForCreateInputData.TEST_VALID_DESCRIPTION, offerDTO.getDescription());
-        assertEquals("Input value for Name field is valid", ValidateOfferForCreateInputData.TEST_VALID_NAME, offerDTO.getOfferName());
-        assertEquals("Input value for Code field is valid", ValidateOfferForCreateInputData.TEST_VALID_CODE, offerDTO.getOfferCode());
-        assertEquals("Input value for Supplier is valid", ValidateOfferForCreateInputData.TEST_VALID_SUPPLIER, offerDTO.getSupplier());
-        assertEquals("Input value for Offer TYPE is valid", ValidateOfferForCreateInputData.TEST_VALID_OFFER_TYPE, offerDTO.getOfferType());
-        assertEquals("Input value for Value is valid", ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE, offerDTO.getValue());
-        assertEquals("Input value for Offer Redemption is valid", ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION, offerDTO.getMaxOfferRedemptions());
-        assertEquals("Input value for Eligibility criteria is valid ", ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA, offerDTO.getEligibilityCriteria());
-        assertEquals("Input value for Channel is valid", ValidateOfferForCreateInputData.TEST_VALID_CHANEL, offerDTO.getChannel());
-        assertEquals("Input value for START date is valid", ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE, offerDTO.getStartDate());
-        assertEquals("Input value for EXPIRY date is valid ", ValidateOfferForCreateInputData.TEST_VALID_EXPIRY_DATE, offerDTO.getExpiryDate());
-        assertNotNull("Id for offer is autogenerated ", offerDTO.getId());
-        assertTrue("No Expiry Date is true", offerDTO.getIsExpirable());
-        assertEquals("Input value for Update_on Date is valid ", ValidateOfferForCreateInputData.TEST_VALID_UPDATE_ON_DATE, offerDTO.getUpdatedOn());
-        assertEquals("Input value for STATUS is valid ", StatusType.ACTIVE.name(), offerDTO.getStatus());
     }
 
     private String createURLWithPort(String uri) {
