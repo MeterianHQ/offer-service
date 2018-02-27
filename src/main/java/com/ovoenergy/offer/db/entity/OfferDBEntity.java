@@ -32,6 +32,7 @@ public class OfferDBEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @AuditableField
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private StatusType status;

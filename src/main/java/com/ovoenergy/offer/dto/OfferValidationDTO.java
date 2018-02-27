@@ -22,7 +22,7 @@ public class OfferValidationDTO extends OfferDTO {
     private Map<String, Set<ErrorMessageDTO>> constraintViolations = new HashMap<>();
 
     public OfferValidationDTO(OfferDTO offerDTO) {
-        super();
+        this.setId(offerDTO.getId());
         this.setOfferCode(offerDTO.getOfferCode());
         this.setOfferName(offerDTO.getOfferName());
         this.setDescription(offerDTO.getDescription());

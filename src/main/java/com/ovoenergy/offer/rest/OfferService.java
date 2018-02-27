@@ -1,7 +1,6 @@
 package com.ovoenergy.offer.rest;
 
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
-import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferValidationDTO;
 import com.ovoenergy.offer.dto.OfferVerifyDTO;
@@ -16,25 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.ovoenergy.offer.dto.OffersServiceURLs.APPLY_TO_OFFER;
-import static com.ovoenergy.offer.dto.OffersServiceURLs.CREATE_OFFER;
-import static com.ovoenergy.offer.dto.OffersServiceURLs.DELETE_OFFER;
-import static com.ovoenergy.offer.dto.OffersServiceURLs.GET_ALL_OFFERS;
-import static com.ovoenergy.offer.dto.OffersServiceURLs.GET_OFFER;
-import static com.ovoenergy.offer.dto.OffersServiceURLs.UPDATE_OFFER;
-import static com.ovoenergy.offer.dto.OffersServiceURLs.VERIFY_OFFER;
+import static com.ovoenergy.offer.dto.OffersServiceURLs.*;
 
 @Api(value = "offer-service")
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -156,22 +141,6 @@ public class OfferService {
         Boolean response = offerManager.verifyOffer(request.getOfferCode());
 
         LOGGER.debug("Returning response for VERIFY offer: {}", response);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping(APPLY_TO_OFFER)
-    @ResponseBody
-    @ApiResponses({@ApiResponse(code = 200, message = "Ok", response = OfferVerifyDTO.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
-            @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class)})
-    @ApiOperation(value = APPLY_TO_OFFER, notes = "Create offer", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OfferApplyDTO> applyToOfferOffer(@RequestBody OfferApplyDTO request) {
-        LOGGER.debug("APPLY user to offer request has been received: {}", request);
-
-        customValidator.processOfferInputDataValidationException(request);
-        OfferApplyDTO response = offerManager.applyUserToOffer(request.getOfferCode(), request.getEmail());
-
-        LOGGER.debug("Returning response for APPLY user to offer: {}", response);
         return ResponseEntity.ok(response);
     }
 }

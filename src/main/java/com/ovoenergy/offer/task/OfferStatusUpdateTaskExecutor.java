@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -27,24 +28,24 @@ public class OfferStatusUpdateTaskExecutor extends BaseTaskExecutor {
     protected JdbcHelper jdbcHelper;
 
     @Autowired
-    private OfferRepository offerRepository;
+    private OfferRepository offerCustomRepository;
 
     @Override
     protected void runTask() {
         LOGGER.info("Task started for offers status update process");
         Date now = jdbcHelper.lookupCurrentDbTime();
-        List<OfferDBEntity> offersToExpire = offerRepository.findAllByStatusAndExpiryDateLessThan(StatusType.ACTIVE, getDateTimeMidnightMilliseconds(now));
+        List<OfferDBEntity> offersToExpire = offerCustomRepository.findAllByStatusAndExpiryDateLessThan(StatusType.ACTIVE, getDateTimeMidnightMilliseconds(now));
         Set<Long> idsToExpire = offersToExpire.stream().map(OfferDBEntity::getId).collect(Collectors.toSet());
 
-        LOGGER.debug("Started offers status update to process");
-        LOGGER.info("Updating offers with IDs = {} with Expired status. Execution time {}", idsToExpire, now);
-        offersToExpire.stream().forEach(off -> {
-            off.setStatus(StatusType.EXPIRED);
-            off.setUpdatedOn(now.getTime());
-        });
-        offerRepository.save(offersToExpire);
-        LOGGER.info("Entities with IDs = {} were successfully updated with Expired status. Execution time {}", idsToExpire, now);
-        LOGGER.info("Task completed for offers status update process");
+        if (CollectionUtils.isEmpty(offersToExpire)) {
+            LOGGER.info("Skipped offers update with Expired status");
+        } else {
+            LOGGER.debug("Started offers status update to process");
+            LOGGER.info("Updating offers with IDs = {} with Expired status. Count {}. Execution time {}", idsToExpire, idsToExpire.size(), now);
+            int updated = offerCustomRepository.updateExpiredOffersStatus(now.getTime(), getDateTimeMidnightMilliseconds(now));
+            LOGGER.info("Updated offers with Expired status. Count {}. Execution time {}", updated, now);
+            LOGGER.info("Task completed for offers status update process");
+        }
     }
 
     private Long getDateTimeMidnightMilliseconds(Date date) {

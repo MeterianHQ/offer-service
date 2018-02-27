@@ -24,6 +24,7 @@ public abstract class BaseBeansTest {
 
     public static <T> void hashCodeEquality(Class<T> clazz) {
         JFixture fixture = new JFixture();
+        fixture.customise().circularDependencyBehaviour().omitSpecimen();
         T firtsInstance = fixture.create(clazz);
         T secondInstance = fixture.create(clazz);
         assertTrue(firtsInstance.hashCode() != secondInstance.hashCode());
@@ -33,6 +34,7 @@ public abstract class BaseBeansTest {
 
     public static <T> void equality(Class<T> clazz) {
         JFixture fixture = new JFixture();
+        fixture.customise().circularDependencyBehaviour().omitSpecimen();
         T firtsInstance = fixture.create(clazz);
         T secondInstance = fixture.create(clazz);
 
@@ -49,6 +51,7 @@ public abstract class BaseBeansTest {
 
     private static <T> void testWithPropertiesCopy(Class<T> clazz, final List<Field> classFields, final List<Field> allClassFields, boolean classHasPrimitiveTypes) {
         JFixture fixture = new JFixture();
+        fixture.customise().circularDependencyBehaviour().omitSpecimen();
         fixture.customise().lazyInstance(boolean.class, () -> true);
         T firtsInstance = fixture.create(clazz);
         fixture.customise().lazyInstance(boolean.class, () -> false);
@@ -71,6 +74,7 @@ public abstract class BaseBeansTest {
 
     private static <T> void testFirtAndSecondInstanceNullableFields(Class<T> clazz, List<Field> classFields, boolean classHasPrimitiveTypes) {
         JFixture fixture = new JFixture();
+        fixture.customise().circularDependencyBehaviour().omitSpecimen();
         fixture.customise().lazyInstance(boolean.class, () -> true);
         T firtsInstance = fixture.create(clazz);
         fixture.customise().lazyInstance(boolean.class, () -> false);
@@ -91,6 +95,7 @@ public abstract class BaseBeansTest {
 
     private static <T> void testFirstInstanceNullableFields(Class<T> clazz, List<Field> classFields) {
         JFixture fixture = new JFixture();
+        fixture.customise().circularDependencyBehaviour().omitSpecimen();
         T firtsInstance = fixture.create(clazz);
         T secondInstance = fixture.create(clazz);
         for (Field field : classFields) {
