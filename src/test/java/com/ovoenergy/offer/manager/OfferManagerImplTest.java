@@ -256,7 +256,7 @@ public class OfferManagerImplTest {
         fixtureOfferDBEntity.setIsExpirable(false);
         fixtureOfferDBEntity.setStatus(StatusType.ACTIVE);
 
-        when(mockOfferRedeemRepository.findByEmailAndOfferDbEntityCodeIgnoreCase(anyString(), anyString())).thenReturn(null);
+        when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityOfferCodeIgnoreCase(anyString(), anyString())).thenReturn(null);
         when(mockOfferOperationsRegistry.createOfferRedeemDBEntity(eq(fixtureOfferDBEntity), eq(TEST_EMAIL))).thenReturn(fxOfferRedeemDBEntity);
         when(mockOfferOperationsRegistry.processOfferDBEntityValidation(eq(fixtureOfferDBEntity))).thenReturn(fixtureOfferDBEntity);
         when(mockOfferRepository.findOneByOfferCodeIgnoreCase(eq(TEST_OFFER_CODE))).thenReturn(fixtureOfferDBEntity);
@@ -273,7 +273,7 @@ public class OfferManagerImplTest {
         verify(mockOfferRedeemRepository, times(1)).save(any(OfferRedeemDBEntity.class));
         verify(mockOfferOperationsRegistry, times(1)).processOfferDBEntityValidation(eq(fixtureOfferDBEntity));
         verify(mockOfferOperationsRegistry, times(1)).createOfferRedeemDBEntity(eq(fixtureOfferDBEntity), eq(TEST_EMAIL));
-        verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDbEntityCodeIgnoreCase(anyString(), anyString());
+        verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDBEntityOfferCodeIgnoreCase(anyString(), anyString());
         verifyNoMoreInteractions(mockOfferRepository, mockOfferOperationsRegistry, mockOfferRedeemRepository);
     }
 
@@ -290,14 +290,14 @@ public class OfferManagerImplTest {
         fixtureOfferDBEntity.setIsExpirable(false);
         fixtureOfferDBEntity.setStatus(StatusType.ACTIVE);
 
-        when(mockOfferRedeemRepository.findByEmailAndOfferDbEntityCodeIgnoreCase(anyString(), anyString())).thenReturn(fxOfferRedeemDBEntity);
+        when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityOfferCodeIgnoreCase(anyString(), anyString())).thenReturn(fxOfferRedeemDBEntity);
 
         OfferApplyDTO result = unit.applyUserToOffer(TEST_OFFER_CODE, TEST_EMAIL);
 
         assertEquals(fxOfferRedeemDBEntity.getUpdatedOn(), result.getUpdatedOn());
         assertEquals(TEST_EMAIL, result.getEmail());
         assertEquals(TEST_OFFER_CODE, result.getOfferCode());
-        verify(mockOfferRedeemRepository, only()).findByEmailAndOfferDbEntityCodeIgnoreCase(anyString(), anyString());
+        verify(mockOfferRedeemRepository, only()).findByEmailAndOfferDBEntityOfferCodeIgnoreCase(anyString(), anyString());
         verifyNoMoreInteractions(mockOfferRedeemRepository);
         verifyZeroInteractions(mockOfferRepository, mockOfferOperationsRegistry);
     }

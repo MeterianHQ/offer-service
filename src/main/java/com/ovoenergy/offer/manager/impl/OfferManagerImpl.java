@@ -91,7 +91,7 @@ public class OfferManagerImpl implements OfferManager {
     @Override
     @Transactional(Transactional.TxType.REQUIRED)
     public OfferApplyDTO applyUserToOffer(String offerCode, String emailAddress) {
-        OfferRedeemDBEntity existingOfferRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDbEntityCodeIgnoreCase(emailAddress, offerCode);
+        OfferRedeemDBEntity existingOfferRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDBEntityOfferCodeIgnoreCase(emailAddress, offerCode);
         if (existingOfferRedeemDBEntity != null) {
             return OfferApplyDTO
                     .builder()
