@@ -50,7 +50,7 @@ public class OfferManagerImpl implements OfferManager {
 
     @Override
     public OfferDTO getOfferById(Long id) {
-        return OfferMapper.fromOfferDBEntityToDTO(offerRepository.findOneById(id));
+        return OfferMapper.fromOfferDBEntityToDTO(offerRepository.findOne(id));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class OfferManagerImpl implements OfferManager {
 
     @Override
     public OfferDTO updateOffer(OfferDTO offerDTO, Long id) {
-        OfferDBEntity oldOfferDBEntity = offerRepository.findOneById(id);
+        OfferDBEntity oldOfferDBEntity = offerRepository.findOne(id);
         OfferDBEntity offerDBEntity = offerOperationsRegistry.updateOfferDBEntity(oldOfferDBEntity, offerDTO);
 
         return OfferMapper.fromOfferDBEntityToDTO(offerRepository.save(offerDBEntity));

@@ -12,8 +12,6 @@ import java.util.List;
 
 public interface OfferRepository extends JpaRepository<OfferDBEntity, Long> {
 
-    OfferDBEntity findOneById(Long id);
-
     OfferDBEntity findOneByOfferCodeIgnoreCaseAndStatus(String offerCode, StatusType status);
 
     boolean existsByOfferCodeIgnoreCaseAndIdIsNot(String offerCode, Long id);

@@ -1,13 +1,15 @@
 package com.ovoenergy.offer.test.utils;
 
 import com.flextrade.jfixture.JFixture;
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.reflect.FieldUtils;
 
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.reflect.Modifier.isFinal;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -39,13 +41,17 @@ public abstract class BaseBeansTest {
         T secondInstance = fixture.create(clazz);
 
         // Most basic test
+        List<Field> fieldsToSkip = ImmutableList.<Field>builder()
+                .addAll(FieldUtils.getFieldsListWithAnnotation(clazz, OneToMany.class))
+                .addAll(FieldUtils.getFieldsListWithAnnotation(clazz, ManyToOne.class))
+                .build();
         new EqualsTester().addEqualityGroup(firtsInstance).addEqualityGroup(secondInstance).testEquals();
-
-        List<Field> allClassFields = getAllFields(clazz);
+        List<Field> allClassFields = FieldUtils.getAllFieldsList(clazz);
+        allClassFields.removeAll(fieldsToSkip);
         List<Field> filteredClassFields = filterClassFields(allClassFields);
         boolean classHasPrimitiveTypes = allClassFields.stream().anyMatch(fl -> fl.getType().isPrimitive());
         testFirstInstanceNullableFields(clazz, filteredClassFields);
-        testFirtAndSecondInstanceNullableFields(clazz, filteredClassFields, classHasPrimitiveTypes);
+        testFirstAndSecondInstanceNullableFields(clazz, filteredClassFields, classHasPrimitiveTypes);
         testWithPropertiesCopy(clazz, filteredClassFields, allClassFields, classHasPrimitiveTypes);
     }
 
@@ -72,7 +78,7 @@ public abstract class BaseBeansTest {
         }
     }
 
-    private static <T> void testFirtAndSecondInstanceNullableFields(Class<T> clazz, List<Field> classFields, boolean classHasPrimitiveTypes) {
+    private static <T> void testFirstAndSecondInstanceNullableFields(Class<T> clazz, List<Field> classFields, boolean classHasPrimitiveTypes) {
         JFixture fixture = new JFixture();
         fixture.customise().circularDependencyBehaviour().omitSpecimen();
         fixture.customise().lazyInstance(boolean.class, () -> true);
@@ -103,16 +109,6 @@ public abstract class BaseBeansTest {
             setField(field, firtsInstance, null);
             new EqualsTester().addEqualityGroup(firtsInstance).addEqualityGroup(secondInstance).testEquals();
         }
-    }
-
-    private static <T> List<Field> getAllFields(Class<T> clazz) {
-        Class<?> current = clazz;
-        List<Field> allFields = newArrayList(current.getDeclaredFields());
-        while (current.getSuperclass() != null) {
-            current = current.getSuperclass();
-            allFields.addAll(asList(current.getDeclaredFields()));
-        }
-        return allFields;
     }
 
     public static List<Field> filterClassFields(List<Field> allClassFields) {

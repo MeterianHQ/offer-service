@@ -16,7 +16,7 @@ public class DBEntitiesTest extends BaseBeansTest {
     @Test
     public void testEquality() {
         equality(OfferDBEntity.class);
-//        equality(OfferRedeemDBEntity.class);
+        equality(OfferRedeemDBEntity.class);
         equality(OfferRedeemEventDBEntity.class);
         equality(AuditDBEntity.class);
     }

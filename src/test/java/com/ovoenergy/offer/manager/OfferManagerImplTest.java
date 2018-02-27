@@ -106,7 +106,7 @@ public class OfferManagerImplTest {
 
     @Test
     public void testGetOfferByIdSuccess() {
-        when(mockOfferRepository.findOneById(eq(TEST_OFFER_ID))).thenReturn(fixtureOfferDBEntity);
+        when(mockOfferRepository.findOne(eq(TEST_OFFER_ID))).thenReturn(fixtureOfferDBEntity);
 
         OfferDTO result = unit.getOfferById(TEST_OFFER_ID);
 
@@ -127,7 +127,7 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getValue(), result.getValue());
         assertEquals(fixtureOfferDBEntity.getId(), result.getId());
 
-        verify(mockOfferRepository, only()).findOneById(eq(TEST_OFFER_ID));
+        verify(mockOfferRepository, only()).findOne(eq(TEST_OFFER_ID));
         verifyNoMoreInteractions(mockOfferRepository);
         verifyZeroInteractions(mockOfferRedeemRepository, mockOfferOperationsRegistry);
     }
@@ -149,7 +149,7 @@ public class OfferManagerImplTest {
     public void testCreateOfferSuccess() {
         fixtureOfferDTO.setOfferCode(TEST_OFFER_CODE);
         fixtureOfferDTO.setStatus(StatusType.ACTIVE.name());
-        when(mockOfferRepository.findOneById(anyLong())).thenReturn(fixtureOfferDBEntity);
+        when(mockOfferRepository.findOne(anyLong())).thenReturn(fixtureOfferDBEntity);
         when(mockOfferOperationsRegistry.updateOfferDBEntity(fixtureOfferDBEntity, fixtureOfferDTO)).thenReturn(fixtureOfferDBEntity);
         when(mockOfferRepository.save(any(OfferDBEntity.class))).thenReturn(fixtureOfferDBEntity);
 
@@ -206,7 +206,7 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getId(), result.getId());
 
         verify(mockOfferRepository, times(1)).save(any(OfferDBEntity.class));
-        verify(mockOfferRepository, times(1)).findOneById(anyLong());
+        verify(mockOfferRepository, times(1)).findOne(anyLong());
         verify(mockOfferOperationsRegistry, only()).updateOfferDBEntity(any(OfferDBEntity.class), any(OfferDTO.class));
         verifyNoMoreInteractions(mockOfferRepository, mockOfferOperationsRegistry);
         verifyZeroInteractions(mockOfferRedeemRepository);

@@ -12,7 +12,7 @@ import java.util.Set;
 @Entity(name = "offer_redeem")
 @Table(name = "offer_redeem", schema = "offers_db")
 @Data
-@EqualsAndHashCode(exclude = {"id", "offerRedeemEventDBEntities"})
+@EqualsAndHashCode(exclude = {"id", "offerRedeemEventDBEntities", "offerDBEntity"})
 @ToString(exclude = "offerRedeemEventDBEntities")
 @NoArgsConstructor
 @AllArgsConstructor
