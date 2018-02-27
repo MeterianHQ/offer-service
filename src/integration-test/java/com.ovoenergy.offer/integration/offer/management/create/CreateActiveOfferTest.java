@@ -8,7 +8,6 @@ import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferType;
 import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.db.entity.SupplierType;
-import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.ErrorMessageDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
@@ -25,7 +24,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +48,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {OfferRepositoryTestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = OfferRepositoryTestConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CreateActiveOfferTest {
 
     @Autowired
@@ -58,12 +56,9 @@ public class CreateActiveOfferTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
-    private OfferRedeemRepository offerRedeemRepository;
-    @Autowired
     private ObjectMapper objectMapper;
 
     private interface ValidateOfferForCreateInputData {
-
         // Invalid data
         String TEST_INVALID_CODE = "code*";
         String TEST_INVALID_SUPPLIER = "Amazon1";
@@ -74,7 +69,6 @@ public class CreateActiveOfferTest {
         Long TEST_INVALID_MAX_REDEMPTION = 888888889L;
         Long TEST_INVALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).minusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
         Long TEST_INVALID_DATE_BEFORE_NOW = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-        String TEST_NON_EXISTING_CODE = "nonexisting";
 
         // Valid data
         String TEST_VALID_DESCRIPTION = "Valid description 100%";
@@ -95,17 +89,12 @@ public class CreateActiveOfferTest {
         String REQUIRED_FIELD = "This field is required";
         String NOT_NULL_FIELD = "This field cannot be null";
         String PROVIDED_VALUE_NOT_SUPPORTED = "Provided value is not supported";
-        String INPUT_VALUE_ZERO = "Input value cannot be 0";
         String NOT_UNIQUE_OFFER_CODE = "Please choose a unique offer code";
         String INVALID_OFFER_CODE = "An offer code cannot include spaces or special characters";
         String NON_IN_FUTURE_DATE = "Please select a date in the future";
         String OFFER_EXPIRY_DATE_BEFORE_START_DATE = "Offer Expiry Date must be after the Offer Start Date";
-        String NO_EXPIRITY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE = "No expiry date' cannot be ticked if 'Expiry date' selected";
         String INPUT_VALUE_MAX = "Field value is limited to 3 digits";
         String INPUT_REDEMPTION_MAX = "Field value is limited to 8 digits";
-        String INVALID_EMAIL = "Email format is not valid";
-        String OFFER_EXPIRED = "Offer has expired";
-        String OFFER_INVALID = "Offer code invalid";
     }
 
     @LocalServerPort
@@ -113,8 +102,6 @@ public class CreateActiveOfferTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    private HttpHeaders headers = new HttpHeaders();
 
     @Test
     public void testValidateOfferForCreate() throws IOException {
@@ -133,7 +120,7 @@ public class CreateActiveOfferTest {
         offerToValidate.setIsExpirable(true);
         offerToValidate.setStatus(StatusType.ACTIVE.name());
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<OfferDTO>(offerToValidate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToValidate);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.CREATE_OFFER),
@@ -238,7 +225,7 @@ public class CreateActiveOfferTest {
         offerToValidate.setIsExpirable(true);
         offerToValidate.setStatus(null);
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToValidate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToValidate);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.CREATE_OFFER),
@@ -348,7 +335,7 @@ public class CreateActiveOfferTest {
         offerToValidate.setIsExpirable(true);
         offerToValidate.setStatus("");
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToValidate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToValidate);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.CREATE_OFFER),
@@ -439,7 +426,7 @@ public class CreateActiveOfferTest {
 
         OfferDBEntity offerDBEntity = prepareForTestValidOfferDBEntity();
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToCreate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToCreate);
 
         Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(eq(offerToCreate.getOfferCode()))).thenReturn(null);
         Mockito.when(offerRepository.save(any(OfferDBEntity.class))).thenReturn(offerDBEntity);
@@ -477,7 +464,7 @@ public class CreateActiveOfferTest {
 
         Mockito.when(offerRepository.findOneByOfferCodeIgnoreCase(anyString())).thenReturn(new OfferDBEntity());
 
-        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToCreate, headers);
+        HttpEntity<OfferDTO> entity = new HttpEntity<>(offerToCreate);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort(OffersServiceURLs.CREATE_OFFER),
@@ -520,7 +507,6 @@ public class CreateActiveOfferTest {
         assertEquals("Status code is OK", HttpStatus.OK, response.getStatusCode());
         assertEquals("List is empty", 0, response.getBody().size());
     }
-
 
     private OfferDBEntity prepareForTestValidOfferDBEntity() {
         OfferDBEntity offerDBEntity = new OfferDBEntity();

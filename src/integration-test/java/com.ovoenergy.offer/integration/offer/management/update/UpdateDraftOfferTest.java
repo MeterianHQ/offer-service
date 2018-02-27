@@ -1,32 +1,41 @@
 package com.ovoenergy.offer.integration.offer.management.update;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.OfferDTO;
+import com.ovoenergy.offer.integration.data.TestData;
 import com.ovoenergy.offer.integration.mock.config.OfferRepositoryTestConfiguration;
 import com.ovoenergy.offer.validation.key.CodeKeys;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.AdditionalAnswers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 
 import static com.ovoenergy.offer.dto.OffersServiceURLs.UPDATE_OFFER;
 import static org.hamcrest.Matchers.comparesEqualTo;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -43,12 +52,12 @@ public class UpdateDraftOfferTest {
 
     @Autowired
     private MockMvc mvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
     @Autowired
     private OfferRepository offerRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     public void testDifferentIdInRequestBodyAndPathVariableError() throws Exception {
@@ -68,27 +77,9 @@ public class UpdateDraftOfferTest {
 
     @Test
     public void testEntityNotExistsError() throws Exception {
-        Long testValidDateInFuture = LocalDateTime.now()
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0)
-                .plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-
         Long id = 100L;
-        OfferDTO offerToValidate = new OfferDTO();
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO();
         offerToValidate.setId(id);
-        offerToValidate.setIsExpirable(false);
-        offerToValidate.setOfferCode("validCODE");
-        offerToValidate.setOfferName("validName");
-        offerToValidate.setMaxOfferRedemptions(10L);
-        offerToValidate.setSupplier("Amazon");
-        offerToValidate.setChannel("Email");
-        offerToValidate.setEligibilityCriteria("SSD");
-        offerToValidate.setOfferType("Giftcard");
-        offerToValidate.setValue(10L);
-        offerToValidate.setStartDate(testValidDateInFuture);
-        offerToValidate.setStatus("draft");
 
         when(offerRepository.exists(anyLong())).thenReturn(false);
 
@@ -111,7 +102,7 @@ public class UpdateDraftOfferTest {
                 .andExpect(jsonPath("$.maxOfferRedemptions", equalTo(offerToValidate.getMaxOfferRedemptions().intValue())))
                 .andExpect(jsonPath("$.actualOfferRedemptions", nullValue()))
                 .andExpect(jsonPath("$.startDate", comparesEqualTo(offerToValidate.getStartDate())))
-                .andExpect(jsonPath("$.expiryDate", nullValue()))
+                .andExpect(jsonPath("$.expiryDate", comparesEqualTo(offerToValidate.getExpiryDate())))
                 .andExpect(jsonPath("$.isExpirable", equalTo(offerToValidate.getIsExpirable())))
                 .andExpect(jsonPath("$.eligibilityCriteria", equalTo(offerToValidate.getEligibilityCriteria())))
                 .andExpect(jsonPath("$.channel", equalTo(offerToValidate.getChannel())))
@@ -125,27 +116,9 @@ public class UpdateDraftOfferTest {
 
     @Test
     public void testInvalidErrorCode() throws Exception {
-        Long testValidDateInFuture = LocalDateTime.now()
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0)
-                .plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-
         Long id = 100L;
-        OfferDTO offerToValidate = new OfferDTO();
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO();
         offerToValidate.setId(id);
-        offerToValidate.setIsExpirable(false);
-        offerToValidate.setOfferCode("validCODE");
-        offerToValidate.setOfferName("validName");
-        offerToValidate.setMaxOfferRedemptions(10L);
-        offerToValidate.setSupplier("Amazon");
-        offerToValidate.setChannel("Email");
-        offerToValidate.setEligibilityCriteria("SSD");
-        offerToValidate.setOfferType("Giftcard");
-        offerToValidate.setValue(10L);
-        offerToValidate.setStartDate(testValidDateInFuture);
-        offerToValidate.setStatus("draft");
 
         when(offerRepository.exists(anyLong())).thenReturn(true);
         when(offerRepository.existsByOfferCodeIgnoreCaseAndIdIsNot(anyString(), anyLong())).thenReturn(true);
@@ -169,7 +142,7 @@ public class UpdateDraftOfferTest {
                 .andExpect(jsonPath("$.maxOfferRedemptions", equalTo(offerToValidate.getMaxOfferRedemptions().intValue())))
                 .andExpect(jsonPath("$.actualOfferRedemptions", nullValue()))
                 .andExpect(jsonPath("$.startDate", comparesEqualTo(offerToValidate.getStartDate())))
-                .andExpect(jsonPath("$.expiryDate", nullValue()))
+                .andExpect(jsonPath("$.expiryDate", comparesEqualTo(offerToValidate.getExpiryDate())))
                 .andExpect(jsonPath("$.isExpirable", equalTo(offerToValidate.getIsExpirable())))
                 .andExpect(jsonPath("$.eligibilityCriteria", equalTo(offerToValidate.getEligibilityCriteria())))
                 .andExpect(jsonPath("$.channel", equalTo(offerToValidate.getChannel())))
@@ -183,13 +156,6 @@ public class UpdateDraftOfferTest {
 
     @Test
     public void testExpireDateGreaterThanStartDateError() throws Exception {
-        Long testValidDateInFuture = LocalDateTime.now()
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0)
-                .plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-
         Long testInvalidExpiryDate = LocalDateTime.now()
                 .withHour(0)
                 .withMinute(0)
@@ -199,18 +165,8 @@ public class UpdateDraftOfferTest {
                 .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
         Long id = 100L;
-        OfferDTO offerToValidate = new OfferDTO();
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO();
         offerToValidate.setId(id);
-        offerToValidate.setIsExpirable(true);
-        offerToValidate.setOfferCode("validCODE");
-        offerToValidate.setOfferName("validName");
-        offerToValidate.setMaxOfferRedemptions(10L);
-        offerToValidate.setSupplier("Amazon");
-        offerToValidate.setChannel("Email");
-        offerToValidate.setEligibilityCriteria("SSD");
-        offerToValidate.setOfferType("Giftcard");
-        offerToValidate.setValue(10L);
-        offerToValidate.setStartDate(testValidDateInFuture);
         offerToValidate.setExpiryDate(testInvalidExpiryDate);
         offerToValidate.setStatus("draft");
 
@@ -252,35 +208,10 @@ public class UpdateDraftOfferTest {
 
     @Test
     public void testInvalidExpireFlowError() throws Exception {
-        Long testValidDateInFuture = LocalDateTime.now()
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0)
-                .plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-
-        Long testValidExpiryDate = LocalDateTime.now()
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
-
-
         Long id = 100L;
-        OfferDTO offerToValidate = new OfferDTO();
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO();
         offerToValidate.setId(id);
         offerToValidate.setIsExpirable(false);
-        offerToValidate.setOfferCode("validCODE");
-        offerToValidate.setOfferName("validName");
-        offerToValidate.setMaxOfferRedemptions(10L);
-        offerToValidate.setSupplier("Amazon");
-        offerToValidate.setChannel("Email");
-        offerToValidate.setEligibilityCriteria("SSD");
-        offerToValidate.setOfferType("Giftcard");
-        offerToValidate.setValue(10L);
-        offerToValidate.setStartDate(testValidDateInFuture);
-        offerToValidate.setExpiryDate(testValidExpiryDate);
-        offerToValidate.setStatus("draft");
 
         when(offerRepository.exists(anyLong())).thenReturn(true);
         when(offerRepository.existsByOfferCodeIgnoreCaseAndIdIsNot(anyString(), anyLong())).thenReturn(false);
@@ -384,5 +315,51 @@ public class UpdateDraftOfferTest {
         verify(offerRepository, times(1)).existsByOfferCodeIgnoreCaseAndIdIsNot(eq(offerToValidate.getOfferCode()), eq(offerToValidate.getId()));
         verify(offerRepository, times(1)).findOne(eq(offerToValidate.getId()));
         verifyNoMoreInteractions(offerRepository);
+    }
+
+    @Test
+    public void testUpdateValidOffer() throws Exception {
+        Long id = 10L;
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO();
+        OfferDBEntity offerDBEntity = TestData.prepareForTestValidOfferDBEntity();
+
+        offerToValidate.setId(id);
+        offerDBEntity.setId(id);
+
+        when(offerRepository.save(any(OfferDBEntity.class))).then(AdditionalAnswers.returnsFirstArg());
+        when(offerRepository.findOneById(anyLong())).thenReturn(offerDBEntity);
+        when(jdbcTemplate.queryForObject(any(String.class), any(RowMapper.class))).thenReturn(new Date(LocalDateTime.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()));
+        when(offerRepository.exists(anyLong())).thenReturn(true);
+        when(offerRepository.existsByOfferCodeIgnoreCaseAndIdIsNot(anyString(), anyLong())).thenReturn(false);
+
+        mvc.perform(put(UPDATE_OFFER, offerToValidate.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(offerToValidate)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().string(not(isEmptyString())))
+                .andExpect(jsonPath("$.id", equalTo(offerToValidate.getId().intValue())))
+                .andExpect(jsonPath("$.offerCode", equalTo(offerToValidate.getOfferCode())))
+                .andExpect(jsonPath("$.offerName", equalTo(offerToValidate.getOfferName())))
+                .andExpect(jsonPath("$.description", equalTo(offerToValidate.getDescription())))
+                .andExpect(jsonPath("$.supplier", equalTo(offerToValidate.getSupplier())))
+                .andExpect(jsonPath("$.offerType", equalTo(offerToValidate.getOfferType())))
+                .andExpect(jsonPath("$.value", equalTo(offerToValidate.getValue().intValue())))
+                .andExpect(jsonPath("$.maxOfferRedemptions", equalTo(offerToValidate.getMaxOfferRedemptions().intValue())))
+                .andExpect(jsonPath("$.actualOfferRedemptions", nullValue()))
+                .andExpect(jsonPath("$.startDate", comparesEqualTo(offerToValidate.getStartDate())))
+                .andExpect(jsonPath("$.expiryDate", comparesEqualTo(offerToValidate.getExpiryDate())))
+                .andExpect(jsonPath("$.isExpirable", equalTo(offerToValidate.getIsExpirable())))
+                .andExpect(jsonPath("$.eligibilityCriteria", equalTo(offerToValidate.getEligibilityCriteria())))
+                .andExpect(jsonPath("$.channel", equalTo(offerToValidate.getChannel())))
+                .andExpect(jsonPath("$.status", equalTo(offerToValidate.getStatus())))
+                .andExpect(jsonPath("$.updatedOn", greaterThanOrEqualTo(offerDBEntity.getUpdatedOn())));
+
+        verify(offerRepository, times(1)).exists(eq(id));
+        verify(offerRepository, times(1)).existsByOfferCodeIgnoreCaseAndIdIsNot(eq(offerToValidate.getOfferCode()), eq(offerToValidate.getId()));
+        verify(offerRepository, times(1)).save(any(OfferDBEntity.class));
+        verify(offerRepository, times(1)).findOneById(anyLong());
+        verify(jdbcTemplate, only()).queryForObject(any(String.class), any(RowMapper.class));
+        verifyNoMoreInteractions(offerRepository, jdbcTemplate);
     }
 }
