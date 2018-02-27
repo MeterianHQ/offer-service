@@ -63,11 +63,11 @@ variable "desired_count" {
   description = "The number of ECS Tasks to run for this ECS Service."
 }
 
-variable "alb_target_group_offer_service_id" {
+variable "alb_target_group_offer_service_arn" {
   description = "The id of the ALB offer_service target group with which this ECS Service should register."
 }
 
-variable "alb_target_group_offer_management_ui_id" {
+variable "alb_target_group_offer_management_ui_arn" {
   description = "The id of the ALB offer_management_ui target group with which this ECS Service should register."
 }
 

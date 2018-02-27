@@ -43,6 +43,11 @@ variable "offer_service_port" {
   default = 8080
 }
 
+variable  "offer_service_dynamic_mapping_host_port" {
+  description = "The port for dynamic mapping from Docker container."
+  default = 0
+}
+
 variable "offer_management_ui_name" {
   default = "offer-management-ui"
   description = "The name of offer management ui"

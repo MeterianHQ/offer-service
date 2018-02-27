@@ -5,7 +5,7 @@
 module "ecs_cluster" {
   source = "./ecs-cluster"
 
-  name = "${var.offer_service_name}cluster"
+  name = "${var.offer_service_name}-cluster"
   min_size = 1
   max_size = 5
   desired_capacity = 2
@@ -28,7 +28,7 @@ module "ecs_cluster" {
 }
 
 resource "aws_security_group_rule" "allow_offer_rds_access" {
-  type = "  ingress"
+  type = "ingress"
   from_port = 5432
   to_port = 5432
   protocol = "tcp"

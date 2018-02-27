@@ -10,12 +10,12 @@ output "alb_security_group_id" {
   value = "${aws_security_group.alb.id}"
 }
 
-output "alb_target_group_offer_service_id" {
- value = "${aws_alb_target_group.offer_service.id}"
+output "alb_target_group_offer_service_arn" {
+ value = "${aws_alb_target_group.offer_service.arn}"
 }
 
-output "alb_target_group_offer_management_ui_id" {
-  value = "${aws_alb_target_group.offer_management_ui.id}}"
+output "alb_target_group_offer_management_ui_arn" {
+  value = "${aws_alb_target_group.offer_management_ui.arn}"
 }
 
 output "alb_main_id" {

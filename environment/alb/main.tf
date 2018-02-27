@@ -3,9 +3,9 @@
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_alb" "main" {
   name = "${var.name}"
+  internal = false
   subnets = ["${var.subnet_ids}"]
   security_groups = ["${aws_security_group.alb.id}"]
-  cross_zone_load_balancing = true
 }
 
 resource "aws_alb_target_group" "offer_service" {
@@ -18,7 +18,7 @@ resource "aws_alb_target_group" "offer_service" {
     unhealthy_threshold = 2
     timeout = 5
     interval = 15
-    target = "HTTP:${var.offer_service_port}/${var.offer_service_health_check_path}"
+    path = "${var.offer_service_health_check_path}"
   }
 
 }
@@ -33,7 +33,7 @@ resource "aws_alb_target_group" "offer_management_ui" {
     unhealthy_threshold = 2
     timeout = 5
     interval = 15
-    target = "HTTP:${var.offer_service_port}/${var.offer_managment_iu_health_check_path}"
+    path = "${var.offer_managment_iu_health_check_path}"
   }
 }
 
@@ -43,7 +43,7 @@ resource "aws_alb_target_group" "offer_management_ui" {
 
 resource "aws_security_group" "alb" {
   name = "${var.name}"
-  description = "The security group for the ${var.name} ELB"
+  description = "The security group for the ${var.name} ALB"
   vpc_id = "${var.vpc_id}"
 }
 

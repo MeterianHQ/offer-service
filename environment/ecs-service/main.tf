@@ -9,7 +9,7 @@ resource "aws_alb_listener" "offer_management_ui" {
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = "${var.alb_target_group_offer_management_ui_id}"
+    target_group_arn = "${var.alb_target_group_offer_management_ui_arn}"
     type             = "forward"
   }
 }
@@ -20,7 +20,7 @@ resource "aws_alb_listener" "offer_service" {
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = "${var.alb_target_group_offer_service_id}"
+    target_group_arn = "${var.alb_target_group_offer_service_arn}"
     type             = "forward"
   }
 }
@@ -36,7 +36,7 @@ resource "aws_ecs_service" "offer_service" {
   deployment_maximum_percent = "${var.deployment_maximum_percent}"
 
   load_balancer {
-    target_group_arn = "${var.alb_target_group_offer_service_id}"
+    target_group_arn = "${var.alb_target_group_offer_service_arn}"
     container_name   = "${var.offer_service_name}"
     container_port   = "${var.offer_service_container_port}"
   }
@@ -58,7 +58,7 @@ resource "aws_ecs_service" "offer_mangement_ui" {
   deployment_maximum_percent = "${var.deployment_maximum_percent}"
 
   load_balancer {
-    target_group_arn = "${var.alb_target_group_offer_service_id}"
+    target_group_arn = "${var.alb_target_group_offer_management_ui_arn}"
     container_name   = "${var.offer_mangement_ui_name}"
     container_port   = "${var.offer_management_ui_container_port}"
   }
@@ -192,13 +192,13 @@ data "aws_iam_policy_document" "ecs_service_role" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_iam_role_policy" "ecs_offer_service_policy" {
-  name = "ecs-ecs_offer_service_policy-policy"
+  name = "ecs-ecs_offer_service_policy"
   role = "${aws_iam_role.ecs_offer_service_role.id}"
   policy = "${data.aws_iam_policy_document.ecs_service_policy.json}"
 }
 
 resource "aws_iam_role_policy" "ecs_offer_mangement_ui_policy" {
-  name = "ecs-ecs_offer_mangement_ui_policy-policy"
+  name = "ecs-ecs_offer_mangement_ui_policy"
   role = "${aws_iam_role.ecs_offer_mangement_ui_role.id}"
   policy = "${data.aws_iam_policy_document.ecs_service_policy.json}"
 }
