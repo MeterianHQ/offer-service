@@ -17,7 +17,7 @@ variable "region" {
 
 variable "key_pair_name" {
   description = "The name of an EC2 Key Pair to associate with each EC2 Instance in the ECS Cluster. Leave blank to not associate a Key Pair."
-  default = ""
+  default = "ovo_offer_team"
 }
 
 variable "offer_service_name" {

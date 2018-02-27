@@ -45,7 +45,6 @@ variable "allow_inbound_ports_and_cidr_blocks" {
 
 variable "key_pair_name" {
   description = "The name of an EC2 Key Pair to associate with each EC2 Instance in the ECS Cluster. Leave blank to not associate a Key Pair."
-  default = "ovo_offer_team"
 }
 
 variable "ami_id" {
