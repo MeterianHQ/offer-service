@@ -14,4 +14,5 @@ public class OfferRedeemInfoDTO {
     private Long updatedOn;
     private String offerCode;
     private String offerName;
+    private Long expiredOn;
 }

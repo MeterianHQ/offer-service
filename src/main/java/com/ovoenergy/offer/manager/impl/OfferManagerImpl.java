@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.manager.impl;
 
+import com.ovoenergy.offer.config.RemeptionLinkProperties;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemStatusType;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_EXPIRED;
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
+import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_LINK_EXPIRED;
 
 @Service
 public class OfferManagerImpl implements OfferManager {
@@ -47,6 +49,9 @@ public class OfferManagerImpl implements OfferManager {
 
     @Autowired
     private JdbcHelper jdbcHelper;
+
+    @Autowired
+    private RemeptionLinkProperties remeptionLinkProperties;
 
     @Override
     public OfferDTO getOfferById(Long id) {
@@ -121,7 +126,10 @@ public class OfferManagerImpl implements OfferManager {
         if (offerRedeemDBEntity.getStatus() == OfferRedeemStatusType.CREATED) {
             String hash = hashGenerator.generateHash(offerRedeemDBEntity);
             offerRedeemDBEntity.setHash(hash);
-            offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
+            long now = jdbcHelper.lookupCurrentDbTime().getTime();
+            long expiredOn = now + remeptionLinkProperties.getMilliseconds();
+            offerRedeemDBEntity.setUpdatedOn(now);
+            offerRedeemDBEntity.setExpiredOn(expiredOn);
             offerRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
             offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
         }
@@ -132,14 +140,19 @@ public class OfferManagerImpl implements OfferManager {
     @Transactional(Transactional.TxType.REQUIRED)
     public OfferRedeemInfoDTO getOfferRedeemInfo(String hash, String email, Long id) {
         OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(email, id, hash);
+        long now = jdbcHelper.lookupCurrentDbTime().getTime();
+        if (offerRedeemDBEntity.getExpiredOn() < now) {
+            throw new VariableNotValidException(OFFER_LINK_EXPIRED);
+        }
         offerRedeemDBEntity.setStatus(OfferRedeemStatusType.CLICKED);
-        offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
+        offerRedeemDBEntity.setUpdatedOn(now);
         offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
         return OfferRedeemInfoDTO.builder()
                 .email(email)
                 .updatedOn(offerRedeemDBEntity.getUpdatedOn())
                 .offerCode(offerRedeemDBEntity.getOfferDBEntity().getOfferCode())
                 .offerName(offerRedeemDBEntity.getOfferDBEntity().getOfferName())
+                .expiredOn(offerRedeemDBEntity.getExpiredOn())
                 .build();
     }
 

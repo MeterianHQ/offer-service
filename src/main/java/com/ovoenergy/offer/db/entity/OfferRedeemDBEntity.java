@@ -44,6 +44,10 @@ public class OfferRedeemDBEntity {
     @Column(name = "status", nullable = false)
     private OfferRedeemStatusType status;
 
+    @AuditableField
+    @Column(name = "expired_on")
+    private Long expiredOn;
+
     @Builder.Default
     @OneToMany(mappedBy = "offerRedeemDBEntity", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<OfferRedeemEventDBEntity> offerRedeemEventDBEntities = new HashSet<>();
