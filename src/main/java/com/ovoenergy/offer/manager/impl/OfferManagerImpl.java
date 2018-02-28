@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.manager.impl;
 
+import com.ovoenergy.offer.config.RemeptionLinkProperties;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemStatusType;
@@ -47,6 +48,9 @@ public class OfferManagerImpl implements OfferManager {
 
     @Autowired
     private JdbcHelper jdbcHelper;
+
+    @Autowired
+    private RemeptionLinkProperties remeptionLinkProperties;
 
     @Override
     public OfferDTO getOfferById(Long id) {
@@ -121,7 +125,10 @@ public class OfferManagerImpl implements OfferManager {
         if (offerRedeemDBEntity.getStatus() == OfferRedeemStatusType.CREATED) {
             String hash = hashGenerator.generateHash(offerRedeemDBEntity);
             offerRedeemDBEntity.setHash(hash);
-            offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
+            long now = jdbcHelper.lookupCurrentDbTime().getTime();
+            long expiredOn = now + remeptionLinkProperties.getMilliseconds();
+            offerRedeemDBEntity.setUpdatedOn(now);
+            offerRedeemDBEntity.setExpiredOn(expiredOn);
             offerRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
             offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
         }
@@ -140,6 +147,7 @@ public class OfferManagerImpl implements OfferManager {
                 .updatedOn(offerRedeemDBEntity.getUpdatedOn())
                 .offerCode(offerRedeemDBEntity.getOfferDBEntity().getOfferCode())
                 .offerName(offerRedeemDBEntity.getOfferDBEntity().getOfferName())
+                .expiredOn(offerRedeemDBEntity.getExpiredOn())
                 .build();
     }
 
