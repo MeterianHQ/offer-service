@@ -35,7 +35,7 @@ public class StartDateNotUpdatableValidatorTest extends AbstractConstraintValida
         OfferDTO offerDTO = new OfferDTO();
         offerDTO.setId(1L);
 
-        when(offerRepository.findOneById(anyLong())).thenReturn(null);
+        when(offerRepository.findOne(anyLong())).thenReturn(null);
 
         boolean valid = startDateNotUpdatableValidator.isValid(offerDTO, context);
 

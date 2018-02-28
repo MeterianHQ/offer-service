@@ -49,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = OfferRepositoryTestConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UpdateDraftOfferTest {
+public class UpdateActiveOfferTest {
 
     @Autowired
     private MockMvc mvc;
@@ -79,10 +79,12 @@ public class UpdateDraftOfferTest {
     @Test
     public void testEntityNotExistsError() throws Exception {
         Long id = 100L;
-        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.DRAFT);
+        OfferDBEntity offerDBEntity = TestData.prepareForTestValidOfferDBEntity(StatusType.ACTIVE);
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.ACTIVE);
         offerToValidate.setId(id);
 
         when(offerRepository.exists(anyLong())).thenReturn(false);
+        when(offerRepository.findOne(anyLong())).thenReturn(offerDBEntity);
 
         mvc.perform(put(UPDATE_OFFER, id)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -110,6 +112,7 @@ public class UpdateDraftOfferTest {
                 .andExpect(jsonPath("$.status", equalTo(offerToValidate.getStatus())))
                 .andExpect(jsonPath("$.updatedOn", equalTo(offerToValidate.getUpdatedOn())));
 
+        verify(offerRepository, times(1)).findOne(anyLong());
         verify(offerRepository, times(1)).exists(eq(id));
         verify(offerRepository, times(1)).existsByOfferCodeIgnoreCaseAndIdIsNot(eq(offerToValidate.getOfferCode()), eq(offerToValidate.getId()));
         verifyNoMoreInteractions(offerRepository);
@@ -118,10 +121,12 @@ public class UpdateDraftOfferTest {
     @Test
     public void testInvalidErrorCode() throws Exception {
         Long id = 100L;
-        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.DRAFT);
+        OfferDBEntity offerDBEntity = TestData.prepareForTestValidOfferDBEntity(StatusType.ACTIVE);
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.ACTIVE);
         offerToValidate.setId(id);
 
         when(offerRepository.exists(anyLong())).thenReturn(true);
+        when(offerRepository.findOne(anyLong())).thenReturn(offerDBEntity);
         when(offerRepository.existsByOfferCodeIgnoreCaseAndIdIsNot(anyString(), anyLong())).thenReturn(true);
 
         mvc.perform(put(UPDATE_OFFER, id)
@@ -150,6 +155,7 @@ public class UpdateDraftOfferTest {
                 .andExpect(jsonPath("$.status", equalTo(offerToValidate.getStatus())))
                 .andExpect(jsonPath("$.updatedOn", equalTo(offerToValidate.getUpdatedOn())));
 
+        verify(offerRepository, times(1)).findOne(anyLong());
         verify(offerRepository, times(1)).exists(eq(id));
         verify(offerRepository, times(1)).existsByOfferCodeIgnoreCaseAndIdIsNot(eq(offerToValidate.getOfferCode()), eq(offerToValidate.getId()));
         verifyNoMoreInteractions(offerRepository);
@@ -166,7 +172,7 @@ public class UpdateDraftOfferTest {
                 .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
         Long id = 100L;
-        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.DRAFT);
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.ACTIVE);
         offerToValidate.setId(id);
         offerToValidate.setExpiryDate(testInvalidExpiryDate);
         offerToValidate.setStatus("draft");
@@ -210,11 +216,13 @@ public class UpdateDraftOfferTest {
     @Test
     public void testInvalidExpireFlowError() throws Exception {
         Long id = 100L;
-        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.DRAFT);
+        OfferDBEntity offerDBEntity = TestData.prepareForTestValidOfferDBEntity(StatusType.ACTIVE);
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.ACTIVE);
         offerToValidate.setId(id);
         offerToValidate.setIsExpirable(false);
 
         when(offerRepository.exists(anyLong())).thenReturn(true);
+        when(offerRepository.findOne(anyLong())).thenReturn(offerDBEntity);
         when(offerRepository.existsByOfferCodeIgnoreCaseAndIdIsNot(anyString(), anyLong())).thenReturn(false);
 
         mvc.perform(put(UPDATE_OFFER, id)
@@ -243,6 +251,7 @@ public class UpdateDraftOfferTest {
                 .andExpect(jsonPath("$.status", equalTo(offerToValidate.getStatus())))
                 .andExpect(jsonPath("$.updatedOn", equalTo(offerToValidate.getUpdatedOn())));
 
+        verify(offerRepository, times(1)).findOne(anyLong());
         verify(offerRepository, times(1)).exists(eq(id));
         verify(offerRepository, times(1)).existsByOfferCodeIgnoreCaseAndIdIsNot(eq(offerToValidate.getOfferCode()), eq(offerToValidate.getId()));
         verifyNoMoreInteractions(offerRepository);
@@ -319,100 +328,10 @@ public class UpdateDraftOfferTest {
     }
 
     @Test
-    public void testEmptyFieldsValidations() throws Exception {
-        Long id = 100L;
-        OfferDTO offerToValidate = new OfferDTO();
-        offerToValidate.setId(id);
-        offerToValidate.setIsExpirable(false);
-        offerToValidate.setOfferName("");
-        offerToValidate.setOfferCode("");
-        offerToValidate.setSupplier("");
-        offerToValidate.setOfferType("");
-        offerToValidate.setValue(null);
-        offerToValidate.setMaxOfferRedemptions(null);
-        offerToValidate.setStartDate(null);
-        offerToValidate.setExpiryDate(null);
-
-        offerToValidate.setEligibilityCriteria("");
-        offerToValidate.setChannel("");
-        offerToValidate.setStatus("");
-
-
-
-        when(offerRepository.exists(anyLong())).thenReturn(true);
-        when(offerRepository.findOne(anyLong())).thenReturn(null);
-        when(offerRepository.existsByOfferCodeIgnoreCaseAndIdIsNot(anyString(), anyLong())).thenReturn(false);
-
-        mvc.perform(put(UPDATE_OFFER, id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(offerToValidate)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(content().string(not(isEmptyString())))
-                .andExpect(jsonPath("$.constraintViolations.offerType", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.offerType[0].code", equalTo(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED)))
-                .andExpect(jsonPath("$.constraintViolations.offerType[0].message", equalTo("Provided value is not supported")))
-                .andExpect(jsonPath("$.constraintViolations.offerName", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.offerName[0].code", equalTo(CodeKeys.FIELD_REQUIRED)))
-                .andExpect(jsonPath("$.constraintViolations.offerName[0].message", equalTo("This field is required")))
-                .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions[0].code", equalTo(CodeKeys.NOT_NULL_FIELD)))
-                .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions[0].message", equalTo("This field cannot be null")))
-                .andExpect(jsonPath("$.constraintViolations.offerCode", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.offerCode[0].code", equalTo(CodeKeys.FIELD_REQUIRED)))
-                .andExpect(jsonPath("$.constraintViolations.offerCode[0].message", equalTo("This field is required")))
-                .andExpect(jsonPath("$.constraintViolations.supplier", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.supplier[0].code", equalTo(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED)))
-                .andExpect(jsonPath("$.constraintViolations.supplier[0].message", equalTo("Provided value is not supported")))
-                .andExpect(jsonPath("$.constraintViolations.channel", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.channel[0].code", equalTo(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED)))
-                .andExpect(jsonPath("$.constraintViolations.channel[0].message", equalTo("Provided value is not supported")))
-                .andExpect(jsonPath("$.constraintViolations.eligibilityCriteria", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.eligibilityCriteria[0].code", equalTo(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED)))
-                .andExpect(jsonPath("$.constraintViolations.eligibilityCriteria[0].message", equalTo("Provided value is not supported")))
-                .andExpect(jsonPath("$.constraintViolations.value", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.value[0].code", equalTo(CodeKeys.NOT_NULL_FIELD)))
-                .andExpect(jsonPath("$.constraintViolations.value[0].message", equalTo("This field cannot be null")))
-                .andExpect(jsonPath("$.constraintViolations.startDate", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.startDate[0].code", equalTo(CodeKeys.NOT_NULL_FIELD)))
-                .andExpect(jsonPath("$.constraintViolations.startDate[0].message", equalTo("This field cannot be null")))
-
-                .andExpect(jsonPath("$.constraintViolations.status", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.status[0].code", equalTo(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED)))
-                .andExpect(jsonPath("$.constraintViolations.status[0].message", equalTo("Provided value is not supported")))
-
-
-                .andExpect(jsonPath("$.id", equalTo(offerToValidate.getId().intValue())))
-                .andExpect(jsonPath("$.offerCode", equalTo(offerToValidate.getOfferCode())))
-                .andExpect(jsonPath("$.offerName", equalTo(offerToValidate.getOfferName())))
-                .andExpect(jsonPath("$.description", equalTo(offerToValidate.getDescription())))
-                .andExpect(jsonPath("$.supplier", equalTo(offerToValidate.getSupplier())))
-                .andExpect(jsonPath("$.offerType", equalTo(offerToValidate.getOfferType())))
-                .andExpect(jsonPath("$.value", nullValue()))
-                .andExpect(jsonPath("$.maxOfferRedemptions", nullValue()))
-                .andExpect(jsonPath("$.actualOfferRedemptions", nullValue()))
-                .andExpect(jsonPath("$.startDate", nullValue()))
-                .andExpect(jsonPath("$.expiryDate", nullValue()))
-                .andExpect(jsonPath("$.isExpirable", equalTo(offerToValidate.getIsExpirable())))
-                .andExpect(jsonPath("$.eligibilityCriteria", equalTo(offerToValidate.getEligibilityCriteria())))
-                .andExpect(jsonPath("$.channel", equalTo(offerToValidate.getChannel())))
-                .andExpect(jsonPath("$.status", equalTo(offerToValidate.getStatus())))
-                .andExpect(jsonPath("$.updatedOn", equalTo(offerToValidate.getUpdatedOn())));
-
-        verify(offerRepository, times(1)).exists(eq(id));
-        verify(offerRepository, times(1)).existsByOfferCodeIgnoreCaseAndIdIsNot(eq(offerToValidate.getOfferCode()), eq(offerToValidate.getId()));
-        verify(offerRepository, times(1)).findOne(eq(offerToValidate.getId()));
-        verifyNoMoreInteractions(offerRepository);
-    }
-
-
-
-
-    @Test
     public void testUpdateValidOffer() throws Exception {
         Long id = 10L;
-        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.DRAFT);
-        OfferDBEntity offerDBEntity = TestData.prepareForTestValidOfferDBEntity(StatusType.DRAFT);
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.ACTIVE);
+        OfferDBEntity offerDBEntity = TestData.prepareForTestValidOfferDBEntity(StatusType.ACTIVE);
 
         offerToValidate.setId(id);
         offerDBEntity.setId(id);
@@ -449,8 +368,54 @@ public class UpdateDraftOfferTest {
         verify(offerRepository, times(1)).exists(eq(id));
         verify(offerRepository, times(1)).existsByOfferCodeIgnoreCaseAndIdIsNot(eq(offerToValidate.getOfferCode()), eq(offerToValidate.getId()));
         verify(offerRepository, times(1)).save(any(OfferDBEntity.class));
-        verify(offerRepository, times(1)).findOne(anyLong());
+        verify(offerRepository, times(2)).findOne(anyLong());
         verify(jdbcTemplate, only()).queryForObject(any(String.class), any(RowMapper.class));
         verifyNoMoreInteractions(offerRepository, jdbcTemplate);
+    }
+
+    @Test
+    public void testDifferentStartDateError() throws Exception {
+        Long id = 10L;
+        OfferDTO offerToValidate = TestData.prepareForValidOfferDTO(StatusType.ACTIVE);
+        OfferDBEntity offerDBEntity = TestData.prepareForTestValidOfferDBEntity(StatusType.ACTIVE);
+
+        offerToValidate.setId(id);
+        offerDBEntity.setId(id);
+        offerDBEntity.setStartDate(null);
+
+        when(offerRepository.findOne(anyLong())).thenReturn(offerDBEntity);
+        when(offerRepository.exists(anyLong())).thenReturn(true);
+        when(offerRepository.existsByOfferCodeIgnoreCaseAndIdIsNot(anyString(), anyLong())).thenReturn(false);
+
+        mvc.perform(put(UPDATE_OFFER, offerToValidate.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(offerToValidate)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().string(not(isEmptyString())))
+                .andExpect(jsonPath("$.constraintViolations.startDate", hasSize(1)))
+                .andExpect(jsonPath("$.constraintViolations.startDate[0].code", equalTo(CodeKeys.START_DATE_NOT_UPDATABLE)))
+                .andExpect(jsonPath("$.constraintViolations.startDate[0].message", equalTo("Start date can't be modified")))
+                .andExpect(jsonPath("$.id", equalTo(offerToValidate.getId().intValue())))
+                .andExpect(jsonPath("$.offerCode", equalTo(offerToValidate.getOfferCode())))
+                .andExpect(jsonPath("$.offerName", equalTo(offerToValidate.getOfferName())))
+                .andExpect(jsonPath("$.description", equalTo(offerToValidate.getDescription())))
+                .andExpect(jsonPath("$.supplier", equalTo(offerToValidate.getSupplier())))
+                .andExpect(jsonPath("$.offerType", equalTo(offerToValidate.getOfferType())))
+                .andExpect(jsonPath("$.value", equalTo(offerToValidate.getValue().intValue())))
+                .andExpect(jsonPath("$.maxOfferRedemptions", equalTo(offerToValidate.getMaxOfferRedemptions().intValue())))
+                .andExpect(jsonPath("$.actualOfferRedemptions", nullValue()))
+                .andExpect(jsonPath("$.startDate", comparesEqualTo(offerToValidate.getStartDate())))
+                .andExpect(jsonPath("$.expiryDate", comparesEqualTo(offerToValidate.getExpiryDate())))
+                .andExpect(jsonPath("$.isExpirable", equalTo(offerToValidate.getIsExpirable())))
+                .andExpect(jsonPath("$.eligibilityCriteria", equalTo(offerToValidate.getEligibilityCriteria())))
+                .andExpect(jsonPath("$.channel", equalTo(offerToValidate.getChannel())))
+                .andExpect(jsonPath("$.status", equalTo(offerToValidate.getStatus())))
+                .andExpect(jsonPath("$.updatedOn", nullValue()));
+
+        verify(offerRepository, times(1)).exists(eq(id));
+        verify(offerRepository, times(1)).existsByOfferCodeIgnoreCaseAndIdIsNot(eq(offerToValidate.getOfferCode()), eq(offerToValidate.getId()));
+        verify(offerRepository, times(1)).findOne(anyLong());
+        verifyNoMoreInteractions(offerRepository);
     }
 }

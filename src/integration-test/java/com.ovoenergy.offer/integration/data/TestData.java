@@ -28,7 +28,7 @@ public class TestData {
     private static final Long TEST_VALID_EXPIRY_DATE = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
     private static final Long TEST_VALID_UPDATE_ON_DATE = LocalDateTime.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
-    public static OfferDBEntity prepareForTestValidOfferDBEntity() {
+    public static OfferDBEntity prepareForTestValidOfferDBEntity(StatusType statusType) {
         OfferDBEntity offerDBEntity = new OfferDBEntity();
         offerDBEntity.setDescription(TEST_VALID_DESCRIPTION);
         offerDBEntity.setOfferName(TEST_VALID_NAME);
@@ -42,13 +42,13 @@ public class TestData {
         offerDBEntity.setStartDate(TEST_VALID_DATE_IN_FUTURE);
         offerDBEntity.setExpiryDate(TEST_VALID_EXPIRY_DATE);
         offerDBEntity.setIsExpirable(true);
-        offerDBEntity.setStatus(StatusType.DRAFT);
+        offerDBEntity.setStatus(statusType);
         offerDBEntity.setUpdatedOn(TEST_VALID_UPDATE_ON_DATE);
         offerDBEntity.setId(1L);
         return offerDBEntity;
     }
 
-    public static OfferDTO prepareForValidOfferDTO() {
+    public static OfferDTO prepareForValidOfferDTO(StatusType statusType) {
         OfferDTO offerToValidate = new OfferDTO();
         offerToValidate.setDescription(TEST_VALID_DESCRIPTION);
         offerToValidate.setOfferName(TEST_VALID_NAME);
@@ -62,7 +62,7 @@ public class TestData {
         offerToValidate.setStartDate(TEST_VALID_DATE_IN_FUTURE);
         offerToValidate.setExpiryDate(TEST_VALID_EXPIRY_DATE);
         offerToValidate.setIsExpirable(true);
-        offerToValidate.setStatus(StatusType.DRAFT.name());
+        offerToValidate.setStatus(statusType.name());
         return offerToValidate;
     }
 }
