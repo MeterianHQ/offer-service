@@ -312,7 +312,7 @@ public class OfferManagerImplTest {
 
         when(remeptionLinkProperties.getMilliseconds()).thenReturn(1_000L);
         when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityId(anyString(), anyLong())).thenReturn(fxOfferRedeemDBEntity);
-        when(mockOfferRedeemRepository.save(any(OfferRedeemDBEntity.class))).thenReturn(fxOfferRedeemDBEntity);
+        when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).thenReturn(fxOfferRedeemDBEntity);
         when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date());
 
         String offerLink = unit.generateOfferLink(fixtureOfferLinkGenerateDTO);
@@ -322,7 +322,7 @@ public class OfferManagerImplTest {
 
         verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDBEntityId(eq(fixtureOfferLinkGenerateDTO.getEmail()), eq(fixtureOfferLinkGenerateDTO.getOfferId()));
         verify(hashGenerator, only()).generateHash(eq(fxOfferRedeemDBEntity));
-        verify(mockOfferRedeemRepository, times(1)).save(any(OfferRedeemDBEntity.class));
+        verify(mockOfferRedeemRepository, times(1)).saveAndFlush(any(OfferRedeemDBEntity.class));
         verify(jdbcHelper, only()).lookupCurrentDbTime();
         verify(remeptionLinkProperties, only()).getMilliseconds();
         verifyNoMoreInteractions(mockOfferRedeemRepository, hashGenerator, mockOfferRedeemRepository, jdbcHelper, remeptionLinkProperties);
