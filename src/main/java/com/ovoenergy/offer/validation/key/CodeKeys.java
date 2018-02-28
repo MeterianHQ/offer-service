@@ -48,4 +48,6 @@ public interface CodeKeys {
 
     String START_DATE_NOT_UPDATABLE = "OFR23";
 
+    String OFFER_LINK_EXPIRED = "OFR24";
+
 }

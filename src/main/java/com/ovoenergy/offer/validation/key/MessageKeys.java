@@ -46,6 +46,8 @@ public interface MessageKeys {
 
     String START_DATE_NOT_UPDATABLE = "start.date.not.updatable";
 
+    String OFFER_LINK_EXPIRED = "offer.link.expired";
+
     interface Common {
 
         String GENERIC_SERVER_ERROR = "generic.server.error";
