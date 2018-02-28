@@ -34,7 +34,7 @@ public class ActiveOfferStrategy extends OfferBaseStrategy {
                 .description(offerDTO.getDescription())
                 .channel(ChannelType.byValue(offerDTO.getChannel()))
                 .eligibilityCriteria(EligibilityCriteriaType.byValue(offerDTO.getEligibilityCriteria()))
-                .startDate(oldOfferDBEntity.getStartDate())
+                .startDate(StatusType.DRAFT.equals(oldOfferDBEntity.getStatus()) ? offerDTO.getStartDate() : oldOfferDBEntity.getStartDate())
                 .expiryDate(offerDTO.getExpiryDate())
                 .isExpirable(offerDTO.getIsExpirable())
                 .maxOfferRedemptions(offerDTO.getMaxOfferRedemptions())

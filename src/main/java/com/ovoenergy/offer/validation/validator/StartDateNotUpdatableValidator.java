@@ -1,6 +1,7 @@
 package com.ovoenergy.offer.validation.validator;
 
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
+import com.ovoenergy.offer.db.entity.StatusType;
 import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.OfferDTO;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
@@ -32,15 +33,16 @@ public class StartDateNotUpdatableValidator implements ConstraintValidator<Start
         if (offerDBEntity == null) {
             return true;
         }
-        boolean valid = Objects.equals(offerDBEntity.getStartDate(), value.getStartDate());
-        if (!valid) {
+        boolean equals = Objects.equals(offerDBEntity.getStartDate(), value.getStartDate());
+        if (!StatusType.DRAFT.equals(offerDBEntity.getStatus()) && !equals) {
             HibernateConstraintValidatorContext hibernateContext = context.unwrap(HibernateConstraintValidatorContext.class);
             hibernateContext.disableDefaultConstraintViolation();
             hibernateContext
                     .buildConstraintViolationWithTemplate(hibernateContext.getDefaultConstraintMessageTemplate())
                     .addPropertyNode("startDate")
                     .addConstraintViolation();
+            return false;
         }
-        return valid;
+        return true;
     }
 }
