@@ -1,6 +1,6 @@
 package com.ovoenergy.offer.manager.impl;
 
-import com.ovoenergy.offer.config.RemeptionLinkProperties;
+import com.ovoenergy.offer.config.RedemptionLinkProperties;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemStatusType;
@@ -18,6 +18,7 @@ import com.ovoenergy.offer.manager.OfferManager;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
 import com.ovoenergy.offer.mapper.OfferMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -32,8 +33,7 @@ import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_LINK_EXPIRED;
 @Service
 public class OfferManagerImpl implements OfferManager {
 
-    // TODO: 2/23/18 refactoring
-    private static final String LINK_TEMPLATE = "http://localhost:8080/offers/redemption/link/%1$s?user=%2$s&offer_id=%3$d";
+    private static final String LINK_TEMPLATE = "%1$s/offers/redemption/link/%2$s?user=%3$s&offer_id=%4$d";
 
     @Autowired
     private OfferRepository offerRepository;
@@ -51,7 +51,10 @@ public class OfferManagerImpl implements OfferManager {
     private JdbcHelper jdbcHelper;
 
     @Autowired
-    private RemeptionLinkProperties remeptionLinkProperties;
+    private RedemptionLinkProperties redemptionLinkProperties;
+
+    @Value("${OFFER_SERVICE_URL:#{'http://localhost:8080'}}")
+    private String offerServiceDomain;
 
     @Override
     public OfferDTO getOfferById(Long id) {
@@ -127,13 +130,13 @@ public class OfferManagerImpl implements OfferManager {
             String hash = hashGenerator.generateHash(offerRedeemDBEntity);
             offerRedeemDBEntity.setHash(hash);
             long now = jdbcHelper.lookupCurrentDbTime().getTime();
-            long expiredOn = now + remeptionLinkProperties.getMilliseconds();
+            long expiredOn = now + redemptionLinkProperties.getMilliseconds();
             offerRedeemDBEntity.setUpdatedOn(now);
             offerRedeemDBEntity.setExpiredOn(expiredOn);
             offerRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
             offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
         }
-        return String.format(LINK_TEMPLATE, offerRedeemDBEntity.getHash(), offerLinkGenerateDTO.getEmail(), offerLinkGenerateDTO.getOfferId());
+        return String.format(LINK_TEMPLATE, offerServiceDomain, offerRedeemDBEntity.getHash(), offerLinkGenerateDTO.getEmail(), offerLinkGenerateDTO.getOfferId());
     }
 
     @Override
