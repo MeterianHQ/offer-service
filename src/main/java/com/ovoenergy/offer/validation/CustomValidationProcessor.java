@@ -9,7 +9,6 @@ import com.ovoenergy.offer.exception.RequestIdsInValidException;
 import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.validation.group.BaseOfferChecks;
 import com.ovoenergy.offer.validation.group.EmptyDraftOfferChecks;
-import com.ovoenergy.offer.validation.group.NonEmptyDraftCreateOfferChecks;
 import com.ovoenergy.offer.validation.group.NonEmptyDraftOfferChecks;
 import com.ovoenergy.offer.validation.group.RequiredActiveOfferChecks;
 import com.ovoenergy.offer.validation.group.RequiredCreateActiveOfferChecks;
@@ -42,9 +41,8 @@ public class CustomValidationProcessor {
 
     public OfferValidationDTO processOfferCreateValidation(OfferDTO request) {
         if (StatusType.DRAFT.name().equalsIgnoreCase(request.getStatus())) {
-            Class[] notEmptyGroups = {NonEmptyDraftOfferChecks.class, NonEmptyDraftCreateOfferChecks.class};
             Class[] validateGroups = {BaseOfferChecks.class, RequiredDraftOfferChecks.class, RequiredOfferCreateChecks.class};
-            return processDraftOfferValidation(request, notEmptyGroups, validateGroups);
+            return processDraftOfferValidation(request, validateGroups);
         } else {
             return processActiveOfferValidation(request, BaseOfferChecks.class, RequiredActiveOfferChecks.class, RequiredCreateActiveOfferChecks.class, RequiredOfferCreateChecks.class);
         }
@@ -55,9 +53,8 @@ public class CustomValidationProcessor {
             throw new RequestIdsInValidException(CodeKeys.PROVIDED_TWO_DIFFERENT_IDS);
         }
         if (StatusType.DRAFT.name().equalsIgnoreCase(request.getStatus())) {
-            Class[] notEmptyGroups = {NonEmptyDraftOfferChecks.class};
             Class[] validateGroups = {RequiredOfferUpdateChecks.class, BaseOfferChecks.class, RequiredDraftOfferChecks.class};
-            return processDraftOfferValidation(request, notEmptyGroups, validateGroups);
+            return processDraftOfferValidation(request, validateGroups);
         } else {
             return processActiveOfferValidation(request, RequiredOfferUpdateChecks.class, BaseOfferChecks.class, RequiredActiveOfferChecks.class);
         }
@@ -71,11 +68,11 @@ public class CustomValidationProcessor {
         return prepareValidationDTO(request, violations);
     }
 
-    private OfferValidationDTO processDraftOfferValidation(OfferDTO request, Class<?>[] notEmptyGroups, Class<?>[] validateGroups) {
+    private OfferValidationDTO processDraftOfferValidation(OfferDTO request, Class<?>[] validateGroups) {
         Set<ConstraintViolation<OfferDTO>> emptyFieldsViolations = validator.validate(request, EmptyDraftOfferChecks.class);
         Set<ConstraintViolation<OfferDTO>> violations = Sets.newHashSet();
         if (emptyFieldsViolations.size() > 0) {
-            Set<ConstraintViolation<OfferDTO>> nonEmptyFieldsViolations = validator.validate(request, notEmptyGroups);
+            Set<ConstraintViolation<OfferDTO>> nonEmptyFieldsViolations = validator.validate(request, NonEmptyDraftOfferChecks.class);
             Set<String> emptyFieldsToSkip = emptyFieldsViolations.stream().map(cv -> cv.getPropertyPath().toString()).collect(Collectors.toSet());
             violations = nonEmptyFieldsViolations.stream().filter(cv -> emptyFieldsToSkip.contains(cv.getPropertyPath().toString())).collect(Collectors.toSet());
         }

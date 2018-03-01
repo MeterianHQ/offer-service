@@ -76,7 +76,7 @@ public class OfferDTO {
 
     @ApiModelProperty(name = "startDate", required = true)
     @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @FutureDateConstraint(groups = {RequiredCreateActiveOfferChecks.class, NonEmptyDraftCreateOfferChecks.class})
+    @FutureDateConstraint(groups = {RequiredCreateActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private Long startDate;
 
