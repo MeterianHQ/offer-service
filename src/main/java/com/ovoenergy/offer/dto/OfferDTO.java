@@ -44,7 +44,6 @@ public class OfferDTO {
 
     @EntityExistsConstraint(groups = RequiredOfferUpdateChecks.class, repository = OfferRepository.class)
     @Null(groups = RequiredOfferCreateChecks.class, message = CodeKeys.NULL_FIELD)
-    @NotNull(groups = RequiredOfferUpdateChecks.class, message = CodeKeys.NOT_NULL_FIELD)
     @ApiModelProperty(name = "id", required = true)
     private Long id;
 
