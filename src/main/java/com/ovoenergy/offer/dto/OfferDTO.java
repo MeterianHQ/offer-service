@@ -1,9 +1,23 @@
 package com.ovoenergy.offer.dto;
 
 import com.ovoenergy.offer.db.repository.OfferRepository;
-import com.ovoenergy.offer.validation.group.*;
+import com.ovoenergy.offer.validation.group.BaseOfferChecks;
+import com.ovoenergy.offer.validation.group.EmptyDraftOfferChecks;
+import com.ovoenergy.offer.validation.group.NonEmptyDraftCreateOfferChecks;
+import com.ovoenergy.offer.validation.group.NonEmptyDraftOfferChecks;
+import com.ovoenergy.offer.validation.group.RequiredActiveOfferChecks;
+import com.ovoenergy.offer.validation.group.RequiredCreateActiveOfferChecks;
+import com.ovoenergy.offer.validation.group.RequiredDraftOfferChecks;
+import com.ovoenergy.offer.validation.group.RequiredOfferCreateChecks;
+import com.ovoenergy.offer.validation.group.RequiredOfferUpdateChecks;
 import com.ovoenergy.offer.validation.key.CodeKeys;
-import com.ovoenergy.offer.validation.validator.*;
+import com.ovoenergy.offer.validation.validator.DateFieldsValueConstraint;
+import com.ovoenergy.offer.validation.validator.EntityExistsConstraint;
+import com.ovoenergy.offer.validation.validator.ExpiryDateFieldsValueConstraint;
+import com.ovoenergy.offer.validation.validator.FutureDateConstraint;
+import com.ovoenergy.offer.validation.validator.OfferCodeConstraint;
+import com.ovoenergy.offer.validation.validator.StartDateNotUpdatableConstraint;
+import com.ovoenergy.offer.validation.validator.StringAsNumberConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -12,7 +26,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 @Data
 @NoArgsConstructor
@@ -58,18 +75,14 @@ public class OfferDTO {
     private String offerType;
 
     @ApiModelProperty(name = "value", required = true)
-    @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Min(value = 1, message = CodeKeys.INPUT_VALUE_ZERO, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Max(value = 999, message = CodeKeys.INPUT_VALUE_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @StringAsNumberConstraint(min = 1, max = 999, maxMessage = CodeKeys.INPUT_VALUE_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
-    private Long value;
+    private String value;
 
     @ApiModelProperty(name = "maxOfferRedemptions", required = true)
-    @NotNull(message = CodeKeys.NOT_NULL_FIELD, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Min(value = 1, message = CodeKeys.INPUT_VALUE_ZERO, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
-    @Max(value = 99999999, message = CodeKeys.INPUT_REDEMPTION_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @StringAsNumberConstraint(min = 1, max = 99999999, maxMessage = CodeKeys.INPUT_REDEMPTION_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
-    private Long maxOfferRedemptions;
+    private String maxOfferRedemptions;
 
     @ApiModelProperty(name = "actualOfferRedemptions", notes = "response field only", required = true)
     private Long actualOfferRedemptions;

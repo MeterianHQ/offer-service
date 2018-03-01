@@ -107,8 +107,8 @@ public class CreateDraftOfferTest {
         offerToCreate.setOfferCode(ValidateOfferForCreateInputData.TEST_VALID_CODE);
         offerToCreate.setSupplier(ValidateOfferForCreateInputData.TEST_VALID_SUPPLIER);
         offerToCreate.setOfferType(ValidateOfferForCreateInputData.TEST_VALID_OFFER_TYPE);
-        offerToCreate.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
-        offerToCreate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
+        offerToCreate.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE.toString());
+        offerToCreate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION.toString());
         offerToCreate.setEligibilityCriteria(ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA);
         offerToCreate.setChannel(ValidateOfferForCreateInputData.TEST_VALID_CHANEL);
         offerToCreate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE);
@@ -146,8 +146,8 @@ public class CreateDraftOfferTest {
         offerToValidate.setOfferCode(ValidateOfferForCreateInputData.TEST_INVALID_CODE);
         offerToValidate.setSupplier(ValidateOfferForCreateInputData.TEST_INVALID_SUPPLIER);
         offerToValidate.setOfferType(ValidateOfferForCreateInputData.TEST_INVALID_OFFER_TYPE);
-        offerToValidate.setValue(ValidateOfferForCreateInputData.TEST_INVALID_MAX_VALUE);
-        offerToValidate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION);
+        offerToValidate.setValue(ValidateOfferForCreateInputData.TEST_INVALID_MAX_VALUE.toString());
+        offerToValidate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION.toString());
         offerToValidate.setEligibilityCriteria(ValidateOfferForCreateInputData.TEST_INVALID_ELIGIBILITY_CRITERIA);
         offerToValidate.setChannel(ValidateOfferForCreateInputData.TEST_INVALID_CHANEL);
         offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_INVALID_DATE_BEFORE_NOW);
@@ -169,8 +169,8 @@ public class CreateDraftOfferTest {
         assertEquals("Input value for Code field is expected", ValidateOfferForCreateInputData.TEST_INVALID_CODE, validationDTO.getOfferCode());
         assertEquals("Input value for Supplier is expected", ValidateOfferForCreateInputData.TEST_INVALID_SUPPLIER, validationDTO.getSupplier());
         assertEquals("Input value for Offer TYPE is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_OFFER_TYPE, validationDTO.getOfferType());
-        assertEquals("Input value for Value is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_MAX_VALUE, validationDTO.getValue());
-        assertEquals("Input value for Offer Redemption is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION, validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Value is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_MAX_VALUE.toString(), validationDTO.getValue());
+        assertEquals("Input value for Offer Redemption is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_MAX_REDEMPTION.toString(), validationDTO.getMaxOfferRedemptions());
         assertEquals("Input value for Eligibility criteria ", ValidateOfferForCreateInputData.TEST_INVALID_ELIGIBILITY_CRITERIA, validationDTO.getEligibilityCriteria());
         assertEquals("Input value for Channel is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_CHANEL, validationDTO.getChannel());
         assertEquals("Input value for START date is incorrect", ValidateOfferForCreateInputData.TEST_INVALID_DATE_BEFORE_NOW, validationDTO.getStartDate());
@@ -351,8 +351,8 @@ public class CreateDraftOfferTest {
         offerToValidate.setOfferCode("");
         offerToValidate.setSupplier("");
         offerToValidate.setOfferType("");
-        offerToValidate.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
-        offerToValidate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
+        offerToValidate.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE.toString());
+        offerToValidate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION.toString());
         offerToValidate.setEligibilityCriteria("");
         offerToValidate.setChannel("");
         offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE);
@@ -373,8 +373,8 @@ public class CreateDraftOfferTest {
         assertEquals("Empty Input value for Code field  expected", "", validationDTO.getOfferCode());
         assertEquals("Empty Input value for Supplier  expected", "", validationDTO.getSupplier());
         assertEquals("Empty Input value for Offer TYPE expected", "", validationDTO.getOfferType());
-        assertEquals("Input value for Offer Redemption is expected", ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION, validationDTO.getMaxOfferRedemptions());
-        assertEquals("Input value for Offer Value is expected", ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE, validationDTO.getValue());
+        assertEquals("Input value for Offer Redemption is expected", ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION.toString(), validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Offer Value is expected", ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE.toString(), validationDTO.getValue());
         assertEquals("Empty Input value for Eligibility criteria expected ", "", validationDTO.getEligibilityCriteria());
         assertEquals("Empty Input value for Channel expected", "", validationDTO.getChannel());
         assertEquals("Input value for START date expected", ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE, validationDTO.getStartDate());
@@ -459,8 +459,8 @@ public class CreateDraftOfferTest {
         assertEquals("Input value for Code field is valid", ValidateOfferForCreateInputData.TEST_VALID_CODE, offerDTO.getOfferCode());
         assertEquals("Input value for Supplier is valid", ValidateOfferForCreateInputData.TEST_VALID_SUPPLIER, offerDTO.getSupplier());
         assertEquals("Input value for Offer TYPE is valid", ValidateOfferForCreateInputData.TEST_VALID_OFFER_TYPE, offerDTO.getOfferType());
-        assertEquals("Input value for Value is valid", ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE, offerDTO.getValue());
-        assertEquals("Input value for Offer Redemption is valid", ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION, offerDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Value is valid", ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE.toString(), offerDTO.getValue());
+        assertEquals("Input value for Offer Redemption is valid", ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION.toString(), offerDTO.getMaxOfferRedemptions());
         assertEquals("Input value for Eligibility criteria is valid ", ValidateOfferForCreateInputData.TEST_VALID_ELIGIBILITY_CRITERIA, offerDTO.getEligibilityCriteria());
         assertEquals("Input value for Channel is valid", ValidateOfferForCreateInputData.TEST_VALID_CHANEL, offerDTO.getChannel());
         assertEquals("Input value for START date is valid", ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE, offerDTO.getStartDate());

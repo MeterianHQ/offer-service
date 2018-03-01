@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.manager.operation;
 
+import com.google.common.primitives.Longs;
 import com.ovoenergy.offer.db.entity.ChannelType;
 import com.ovoenergy.offer.db.entity.EligibilityCriteriaType;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
@@ -37,9 +38,9 @@ public class ActiveOfferStrategy extends OfferBaseStrategy {
                 .startDate(StatusType.DRAFT.equals(oldOfferDBEntity.getStatus()) ? offerDTO.getStartDate() : oldOfferDBEntity.getStartDate())
                 .expiryDate(offerDTO.getExpiryDate())
                 .isExpirable(offerDTO.getIsExpirable())
-                .maxOfferRedemptions(offerDTO.getMaxOfferRedemptions())
+                .maxOfferRedemptions(Longs.tryParse(offerDTO.getMaxOfferRedemptions()))
                 .supplier(SupplierType.byValue(offerDTO.getSupplier()))
-                .value(offerDTO.getValue())
+                .value(Longs.tryParse(offerDTO.getValue()))
                 .actualOfferRedemptions(oldOfferDBEntity.getActualOfferRedemptions())
                 .status(StatusType.ACTIVE)
                 .updatedOn(jdbcHelper.lookupCurrentDbTime().getTime())
