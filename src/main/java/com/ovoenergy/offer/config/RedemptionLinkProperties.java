@@ -11,11 +11,12 @@ import java.time.temporal.ChronoUnit;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "redemption.link.expire.time")
-public class RemeptionLinkProperties {
+public class RedemptionLinkProperties {
 
     @Min(0)
     @NotNull
     private Long period;
+    @NotNull
     private ChronoUnit unit;
 
     public long getMilliseconds() {

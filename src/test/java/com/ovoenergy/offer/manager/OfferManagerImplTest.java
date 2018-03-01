@@ -4,7 +4,7 @@ import com.flextrade.jfixture.JFixture;
 import com.flextrade.jfixture.annotations.Fixture;
 import com.flextrade.jfixture.rules.FixtureRule;
 import com.google.common.collect.Lists;
-import com.ovoenergy.offer.config.RemeptionLinkProperties;
+import com.ovoenergy.offer.config.RedemptionLinkProperties;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemStatusType;
@@ -114,7 +114,7 @@ public class OfferManagerImplTest {
     private OfferLinkGenerateDTO fixtureOfferLinkGenerateDTO;
 
     @Mock
-    private RemeptionLinkProperties remeptionLinkProperties;
+    private RedemptionLinkProperties redemptionLinkProperties;
 
     @Test
     public void testGetOfferByIdSuccess() {
@@ -318,7 +318,7 @@ public class OfferManagerImplTest {
     public void testGenerateOfferLink() {
         fxOfferRedeemDBEntity.setStatus(OfferRedeemStatusType.CREATED);
 
-        when(remeptionLinkProperties.getMilliseconds()).thenReturn(1_000L);
+        when(redemptionLinkProperties.getMilliseconds()).thenReturn(1_000L);
         when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityId(anyString(), anyLong())).thenReturn(fxOfferRedeemDBEntity);
         when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).thenReturn(fxOfferRedeemDBEntity);
         when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date());
@@ -332,8 +332,8 @@ public class OfferManagerImplTest {
         verify(hashGenerator, only()).generateHash(eq(fxOfferRedeemDBEntity));
         verify(mockOfferRedeemRepository, times(1)).saveAndFlush(any(OfferRedeemDBEntity.class));
         verify(jdbcHelper, only()).lookupCurrentDbTime();
-        verify(remeptionLinkProperties, only()).getMilliseconds();
-        verifyNoMoreInteractions(mockOfferRedeemRepository, hashGenerator, mockOfferRedeemRepository, jdbcHelper, remeptionLinkProperties);
+        verify(redemptionLinkProperties, only()).getMilliseconds();
+        verifyNoMoreInteractions(mockOfferRedeemRepository, hashGenerator, mockOfferRedeemRepository, jdbcHelper, redemptionLinkProperties);
     }
 
     @Test
