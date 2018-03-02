@@ -2,6 +2,7 @@ package com.ovoenergy.offer.mapper;
 
 import com.flextrade.jfixture.annotations.Fixture;
 import com.flextrade.jfixture.rules.FixtureRule;
+import com.google.common.primitives.Longs;
 import com.ovoenergy.offer.db.entity.ChannelType;
 import com.ovoenergy.offer.db.entity.EligibilityCriteriaType;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
@@ -34,7 +35,7 @@ public class OfferMapperTest {
         assertEquals(fixtureOfferDBEntity.getOfferName(), result.getOfferName());
         assertEquals(fixtureOfferDBEntity.getChannel().value(), result.getChannel());
         assertEquals(fixtureOfferDBEntity.getActualOfferRedemptions(), result.getActualOfferRedemptions());
-        assertEquals(fixtureOfferDBEntity.getMaxOfferRedemptions(), result.getMaxOfferRedemptions());
+        assertEquals(fixtureOfferDBEntity.getMaxOfferRedemptions().toString(), result.getMaxOfferRedemptions());
         assertEquals(fixtureOfferDBEntity.getExpiryDate(), result.getExpiryDate());
         assertEquals(fixtureOfferDBEntity.getStartDate(), result.getStartDate());
         assertEquals(fixtureOfferDBEntity.getIsExpirable(), result.getIsExpirable());
@@ -43,7 +44,7 @@ public class OfferMapperTest {
         assertEquals(fixtureOfferDBEntity.getStatus().name(), result.getStatus());
         assertEquals(fixtureOfferDBEntity.getSupplier().value(), result.getSupplier());
         assertEquals(fixtureOfferDBEntity.getUpdatedOn(), result.getUpdatedOn());
-        assertEquals(fixtureOfferDBEntity.getValue(), result.getValue());
+        assertEquals(fixtureOfferDBEntity.getValue().toString(), result.getValue());
         assertEquals(fixtureOfferDBEntity.getId(), result.getId());
     }
 
@@ -61,14 +62,14 @@ public class OfferMapperTest {
         assertEquals(fixtureOfferDTO.getDescription(), result.getDescription());
         assertEquals(fixtureOfferDTO.getOfferName(), result.getOfferName());
         assertEquals(fixtureOfferDTO.getChannel(), result.getChannel().value());
-        assertEquals(fixtureOfferDTO.getMaxOfferRedemptions(), result.getMaxOfferRedemptions());
+        assertEquals(Longs.tryParse(fixtureOfferDTO.getMaxOfferRedemptions()), result.getMaxOfferRedemptions());
         assertEquals(fixtureOfferDTO.getExpiryDate(), result.getExpiryDate());
         assertEquals(fixtureOfferDTO.getStartDate(), result.getStartDate());
         assertEquals(fixtureOfferDTO.getIsExpirable(), result.getIsExpirable());
         assertEquals(fixtureOfferDTO.getEligibilityCriteria(), result.getEligibilityCriteria().value());
         assertEquals(fixtureOfferDTO.getOfferType(), result.getOfferType().value());
         assertEquals(fixtureOfferDTO.getSupplier(), result.getSupplier().value());
-        assertEquals(fixtureOfferDTO.getValue(), result.getValue());
+        assertEquals(Longs.tryParse(fixtureOfferDTO.getValue()), result.getValue());
         assertEquals(fixtureOfferDTO.getId(), result.getId());
     }
 }

@@ -196,8 +196,8 @@ public class OfferServiceIntegrationTest {
         offerToValidate.setOfferCode("");
         offerToValidate.setSupplier("");
         offerToValidate.setOfferType("");
-        offerToValidate.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE);
-        offerToValidate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION);
+        offerToValidate.setValue(ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE.toString());
+        offerToValidate.setMaxOfferRedemptions(ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION.toString());
         offerToValidate.setEligibilityCriteria("");
         offerToValidate.setChannel("");
         offerToValidate.setStartDate(ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE);
@@ -218,8 +218,8 @@ public class OfferServiceIntegrationTest {
         assertEquals("Empty Input value for Code field  expected", "", validationDTO.getOfferCode());
         assertEquals("Empty Input value for Supplier  expected", "", validationDTO.getSupplier());
         assertEquals("Empty Input value for Offer TYPE expected", "", validationDTO.getOfferType());
-        assertEquals("Input value for Offer Redemption is expected", ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION, validationDTO.getMaxOfferRedemptions());
-        assertEquals("Input value for Offer Value is expected", ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE, validationDTO.getValue());
+        assertEquals("Input value for Offer Redemption is expected", ValidateOfferForCreateInputData.TEST_VALID_MAX_REDEMPTION.toString(), validationDTO.getMaxOfferRedemptions());
+        assertEquals("Input value for Offer Value is expected", ValidateOfferForCreateInputData.TEST_VALID_MAX_VALUE.toString(), validationDTO.getValue());
         assertEquals("Empty Input value for Eligibility criteria expected ", "", validationDTO.getEligibilityCriteria());
         assertEquals("Empty Input value for Channel expected", "", validationDTO.getChannel());
         assertEquals("Input value for START date expected", ValidateOfferForCreateInputData.TEST_VALID_DATE_IN_FUTURE, validationDTO.getStartDate());

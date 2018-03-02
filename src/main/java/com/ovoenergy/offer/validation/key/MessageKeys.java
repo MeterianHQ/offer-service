@@ -48,6 +48,8 @@ public interface MessageKeys {
 
     String OFFER_LINK_EXPIRED = "offer.link.expired";
 
+    String INVALID_DATA_FORMAT = "invalid.data.format";
+
     interface Common {
 
         String GENERIC_SERVER_ERROR = "generic.server.error";

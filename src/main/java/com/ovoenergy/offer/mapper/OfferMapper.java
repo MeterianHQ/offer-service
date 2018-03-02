@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.mapper;
 
+import com.google.common.primitives.Longs;
 import com.ovoenergy.offer.db.entity.ChannelType;
 import com.ovoenergy.offer.db.entity.EligibilityCriteriaType;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
@@ -23,9 +24,9 @@ public class OfferMapper {
                 .startDate(offerDBEntity.getStartDate())
                 .expiryDate(offerDBEntity.getExpiryDate())
                 .isExpirable(offerDBEntity.getIsExpirable())
-                .maxOfferRedemptions(offerDBEntity.getMaxOfferRedemptions())
+                .maxOfferRedemptions(offerDBEntity.getMaxOfferRedemptions() == null ? null : offerDBEntity.getMaxOfferRedemptions().toString())
                 .supplier(offerDBEntity.getSupplier().value())
-                .value(offerDBEntity.getValue())
+                .value(offerDBEntity.getValue() == null ? null : offerDBEntity.getValue().toString())
                 .id(offerDBEntity.getId())
                 .actualOfferRedemptions(offerDBEntity.getActualOfferRedemptions())
                 .status(offerDBEntity.getStatus().name())
@@ -45,9 +46,9 @@ public class OfferMapper {
                 .startDate(offerDTO.getStartDate())
                 .expiryDate(offerDTO.getExpiryDate())
                 .isExpirable(offerDTO.getIsExpirable())
-                .maxOfferRedemptions(offerDTO.getMaxOfferRedemptions())
+                .maxOfferRedemptions(Longs.tryParse(offerDTO.getMaxOfferRedemptions()))
                 .supplier(SupplierType.byValue(offerDTO.getSupplier()))
-                .value(offerDTO.getValue())
+                .value(Longs.tryParse(offerDTO.getValue()))
                 .id(offerDTO.getId())
                 .build();
     }
