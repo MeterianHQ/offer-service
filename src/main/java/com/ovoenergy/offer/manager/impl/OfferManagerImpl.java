@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.manager.impl;
 
+import com.ovoenergy.offer.config.RedemptionLinkProperties;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemStatusType;
@@ -17,6 +18,7 @@ import com.ovoenergy.offer.manager.OfferManager;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
 import com.ovoenergy.offer.mapper.OfferMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +28,12 @@ import java.util.stream.Collectors;
 
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_EXPIRED;
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
+import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_LINK_EXPIRED;
 
 @Service
 public class OfferManagerImpl implements OfferManager {
 
-    // TODO: 2/23/18 refactoring
-    private static final String LINK_TEMPLATE = "http://localhost:8080/offers/redemption/link/%1$s?user=%2$s&offer_id=%3$d";
+    private static final String LINK_TEMPLATE = "%1$s/offers/redemption/link/%2$s?user=%3$s&offer_id=%4$d";
 
     @Autowired
     private OfferRepository offerRepository;
@@ -47,6 +49,12 @@ public class OfferManagerImpl implements OfferManager {
 
     @Autowired
     private JdbcHelper jdbcHelper;
+
+    @Autowired
+    private RedemptionLinkProperties redemptionLinkProperties;
+
+    @Value("${OFFER_SERVICE_URL:#{'http://localhost:8080'}}")
+    private String offerServiceDomain;
 
     @Override
     public OfferDTO getOfferById(Long id) {
@@ -121,25 +129,33 @@ public class OfferManagerImpl implements OfferManager {
         if (offerRedeemDBEntity.getStatus() == OfferRedeemStatusType.CREATED) {
             String hash = hashGenerator.generateHash(offerRedeemDBEntity);
             offerRedeemDBEntity.setHash(hash);
-            offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
+            long now = jdbcHelper.lookupCurrentDbTime().getTime();
+            long expiredOn = now + redemptionLinkProperties.getMilliseconds();
+            offerRedeemDBEntity.setUpdatedOn(now);
+            offerRedeemDBEntity.setExpiredOn(expiredOn);
             offerRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
             offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
         }
-        return String.format(LINK_TEMPLATE, offerRedeemDBEntity.getHash(), offerLinkGenerateDTO.getEmail(), offerLinkGenerateDTO.getOfferId());
+        return String.format(LINK_TEMPLATE, offerServiceDomain, offerRedeemDBEntity.getHash(), offerLinkGenerateDTO.getEmail(), offerLinkGenerateDTO.getOfferId());
     }
 
     @Override
     @Transactional(Transactional.TxType.REQUIRED)
     public OfferRedeemInfoDTO getOfferRedeemInfo(String hash, String email, Long id) {
         OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(email, id, hash);
+        long now = jdbcHelper.lookupCurrentDbTime().getTime();
+        if (offerRedeemDBEntity.getExpiredOn() < now) {
+            throw new VariableNotValidException(OFFER_LINK_EXPIRED);
+        }
         offerRedeemDBEntity.setStatus(OfferRedeemStatusType.CLICKED);
-        offerRedeemDBEntity.setUpdatedOn(jdbcHelper.lookupCurrentDbTime().getTime());
+        offerRedeemDBEntity.setUpdatedOn(now);
         offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
         return OfferRedeemInfoDTO.builder()
                 .email(email)
                 .updatedOn(offerRedeemDBEntity.getUpdatedOn())
                 .offerCode(offerRedeemDBEntity.getOfferDBEntity().getOfferCode())
                 .offerName(offerRedeemDBEntity.getOfferDBEntity().getOfferName())
+                .expiredOn(offerRedeemDBEntity.getExpiredOn())
                 .build();
     }
 

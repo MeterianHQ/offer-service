@@ -4,6 +4,7 @@ import com.flextrade.jfixture.JFixture;
 import com.flextrade.jfixture.annotations.Fixture;
 import com.flextrade.jfixture.rules.FixtureRule;
 import com.google.common.collect.Lists;
+import com.ovoenergy.offer.config.RedemptionLinkProperties;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemStatusType;
@@ -14,13 +15,16 @@ import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferLinkGenerateDTO;
+import com.ovoenergy.offer.dto.OfferRedeemInfoDTO;
 import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.manager.impl.HashGeneratorImpl;
 import com.ovoenergy.offer.manager.impl.OfferManagerImpl;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.AdditionalAnswers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -32,6 +36,9 @@ import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -73,6 +80,8 @@ public class OfferManagerImplTest {
 
     @Rule
     public FixtureRule fixtures = FixtureRule.initFixtures(jFixture);
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private OfferRepository mockOfferRepository;
@@ -103,6 +112,9 @@ public class OfferManagerImplTest {
 
     @Fixture
     private OfferLinkGenerateDTO fixtureOfferLinkGenerateDTO;
+
+    @Mock
+    private RedemptionLinkProperties redemptionLinkProperties;
 
     @Test
     public void testGetOfferByIdSuccess() {
@@ -305,6 +317,8 @@ public class OfferManagerImplTest {
     @Test
     public void testGenerateOfferLink() {
         fxOfferRedeemDBEntity.setStatus(OfferRedeemStatusType.CREATED);
+
+        when(redemptionLinkProperties.getMilliseconds()).thenReturn(1_000L);
         when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityId(anyString(), anyLong())).thenReturn(fxOfferRedeemDBEntity);
         when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).thenReturn(fxOfferRedeemDBEntity);
         when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date());
@@ -318,7 +332,8 @@ public class OfferManagerImplTest {
         verify(hashGenerator, only()).generateHash(eq(fxOfferRedeemDBEntity));
         verify(mockOfferRedeemRepository, times(1)).saveAndFlush(any(OfferRedeemDBEntity.class));
         verify(jdbcHelper, only()).lookupCurrentDbTime();
-        verifyNoMoreInteractions(mockOfferRedeemRepository, hashGenerator, mockOfferRedeemRepository, jdbcHelper);
+        verify(redemptionLinkProperties, only()).getMilliseconds();
+        verifyNoMoreInteractions(mockOfferRedeemRepository, hashGenerator, mockOfferRedeemRepository, jdbcHelper, redemptionLinkProperties);
     }
 
     @Test
@@ -333,5 +348,38 @@ public class OfferManagerImplTest {
 
         verify(mockOfferRedeemRepository, only()).findByEmailAndOfferDBEntityId(anyString(), anyLong());
         verifyNoMoreInteractions(mockOfferRedeemRepository, hashGenerator, mockOfferRedeemRepository, jdbcHelper);
+    }
+
+    @Test
+    public void testGetOfferRedeemInfoException() {
+        when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString())).thenReturn(fxOfferRedeemDBEntity);
+        when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date(fxOfferRedeemDBEntity.getExpiredOn() + 1));
+        expectedException.expect(instanceOf(VariableNotValidException.class));
+
+        unit.getOfferRedeemInfo("hash", "email@email.com", 1L);
+
+        verify(mockOfferRedeemRepository, only()).findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString());
+        verify(jdbcHelper, only()).lookupCurrentDbTime();
+        verifyNoMoreInteractions(mockOfferRedeemRepository, jdbcHelper);
+    }
+
+    @Test
+    public void testGetOfferRedeemInfo() {
+        when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString())).thenReturn(fxOfferRedeemDBEntity);
+        when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date(fxOfferRedeemDBEntity.getExpiredOn() - 1));
+        when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).then(AdditionalAnswers.returnsFirstArg());
+
+        OfferRedeemInfoDTO offerRedeemInfoDTO = unit.getOfferRedeemInfo("hash", "email@email.com", 1L);
+
+        assertThat(offerRedeemInfoDTO, notNullValue());
+        assertThat(offerRedeemInfoDTO.getOfferCode(), is(fxOfferRedeemDBEntity.getOfferDBEntity().getOfferCode()));
+        assertThat(offerRedeemInfoDTO.getOfferName(), is(fxOfferRedeemDBEntity.getOfferDBEntity().getOfferName()));
+        assertThat(offerRedeemInfoDTO.getUpdatedOn(), is(fxOfferRedeemDBEntity.getUpdatedOn()));
+        assertThat(offerRedeemInfoDTO.getExpiredOn(), is(fxOfferRedeemDBEntity.getExpiredOn()));
+
+        verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString());
+        verify(mockOfferRedeemRepository, times(1)).saveAndFlush(any(OfferRedeemDBEntity.class));
+        verify(jdbcHelper, only()).lookupCurrentDbTime();
+        verifyNoMoreInteractions(mockOfferRedeemRepository, jdbcHelper);
     }
 }

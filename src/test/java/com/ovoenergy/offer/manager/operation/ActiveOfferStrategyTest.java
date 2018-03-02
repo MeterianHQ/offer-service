@@ -60,6 +60,7 @@ public class ActiveOfferStrategyTest {
     public void testUpdateOfferDBEntity() {
         Date now = new Date();
         when(jdbcHelper.lookupCurrentDbTime()).thenReturn(now);
+        fixtureOfferDBEntity.setStatus(StatusType.ACTIVE);
 
         OfferDBEntity offerDBEntity = activeOfferStrategy.updateOfferDBEntity(fixtureOfferDBEntity, fixtureOfferDTO);
 

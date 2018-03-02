@@ -7,4 +7,5 @@
     <include file="1.3/changelog-drop-not-null-constraints-for-draft-case-db-1.3.xml" relativeToChangelogFile="true" />
     <include file="1.4/changelog-add-audit-table-db-1.4.xml" relativeToChangelogFile="true" />
     <include file="1.5/changelog-update-offer-redeem-table-db-1.5.xml" relativeToChangelogFile="true"/>
+    <include file="1.6/changelog-update-offer-redeem-table-db-1.6.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
