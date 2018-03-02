@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.manager.operation;
 
+import com.google.common.primitives.Longs;
 import com.ovoenergy.offer.db.entity.ChannelType;
 import com.ovoenergy.offer.db.entity.EligibilityCriteriaType;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
@@ -37,9 +38,9 @@ public class DraftOfferStrategy extends OfferBaseStrategy {
                 .startDate(offerDTO.getStartDate())
                 .expiryDate(offerDTO.getExpiryDate())
                 .isExpirable(offerDTO.getIsExpirable())
-                .maxOfferRedemptions(offerDTO.getMaxOfferRedemptions())
+                .maxOfferRedemptions(Longs.tryParse(offerDTO.getMaxOfferRedemptions()))
                 .supplier(SupplierType.byValue(offerDTO.getSupplier()))
-                .value(offerDTO.getValue())
+                .value(Longs.tryParse(offerDTO.getValue()))
                 .actualOfferRedemptions(oldOfferDBEntity.getActualOfferRedemptions())
                 .status(StatusType.DRAFT)
                 .updatedOn(jdbcHelper.lookupCurrentDbTime().getTime())

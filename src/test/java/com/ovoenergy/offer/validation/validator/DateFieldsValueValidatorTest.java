@@ -7,8 +7,8 @@ import org.mockito.InjectMocks;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class DateFieldsValueValidatorTest extends AbstractConstraintValidatorTest {
 
@@ -26,8 +26,10 @@ public class DateFieldsValueValidatorTest extends AbstractConstraintValidatorTes
         offerDTO.setIsExpirable(true);
         offerDTO.setStartDate(TEST_EXPIRY_DATE_AFTER_START);
         offerDTO.setExpiryDate(TEST_START_DATE_BEFORE_EXPIRY);
-        Boolean result = unit.isValid(offerDTO, context);
-        assertFalse(result);
+        boolean result = unit.isValid(offerDTO, context);
+
+        assertThat(result, is(false));
+        assertThat(propertyNodeCaptor.getValue(), is("expiryDate"));
     }
 
     @Test
@@ -36,8 +38,10 @@ public class DateFieldsValueValidatorTest extends AbstractConstraintValidatorTes
         offerDTO.setIsExpirable(true);
         offerDTO.setStartDate(TEST_START_DATE_BEFORE_EXPIRY);
         offerDTO.setExpiryDate(null);
-        Boolean result = unit.isValid(offerDTO, context);
-        assertFalse(result);
+        boolean result = unit.isValid(offerDTO, context);
+
+        assertThat(result, is(false));
+        assertThat(propertyNodeCaptor.getValue(), is("expiryDate"));
     }
 
     @Test
@@ -46,8 +50,9 @@ public class DateFieldsValueValidatorTest extends AbstractConstraintValidatorTes
         offerDTO.setIsExpirable(true);
         offerDTO.setStartDate(TEST_START_DATE_BEFORE_EXPIRY);
         offerDTO.setExpiryDate(TEST_EXPIRY_DATE_AFTER_START);
-        Boolean result = unit.isValid(offerDTO, context);
-        assertTrue(result);
+        boolean result = unit.isValid(offerDTO, context);
+
+        assertThat(result, is(true));
     }
 
 }

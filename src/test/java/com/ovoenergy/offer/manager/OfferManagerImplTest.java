@@ -127,7 +127,7 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getOfferName(), result.getOfferName());
         assertEquals(fixtureOfferDBEntity.getChannel().value(), result.getChannel());
         assertEquals(fixtureOfferDBEntity.getActualOfferRedemptions(), result.getActualOfferRedemptions());
-        assertEquals(fixtureOfferDBEntity.getMaxOfferRedemptions(), result.getMaxOfferRedemptions());
+        assertEquals(fixtureOfferDBEntity.getMaxOfferRedemptions().toString(), result.getMaxOfferRedemptions());
         assertEquals(fixtureOfferDBEntity.getExpiryDate(), result.getExpiryDate());
         assertEquals(fixtureOfferDBEntity.getStartDate(), result.getStartDate());
         assertEquals(fixtureOfferDBEntity.getIsExpirable(), result.getIsExpirable());
@@ -136,7 +136,7 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getStatus().name(), result.getStatus());
         assertEquals(fixtureOfferDBEntity.getSupplier().value(), result.getSupplier());
         assertEquals(fixtureOfferDBEntity.getUpdatedOn(), result.getUpdatedOn());
-        assertEquals(fixtureOfferDBEntity.getValue(), result.getValue());
+        assertEquals(fixtureOfferDBEntity.getValue().toString(), result.getValue());
         assertEquals(fixtureOfferDBEntity.getId(), result.getId());
 
         verify(mockOfferRepository, only()).findOne(eq(TEST_OFFER_ID));
@@ -172,7 +172,7 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getOfferName(), result.getOfferName());
         assertEquals(fixtureOfferDBEntity.getChannel().value(), result.getChannel());
         assertEquals(fixtureOfferDBEntity.getActualOfferRedemptions(), result.getActualOfferRedemptions());
-        assertEquals(fixtureOfferDBEntity.getMaxOfferRedemptions(), result.getMaxOfferRedemptions());
+        assertEquals(fixtureOfferDBEntity.getMaxOfferRedemptions().toString(), result.getMaxOfferRedemptions());
         assertEquals(fixtureOfferDBEntity.getExpiryDate(), result.getExpiryDate());
         assertEquals(fixtureOfferDBEntity.getStartDate(), result.getStartDate());
         assertEquals(fixtureOfferDBEntity.getIsExpirable(), result.getIsExpirable());
@@ -181,7 +181,7 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getStatus().name(), result.getStatus());
         assertEquals(fixtureOfferDBEntity.getSupplier().value(), result.getSupplier());
         assertEquals(fixtureOfferDBEntity.getUpdatedOn(), result.getUpdatedOn());
-        assertEquals(fixtureOfferDBEntity.getValue(), result.getValue());
+        assertEquals(fixtureOfferDBEntity.getValue().toString(), result.getValue());
         assertEquals(fixtureOfferDBEntity.getId(), result.getId());
 
         verify(mockOfferRepository, only()).save(any(OfferDBEntity.class));
@@ -205,7 +205,7 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getOfferName(), result.getOfferName());
         assertEquals(fixtureOfferDBEntity.getChannel().value(), result.getChannel());
         assertEquals(fixtureOfferDBEntity.getActualOfferRedemptions(), result.getActualOfferRedemptions());
-        assertEquals(fixtureOfferDBEntity.getMaxOfferRedemptions(), result.getMaxOfferRedemptions());
+        assertEquals(fixtureOfferDBEntity.getMaxOfferRedemptions().toString(), result.getMaxOfferRedemptions());
         assertEquals(fixtureOfferDBEntity.getExpiryDate(), result.getExpiryDate());
         assertEquals(fixtureOfferDBEntity.getStartDate(), result.getStartDate());
         assertEquals(fixtureOfferDBEntity.getIsExpirable(), result.getIsExpirable());
@@ -214,7 +214,7 @@ public class OfferManagerImplTest {
         assertEquals(fixtureOfferDBEntity.getStatus().name(), result.getStatus());
         assertEquals(fixtureOfferDBEntity.getSupplier().value(), result.getSupplier());
         assertEquals(fixtureOfferDBEntity.getUpdatedOn(), result.getUpdatedOn());
-        assertEquals(fixtureOfferDBEntity.getValue(), result.getValue());
+        assertEquals(fixtureOfferDBEntity.getValue().toString(), result.getValue());
         assertEquals(fixtureOfferDBEntity.getId(), result.getId());
 
         verify(mockOfferRepository, times(1)).save(any(OfferDBEntity.class));

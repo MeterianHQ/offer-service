@@ -50,4 +50,6 @@ public interface CodeKeys {
 
     String OFFER_LINK_EXPIRED = "OFR24";
 
+    String INVALID_DATA_FORMAT = "OFR25";
+
 }

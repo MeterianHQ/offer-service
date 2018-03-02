@@ -55,8 +55,8 @@ public class TestData {
         offerToValidate.setOfferCode(TEST_VALID_CODE);
         offerToValidate.setSupplier(TEST_VALID_SUPPLIER);
         offerToValidate.setOfferType(TEST_VALID_OFFER_TYPE);
-        offerToValidate.setValue(TEST_VALID_MAX_VALUE);
-        offerToValidate.setMaxOfferRedemptions(TEST_VALID_MAX_REDEMPTION);
+        offerToValidate.setValue(TEST_VALID_MAX_VALUE.toString());
+        offerToValidate.setMaxOfferRedemptions(TEST_VALID_MAX_REDEMPTION.toString());
         offerToValidate.setEligibilityCriteria(TEST_VALID_ELIGIBILITY_CRITERIA);
         offerToValidate.setChannel(TEST_VALID_CHANEL);
         offerToValidate.setStartDate(TEST_VALID_DATE_IN_FUTURE);
