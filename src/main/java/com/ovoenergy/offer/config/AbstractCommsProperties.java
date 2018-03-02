@@ -4,7 +4,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
 @Data
-public abstract class AbstractMailCommsProperties {
+public abstract class AbstractCommsProperties {
 
     @NotBlank
     private String type;

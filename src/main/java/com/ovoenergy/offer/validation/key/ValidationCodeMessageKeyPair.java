@@ -40,10 +40,10 @@ public enum ValidationCodeMessageKeyPair {
     private final String messageKey;
 
     public static String getMessageByCode(String code) {
-        ValidationCodeMessageKeyPair actualPair = Arrays.stream(ValidationCodeMessageKeyPair.values())
+        return Arrays.stream(ValidationCodeMessageKeyPair.values())
                 .filter(mp -> code.equals(mp.getCode()))
                 .findFirst()
+                .map(ValidationCodeMessageKeyPair::getMessageKey)
                 .orElseThrow(() -> new NotSupportedErrorCodeException("Not Supported Error Code"));
-        return actualPair.getMessageKey();
     }
 }

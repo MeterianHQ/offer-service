@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "mail.comms.link")
-public class MailCommsSubjectProperties extends AbstractMailCommsProperties {
+@ConfigurationProperties(prefix = "comms.email.get.voucher.template")
+public class CommsEmailVoucherProperties extends AbstractCommsProperties {
 
 }

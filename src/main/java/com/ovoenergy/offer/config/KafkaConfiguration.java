@@ -17,8 +17,8 @@ import org.springframework.kafka.core.ProducerFactory;
 
 import java.util.Map;
 
-@EnableKafka
-@Configuration
+//@EnableKafka
+//@Configuration
 public class KafkaConfiguration {
 
     @Bean
