@@ -266,8 +266,8 @@ public class CreateActiveOfferTest {
         Set<ErrorMessageDTO> offerRedemptionValidations = validationDTO.getConstraintViolations().get("maxOfferRedemptions");
         Set<String> offerRedemptionAllErrorCodes = offerRedemptionValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerRedemptionAllErrorMessages = offerRedemptionValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code for null value in offer value field", offerRedemptionAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-        assertTrue("Validation constraints missed error message for null value on offer value field ", offerRedemptionAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
+        assertTrue("Validation constraints missed error code for null value in offer value field", offerRedemptionAllErrorCodes.contains(CodeKeys.FIELD_REQUIRED));
+        assertTrue("Validation constraints missed error message for null value on offer value field ", offerRedemptionAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.REQUIRED_FIELD));
 
         //Checking validation codes and messages for OfferCode
         Set<ErrorMessageDTO> offerCodeValidations = validationDTO.getConstraintViolations().get("offerCode");
@@ -301,8 +301,8 @@ public class CreateActiveOfferTest {
         Set<ErrorMessageDTO> offerValueValidations = validationDTO.getConstraintViolations().get("value");
         Set<String> offerValueAllErrorCodes = offerValueValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerValueAllErrorMessages = offerValueValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code for >3 digits in offer value field", offerValueAllErrorCodes.contains(CodeKeys.NOT_NULL_FIELD));
-        assertTrue("Validation constraints missed error message for >3 digits on offer value field ", offerValueAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.NOT_NULL_FIELD));
+        assertTrue("Validation constraints missed error code for >3 digits in offer value field", offerValueAllErrorCodes.contains(CodeKeys.FIELD_REQUIRED));
+        assertTrue("Validation constraints missed error message for >3 digits on offer value field ", offerValueAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.REQUIRED_FIELD));
 
         //Checking validation codes and messages for startDate
         Set<ErrorMessageDTO> startDateValidations = validationDTO.getConstraintViolations().get("startDate");
