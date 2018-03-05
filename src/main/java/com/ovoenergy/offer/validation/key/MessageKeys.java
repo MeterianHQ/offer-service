@@ -8,8 +8,6 @@ public interface MessageKeys {
 
     String PROVIDED_VALUE_NOT_SUPPORTED = "provided.value.not.supported";
 
-    String INPUT_VALUE_ZERO = "input.value.zero";
-
     String NOT_UNIQUE_OFFER_CODE = "not.unique.offer.code";
 
     String INVALID_OFFER_CODE = "invalid.offer.code";
@@ -19,10 +17,6 @@ public interface MessageKeys {
     String OFFER_EXPIRY_DATE_BEFORE_START_DATE = "offer.expiry.date.before.start.date";
 
     String NO_EXPIRY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE = "no.expiry.offer.could.not.have.expiry.date";
-
-    String INPUT_REDEMPTION_MAX = "input.redemption.max";
-
-    String INPUT_VALUE_MAX = "input.value.max";
 
     String INVALID_EMAIL = "invalid.email";
 
@@ -48,7 +42,9 @@ public interface MessageKeys {
 
     String OFFER_LINK_EXPIRED = "offer.link.expired";
 
-    String INVALID_DATA_FORMAT = "invalid.data.format";
+    String INVALID_VALUE_FORMAT = "invalid.value.format";
+
+    String INVALID_REDEMPTION_FORMAT = "invalid.redemption.format";
 
     interface Common {
 

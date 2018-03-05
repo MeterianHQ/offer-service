@@ -26,6 +26,8 @@ public class ActiveOfferStrategy extends OfferBaseStrategy {
 
     @Override
     public OfferDBEntity updateOfferDBEntity(OfferDBEntity oldOfferDBEntity, OfferDTO offerDTO) {
+        String maxOfferRedemptions = offerDTO.getMaxOfferRedemptions();
+        String value = offerDTO.getValue();
         return OfferDBEntity
                 .builder()
                 .id(oldOfferDBEntity.getId())
@@ -38,9 +40,9 @@ public class ActiveOfferStrategy extends OfferBaseStrategy {
                 .startDate(StatusType.DRAFT.equals(oldOfferDBEntity.getStatus()) ? offerDTO.getStartDate() : oldOfferDBEntity.getStartDate())
                 .expiryDate(offerDTO.getExpiryDate())
                 .isExpirable(offerDTO.getIsExpirable())
-                .maxOfferRedemptions(Longs.tryParse(offerDTO.getMaxOfferRedemptions()))
+                .maxOfferRedemptions(maxOfferRedemptions == null ? null : Longs.tryParse(maxOfferRedemptions))
                 .supplier(SupplierType.byValue(offerDTO.getSupplier()))
-                .value(Longs.tryParse(offerDTO.getValue()))
+                .value(value == null ? null : Longs.tryParse(value))
                 .actualOfferRedemptions(oldOfferDBEntity.getActualOfferRedemptions())
                 .status(StatusType.ACTIVE)
                 .updatedOn(jdbcHelper.lookupCurrentDbTime().getTime())

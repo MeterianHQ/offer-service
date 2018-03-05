@@ -17,6 +17,7 @@ import com.ovoenergy.offer.manager.HashGenerator;
 import com.ovoenergy.offer.manager.OfferManager;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
 import com.ovoenergy.offer.mapper.OfferMapper;
+import com.ovoenergy.offer.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
@@ -130,7 +131,7 @@ public class OfferManagerImpl implements OfferManager {
             String hash = hashGenerator.generateHash(offerRedeemDBEntity);
             offerRedeemDBEntity.setHash(hash);
             long now = jdbcHelper.lookupCurrentDbTime().getTime();
-            long expiredOn = now + redemptionLinkProperties.getMilliseconds();
+            long expiredOn = DateUtils.getCurrentTimeEndOfDay(now + redemptionLinkProperties.getMilliseconds());
             offerRedeemDBEntity.setUpdatedOn(now);
             offerRedeemDBEntity.setExpiredOn(expiredOn);
             offerRedeemDBEntity.setStatus(OfferRedeemStatusType.GENERATED);
