@@ -89,7 +89,7 @@ public class CreateDraftOfferTest {
         String NON_IN_FUTURE_DATE = "Please select a date in the future";
         String OFFER_EXPIRY_DATE_BEFORE_START_DATE = "Offer Expiry Date must be after the Offer Start Date";
         String INPUT_VALUE_MAX = "Please enter a number between 1 and 999";
-        String INPUT_REDEMPTION_MAX = "Please enter a number between 1 and 999999999";
+        String INPUT_REDEMPTION_MAX = "Please enter a number between 1 and 99999999";
     }
 
     @LocalServerPort
