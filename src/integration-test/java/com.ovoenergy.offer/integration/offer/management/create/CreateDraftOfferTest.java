@@ -88,8 +88,8 @@ public class CreateDraftOfferTest {
         String INVALID_OFFER_CODE = "An offer code cannot include spaces or special characters";
         String NON_IN_FUTURE_DATE = "Please select a date in the future";
         String OFFER_EXPIRY_DATE_BEFORE_START_DATE = "Offer Expiry Date must be after the Offer Start Date";
-        String INPUT_VALUE_MAX = "Field value is limited to 3 digits";
-        String INPUT_REDEMPTION_MAX = "Field value is limited to 8 digits";
+        String INPUT_VALUE_MAX = "Please enter a number between 1 and 999";
+        String INPUT_REDEMPTION_MAX = "Please enter a number between 1 and 99999999";
     }
 
     @LocalServerPort
@@ -205,14 +205,14 @@ public class CreateDraftOfferTest {
         Set<ErrorMessageDTO> offerValueValidations = validationDTO.getConstraintViolations().get("value");
         Set<String> offerValueAllErrorCodes = offerValueValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerValueAllErrorMessages = offerValueValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code for >3 digits in offer value field", offerValueAllErrorCodes.contains(CodeKeys.INPUT_VALUE_MAX));
+        assertTrue("Validation constraints missed error code for >3 digits in offer value field", offerValueAllErrorCodes.contains(CodeKeys.INVALID_VALUE_FORMAT));
         assertTrue("Validation constraints missed error message for >3 digits on offer value field ", offerValueAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.INPUT_VALUE_MAX));
 
         //Checking validation codes and messages for OfferRedemption
         Set<ErrorMessageDTO> offerRedemptionValidations = validationDTO.getConstraintViolations().get("maxOfferRedemptions");
         Set<String> offerRedemptionAllErrorCodes = offerRedemptionValidations.stream().map(ErrorMessageDTO::getCode).collect(Collectors.toSet());
         Set<String> offerRedemptionAllErrorMessages = offerRedemptionValidations.stream().map(ErrorMessageDTO::getMessage).collect(Collectors.toSet());
-        assertTrue("Validation constraints missed error code for >3 digits in offer value field", offerRedemptionAllErrorCodes.contains(CodeKeys.INPUT_REDEMPTION_MAX));
+        assertTrue("Validation constraints missed error code for >3 digits in offer value field", offerRedemptionAllErrorCodes.contains(CodeKeys.INVALID_REDEMPTION_FORMAT));
         assertTrue("Validation constraints missed error message for >3 digits on offer value field ", offerRedemptionAllErrorMessages.contains(ValidateOfferForCreateViolationConstraintMessages.INPUT_REDEMPTION_MAX));
 
         //Checking validation codes and messages for offer supplier dropdown

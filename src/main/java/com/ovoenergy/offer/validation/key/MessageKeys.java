@@ -18,10 +18,6 @@ public interface MessageKeys {
 
     String NO_EXPIRY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE = "no.expiry.offer.could.not.have.expiry.date";
 
-    String INPUT_REDEMPTION_MAX = "input.redemption.max";
-
-    String INPUT_VALUE_MAX = "input.value.max";
-
     String INVALID_EMAIL = "invalid.email";
 
     String OFFER_INVALID = "offer.invalid";
