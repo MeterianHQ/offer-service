@@ -51,6 +51,9 @@ public class EmailDeliveryEvent {
     @Column(name = "trigger_source")
     private String triggerSource;
 
+    @Column(name = "status", nullable = false)
+    private String status;
+
     @Builder.Default
     @OneToMany(mappedBy = "emailDeliveryEvent", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<EmailDeliveryEventStatus> emailDeliveryEventStatuses = new HashSet<>();

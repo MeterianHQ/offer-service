@@ -17,6 +17,9 @@
             <column name="deliver_to" type="VARCHAR(50)"/>
             <column name="source" type="VARCHAR(150)"/>
             <column name="trigger_source" type="VARCHAR(150)"/>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
             <column name="updated_on" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
