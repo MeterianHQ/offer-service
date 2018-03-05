@@ -20,10 +20,6 @@ public interface CodeKeys {
 
     String NO_EXPIRY_OFFER_COULD_NOT_HAVE_EXPIRY_DATE = "OFR10";
 
-    String INPUT_REDEMPTION_MAX = "OFR11";
-
-    String INPUT_VALUE_MAX = "OFR12";
-
     String INVALID_EMAIL = "OFR13";
 
     String OFFER_INVALID = "OFR14";
