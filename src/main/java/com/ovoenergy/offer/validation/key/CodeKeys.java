@@ -10,8 +10,6 @@ public interface CodeKeys {
 
     String PROVIDED_VALUE_NOT_SUPPORTED = "OFR4";
 
-    String INPUT_VALUE_ZERO = "OFR5";
-
     String NOT_UNIQUE_OFFER_CODE = "OFR6";
 
     String INVALID_OFFER_CODE = "OFR7";
@@ -50,6 +48,8 @@ public interface CodeKeys {
 
     String OFFER_LINK_EXPIRED = "OFR24";
 
-    String INVALID_DATA_FORMAT = "OFR25";
+    String INVALID_VALUE_FORMAT = "OFR25";
+
+    String INVALID_REDEMPTION_FORMAT = "OFR26";
 
 }

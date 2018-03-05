@@ -74,12 +74,12 @@ public class OfferDTO {
     private String offerType;
 
     @ApiModelProperty(name = "value", required = true)
-    @StringAsNumberConstraint(min = 1, max = 999, maxMessage = CodeKeys.INPUT_VALUE_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @StringAsNumberConstraint(min = 1, max = 999, message = CodeKeys.INVALID_VALUE_FORMAT, maxMessage = CodeKeys.INPUT_VALUE_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private String value;
 
     @ApiModelProperty(name = "maxOfferRedemptions", required = true)
-    @StringAsNumberConstraint(min = 1, max = 99999999, maxMessage = CodeKeys.INPUT_REDEMPTION_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @StringAsNumberConstraint(min = 1, max = 99999999, message = CodeKeys.INVALID_REDEMPTION_FORMAT, maxMessage = CodeKeys.INPUT_REDEMPTION_MAX, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private String maxOfferRedemptions;
 

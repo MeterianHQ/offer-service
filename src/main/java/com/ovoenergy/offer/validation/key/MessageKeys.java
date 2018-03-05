@@ -8,8 +8,6 @@ public interface MessageKeys {
 
     String PROVIDED_VALUE_NOT_SUPPORTED = "provided.value.not.supported";
 
-    String INPUT_VALUE_ZERO = "input.value.zero";
-
     String NOT_UNIQUE_OFFER_CODE = "not.unique.offer.code";
 
     String INVALID_OFFER_CODE = "invalid.offer.code";
@@ -48,7 +46,9 @@ public interface MessageKeys {
 
     String OFFER_LINK_EXPIRED = "offer.link.expired";
 
-    String INVALID_DATA_FORMAT = "invalid.data.format";
+    String INVALID_VALUE_FORMAT = "invalid.value.format";
+
+    String INVALID_REDEMPTION_FORMAT = "invalid.redemption.format";
 
     interface Common {
 

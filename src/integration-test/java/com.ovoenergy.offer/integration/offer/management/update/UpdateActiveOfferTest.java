@@ -281,8 +281,8 @@ public class UpdateActiveOfferTest {
                 .andExpect(jsonPath("$.constraintViolations.offerName[0].code", equalTo(CodeKeys.FIELD_REQUIRED)))
                 .andExpect(jsonPath("$.constraintViolations.offerName[0].message", equalTo("This field is required")))
                 .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions[0].code", equalTo(CodeKeys.NOT_NULL_FIELD)))
-                .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions[0].message", equalTo("This field cannot be null")))
+                .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions[0].code", equalTo(CodeKeys.FIELD_REQUIRED)))
+                .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions[0].message", equalTo("This field is required")))
                 .andExpect(jsonPath("$.constraintViolations.offerCode", hasSize(1)))
                 .andExpect(jsonPath("$.constraintViolations.offerCode[0].code", equalTo(CodeKeys.FIELD_REQUIRED)))
                 .andExpect(jsonPath("$.constraintViolations.offerCode[0].message", equalTo("This field is required")))
@@ -296,8 +296,8 @@ public class UpdateActiveOfferTest {
                 .andExpect(jsonPath("$.constraintViolations.eligibilityCriteria[0].code", equalTo(CodeKeys.NOT_NULL_FIELD)))
                 .andExpect(jsonPath("$.constraintViolations.eligibilityCriteria[0].message", equalTo("This field cannot be null")))
                 .andExpect(jsonPath("$.constraintViolations.value", hasSize(1)))
-                .andExpect(jsonPath("$.constraintViolations.value[0].code", equalTo(CodeKeys.NOT_NULL_FIELD)))
-                .andExpect(jsonPath("$.constraintViolations.value[0].message", equalTo("This field cannot be null")))
+                .andExpect(jsonPath("$.constraintViolations.value[0].code", equalTo(CodeKeys.FIELD_REQUIRED)))
+                .andExpect(jsonPath("$.constraintViolations.value[0].message", equalTo("This field is required")))
                 .andExpect(jsonPath("$.constraintViolations.startDate", hasSize(1)))
                 .andExpect(jsonPath("$.constraintViolations.startDate[0].code", equalTo(CodeKeys.NOT_NULL_FIELD)))
                 .andExpect(jsonPath("$.constraintViolations.startDate[0].message", equalTo("This field cannot be null")))
@@ -457,8 +457,8 @@ public class UpdateActiveOfferTest {
                     .andExpect(jsonPath("$.constraintViolations.offerName[0].code", equalTo(CodeKeys.FIELD_REQUIRED)))
                     .andExpect(jsonPath("$.constraintViolations.offerName[0].message", equalTo("This field is required")))
                     .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions", hasSize(1)))
-                    .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions[0].code", equalTo(CodeKeys.NOT_NULL_FIELD)))
-                    .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions[0].message", equalTo("This field cannot be null")))
+                    .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions[0].code", equalTo(CodeKeys.FIELD_REQUIRED)))
+                    .andExpect(jsonPath("$.constraintViolations.maxOfferRedemptions[0].message", equalTo("This field is required")))
                     .andExpect(jsonPath("$.constraintViolations.offerCode", hasSize(1)))
                     .andExpect(jsonPath("$.constraintViolations.offerCode[0].code", equalTo(CodeKeys.FIELD_REQUIRED)))
                     .andExpect(jsonPath("$.constraintViolations.offerCode[0].message", equalTo("This field is required")))
@@ -472,17 +472,14 @@ public class UpdateActiveOfferTest {
                     .andExpect(jsonPath("$.constraintViolations.eligibilityCriteria[0].code", equalTo(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED)))
                     .andExpect(jsonPath("$.constraintViolations.eligibilityCriteria[0].message", equalTo("Provided value is not supported")))
                     .andExpect(jsonPath("$.constraintViolations.value", hasSize(1)))
-                    .andExpect(jsonPath("$.constraintViolations.value[0].code", equalTo(CodeKeys.NOT_NULL_FIELD)))
-                    .andExpect(jsonPath("$.constraintViolations.value[0].message", equalTo("This field cannot be null")))
+                    .andExpect(jsonPath("$.constraintViolations.value[0].code", equalTo(CodeKeys.FIELD_REQUIRED)))
+                    .andExpect(jsonPath("$.constraintViolations.value[0].message", equalTo("This field is required")))
                     .andExpect(jsonPath("$.constraintViolations.startDate", hasSize(1)))
                     .andExpect(jsonPath("$.constraintViolations.startDate[0].code", equalTo(CodeKeys.NOT_NULL_FIELD)))
                     .andExpect(jsonPath("$.constraintViolations.startDate[0].message", equalTo("This field cannot be null")))
-
                     .andExpect(jsonPath("$.constraintViolations.status", hasSize(1)))
                     .andExpect(jsonPath("$.constraintViolations.status[0].code", equalTo(CodeKeys.PROVIDED_VALUE_NOT_SUPPORTED)))
                     .andExpect(jsonPath("$.constraintViolations.status[0].message", equalTo("Provided value is not supported")))
-
-
                     .andExpect(jsonPath("$.id", equalTo(offerToValidate.getId().intValue())))
                     .andExpect(jsonPath("$.offerCode", equalTo(offerToValidate.getOfferCode())))
                     .andExpect(jsonPath("$.offerName", equalTo(offerToValidate.getOfferName())))
@@ -505,7 +502,5 @@ public class UpdateActiveOfferTest {
             verify(offerRepository, times(1)).findOne(eq(offerToValidate.getId()));
             verifyNoMoreInteractions(offerRepository);
         }
-
-
     }
 

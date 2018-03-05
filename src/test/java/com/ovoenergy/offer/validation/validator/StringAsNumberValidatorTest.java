@@ -16,7 +16,7 @@ public class StringAsNumberValidatorTest extends AbstractConstraintValidatorTest
     public void setUp() {
         StringAsNumberConstraint stringAsNumberConstraint = AbstractConstraintValidatorTest.annotation(
                 StringAsNumberConstraint.class,
-                ImmutableMap.of("min", 0L, "max", 999L, "maxMessage", "message")
+                ImmutableMap.of("min", 0L, "max", 999L, "maxMessage", "message", "message", "message")
         );
         stringAsNumberValidator.initialize(stringAsNumberConstraint);
     }
@@ -26,7 +26,7 @@ public class StringAsNumberValidatorTest extends AbstractConstraintValidatorTest
         boolean valid = stringAsNumberValidator.isValid("", context);
 
         assertThat(valid, is(false));
-        assertThat(messageCaptor.getValue(), is(CodeKeys.NOT_NULL_FIELD));
+        assertThat(messageCaptor.getValue(), is(CodeKeys.FIELD_REQUIRED));
     }
 
     @Test
@@ -34,7 +34,7 @@ public class StringAsNumberValidatorTest extends AbstractConstraintValidatorTest
         boolean valid = stringAsNumberValidator.isValid("abc", context);
 
         assertThat(valid, is(false));
-        assertThat(messageCaptor.getValue(), is(CodeKeys.INVALID_DATA_FORMAT));
+        assertThat(messageCaptor.getValue(), is("message"));
     }
 
     @Test
@@ -42,7 +42,7 @@ public class StringAsNumberValidatorTest extends AbstractConstraintValidatorTest
         boolean valid = stringAsNumberValidator.isValid("-1", context);
 
         assertThat(valid, is(false));
-        assertThat(messageCaptor.getValue(), is(CodeKeys.INPUT_VALUE_ZERO));
+        assertThat(messageCaptor.getValue(), is("message"));
     }
 
     @Test

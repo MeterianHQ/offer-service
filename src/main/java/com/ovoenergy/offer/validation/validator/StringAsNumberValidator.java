@@ -13,12 +13,14 @@ public class StringAsNumberValidator implements ConstraintValidator<StringAsNumb
     private long min;
     private long max;
     private String maxMessage;
+    private String message;
 
     @Override
     public void initialize(StringAsNumberConstraint constraintAnnotation) {
         this.min = constraintAnnotation.min();
         this.max = constraintAnnotation.max();
         this.maxMessage = constraintAnnotation.maxMessage();
+        this.message = constraintAnnotation.message();
     }
 
     @Override
@@ -27,28 +29,19 @@ public class StringAsNumberValidator implements ConstraintValidator<StringAsNumb
             HibernateConstraintValidatorContext hibernateContext = context.unwrap(HibernateConstraintValidatorContext.class);
             hibernateContext.disableDefaultConstraintViolation();
             hibernateContext
-                    .buildConstraintViolationWithTemplate(CodeKeys.NOT_NULL_FIELD)
+                    .buildConstraintViolationWithTemplate(CodeKeys.FIELD_REQUIRED)
                     .addConstraintViolation();
             return false;
         }
-        if (!NumberUtils.isNumber(value)) {
+        if (!NumberUtils.isNumber(value) || Long.parseLong(value) < min) {
             HibernateConstraintValidatorContext hibernateContext = context.unwrap(HibernateConstraintValidatorContext.class);
             hibernateContext.disableDefaultConstraintViolation();
             hibernateContext
-                    .buildConstraintViolationWithTemplate(CodeKeys.INVALID_DATA_FORMAT)
+                    .buildConstraintViolationWithTemplate(message)
                     .addConstraintViolation();
             return false;
         }
-        long number = Long.parseLong(value);
-        if (number < min) {
-            HibernateConstraintValidatorContext hibernateContext = context.unwrap(HibernateConstraintValidatorContext.class);
-            hibernateContext.disableDefaultConstraintViolation();
-            hibernateContext
-                    .buildConstraintViolationWithTemplate(CodeKeys.INPUT_VALUE_ZERO)
-                    .addConstraintViolation();
-            return false;
-        }
-        if (number > max) {
+        if (Long.parseLong(value) > max) {
             HibernateConstraintValidatorContext hibernateContext = context.unwrap(HibernateConstraintValidatorContext.class);
             hibernateContext.disableDefaultConstraintViolation();
             hibernateContext
