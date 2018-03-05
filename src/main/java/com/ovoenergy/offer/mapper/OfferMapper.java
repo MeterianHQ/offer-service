@@ -35,6 +35,8 @@ public class OfferMapper {
     }
 
     public static OfferDBEntity fromOfferDTOTODBEntity(OfferDTO offerDTO) {
+        String maxOfferRedemptions = offerDTO.getMaxOfferRedemptions();
+        String value = offerDTO.getValue();
         return OfferDBEntity
                 .builder()
                 .offerCode(offerDTO.getOfferCode())
@@ -46,9 +48,9 @@ public class OfferMapper {
                 .startDate(offerDTO.getStartDate())
                 .expiryDate(offerDTO.getExpiryDate())
                 .isExpirable(offerDTO.getIsExpirable())
-                .maxOfferRedemptions(Longs.tryParse(offerDTO.getMaxOfferRedemptions()))
+                .maxOfferRedemptions(maxOfferRedemptions == null ? null : Longs.tryParse(maxOfferRedemptions))
                 .supplier(SupplierType.byValue(offerDTO.getSupplier()))
-                .value(Longs.tryParse(offerDTO.getValue()))
+                .value(value == null ? null : Longs.tryParse(value))
                 .id(offerDTO.getId())
                 .build();
     }

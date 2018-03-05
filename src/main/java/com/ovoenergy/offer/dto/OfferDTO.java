@@ -17,7 +17,6 @@ import com.ovoenergy.offer.validation.validator.ExpiryDateFieldsValueConstraint;
 import com.ovoenergy.offer.validation.validator.FutureDateConstraint;
 import com.ovoenergy.offer.validation.validator.OfferCodeConstraint;
 import com.ovoenergy.offer.validation.validator.StartDateNotUpdatableConstraint;
-import com.ovoenergy.offer.validation.validator.StringAsNumberRangeConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -74,12 +73,14 @@ public class OfferDTO {
     private String offerType;
 
     @ApiModelProperty(name = "value", required = true)
-    @StringAsNumberRangeConstraint(regexp = "^[1-9][0-9]{0,2}$", notEmpMessage = CodeKeys.FIELD_REQUIRED, message = CodeKeys.INVALID_VALUE_FORMAT, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @Pattern(regexp = "^[1-9][0-9]{0,2}$", message = CodeKeys.INVALID_VALUE_FORMAT, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private String value;
 
     @ApiModelProperty(name = "maxOfferRedemptions", required = true)
-    @StringAsNumberRangeConstraint(regexp = "^[1-9][0-9]{0,7}$", notEmpMessage = CodeKeys.FIELD_REQUIRED, message = CodeKeys.INVALID_REDEMPTION_FORMAT, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @NotEmpty(message = CodeKeys.FIELD_REQUIRED, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
+    @Pattern(regexp = "^[1-9][0-9]{0,7}$", message = CodeKeys.INVALID_REDEMPTION_FORMAT, groups = {RequiredActiveOfferChecks.class, NonEmptyDraftOfferChecks.class})
     @Null(groups = EmptyDraftOfferChecks.class, message = CodeKeys.NULL_FIELD)
     private String maxOfferRedemptions;
 
