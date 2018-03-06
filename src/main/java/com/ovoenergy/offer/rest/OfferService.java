@@ -143,7 +143,6 @@ public class OfferService {
     }
 
     @GetMapping(value = CHECK_LINK, params = {"hash", "user", "offer_id"})
-    @ResponseBody
     @ApiResponses({ @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
             @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class)})
     @ApiOperation(value = CHECK_LINK, notes = "Redirects to voucher info url")

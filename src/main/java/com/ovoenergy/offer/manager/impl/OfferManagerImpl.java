@@ -149,7 +149,6 @@ public class OfferManagerImpl implements OfferManager {
     }
 
     @Override
-    @Transactional(Transactional.TxType.REQUIRED)
     public void processRedemptionLinkRedirect(String hash, String email, Long id, HttpServletResponse response) {
         OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(email, id, hash);
 
@@ -157,22 +156,32 @@ public class OfferManagerImpl implements OfferManager {
             getVoucherRedirectHandler.processNotFoundVoucherRedirect(response);
         } else {
             long now = jdbcHelper.lookupCurrentDbTime().getTime();
-            processRedemptionLinkClick(offerRedeemDBEntity, now);
-            //TODO: Add call to Amazon to generate voucher
             if (offerRedeemDBEntity.getExpiredOn() < now) {
                 getVoucherRedirectHandler.processExpiredVoucherLinkRedirect(response, offerRedeemDBEntity.getExpiredOn());
+            } else {
+                if (!isRedemptionLinkClicked(offerRedeemDBEntity)) {
+                    processRedemptionLinkClick(offerRedeemDBEntity, now);
+                    //TODO: Add call to Amazon to generate voucher
+                }
+                //TODO: Fetch previously stored Amazon voucher information
+                getVoucherRedirectHandler.processGetVoucherInfoRedirect(response, AmazonStubbedVoucher.EXPIRE_ON, AmazonStubbedVoucher.VOUCHER_CODE);
             }
-
-            getVoucherRedirectHandler.processGetVoucherInfoRedirect(response, AmazonStubbedVoucher.EXPIRE_ON, AmazonStubbedVoucher.VOUCHER_CODE);
         }
     }
 
-    private void processRedemptionLinkClick(OfferRedeemDBEntity offerRedeemDBEntity, Long now) {
+    @Transactional(Transactional.TxType.REQUIRED)
+    public void processRedemptionLinkClick(OfferRedeemDBEntity offerRedeemDBEntity, Long now) {
         offerRedeemDBEntity.setStatus(OfferRedeemStatusType.CLICKED);
         offerRedeemDBEntity.setUpdatedOn(now);
         offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
+        OfferDBEntity offerDBEntity = offerRedeemDBEntity.getOfferDBEntity();
+        offerDBEntity.setActualOfferRedemptions(offerDBEntity.getLinksRedeemed() + 1);
+        offerRepository.saveAndFlush(offerDBEntity);
     }
 
+    private boolean isRedemptionLinkClicked(OfferRedeemDBEntity offerRedeemDBEntity) {
+        return offerRedeemDBEntity.getOfferRedeemEventDBEntities().stream().anyMatch(or -> OfferRedeemStatusType.CLICKED.equals(or.getStatus()));
+    }
 
     private OfferDBEntity fetchActiveOfferByOfferCode(String offerCode) {
         OfferDBEntity offerDBEntity = offerRepository.findOneByOfferCodeIgnoreCase(offerCode);

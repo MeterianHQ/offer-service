@@ -6,10 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
-import java.util.Set;
 
 @Component
 public class GetVoucherRedirectHandler {
@@ -33,17 +34,17 @@ public class GetVoucherRedirectHandler {
     private String voucherNotFoundPage;
 
     public void processGetVoucherInfoRedirect(HttpServletResponse response, Long expireOnDate, String voucherCode) {
-        String location = resolveRedirectVoucherInfoUrl(voucherExpiredPage, ImmutableMap.of(EXPIRE_ON_DATE_QUERY_PARAM, expireOnDate.toString(), VOUCHER_CODE_QUERY_PARAM, voucherCode));
+        String location = resolveRedirectUrl(voucherExpiredPage, (MultiValueMap)ImmutableMap.of(EXPIRE_ON_DATE_QUERY_PARAM, expireOnDate.toString(), VOUCHER_CODE_QUERY_PARAM, voucherCode));
         processRedirect(location, response);
     }
 
     public void processExpiredVoucherLinkRedirect(HttpServletResponse response, Long expireOnDate) {
-        String location = resolveRedirectVoucherInfoUrl(voucherExpiredPage, ImmutableMap.of(EXPIRE_ON_DATE_QUERY_PARAM, expireOnDate.toString()));
+        String location = resolveRedirectUrl(voucherExpiredPage, (MultiValueMap)ImmutableMap.of(EXPIRE_ON_DATE_QUERY_PARAM, expireOnDate.toString()));
         processRedirect(location, response);
     }
 
     public void processNotFoundVoucherRedirect(HttpServletResponse response) {
-        String location = resolveRedirectVoucherInfoUrl(voucherNotFoundPage, ImmutableMap.of());
+        String location = resolveRedirectUrl(voucherNotFoundPage, null);
         processRedirect(location, response);
     }
 
@@ -57,17 +58,15 @@ public class GetVoucherRedirectHandler {
         }
     }
 
-    private String resolveRedirectVoucherInfoUrl(String page, Map<String, String> queryArgs) {
-        StringBuilder builder =  new StringBuilder(voucherPublicURL);
-        builder.append(page);
+    private String resolveRedirectUrl(String page, MultiValueMap<String, String> queryArgs) {
+        UriComponents uriComponents = UriComponentsBuilder
+                .newInstance()
+                .path(voucherPublicURL)
+                .pathSegment(page)
+                .queryParams(queryArgs)
+                .build();
 
-        Set<String> keys = queryArgs.keySet();
-        if (keys.size() > 0) {
-            builder.append("?");
-            keys.stream().forEach(key -> builder.append(queryArgs.get(key)).append("&"));
-        }
-
-        return builder.replace(builder.lastIndexOf("&"), builder.lastIndexOf("&"), "").toString();
+        return uriComponents.toUriString();
     }
 
 }

@@ -4,11 +4,9 @@ import com.flextrade.jfixture.JFixture;
 import com.flextrade.jfixture.annotations.Fixture;
 import com.flextrade.jfixture.rules.FixtureRule;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.ovoenergy.offer.config.RedemptionLinkProperties;
-import com.ovoenergy.offer.db.entity.OfferDBEntity;
-import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
-import com.ovoenergy.offer.db.entity.OfferRedeemStatusType;
-import com.ovoenergy.offer.db.entity.StatusType;
+import com.ovoenergy.offer.db.entity.*;
 import com.ovoenergy.offer.db.jdbc.JdbcHelper;
 import com.ovoenergy.offer.db.repository.OfferRedeemRepository;
 import com.ovoenergy.offer.db.repository.OfferRepository;
@@ -47,12 +45,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OfferManagerImplTest {
@@ -373,15 +366,13 @@ public class OfferManagerImplTest {
     public void testGetOfferRedeemInfoRedirectToExpired() {
         when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString())).thenReturn(fxOfferRedeemDBEntity);
         when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date(fxOfferRedeemDBEntity.getExpiredOn() + 1));
-        when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).then(AdditionalAnswers.returnsFirstArg());
         PowerMockito.doNothing().when(mockGetVoucherRedirectHandler).processExpiredVoucherLinkRedirect(any(), any());
 
         unit.processRedemptionLinkRedirect("hash", "email@email.com", 1L, mockResponse);
 
         verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString());
-        verify(mockOfferRedeemRepository, times(1)).saveAndFlush(any(OfferRedeemDBEntity.class));
         verify(jdbcHelper, times(1)).lookupCurrentDbTime();
-        verifyNoMoreInteractions(mockOfferRedeemRepository, jdbcHelper);
+        verifyNoMoreInteractions(mockOfferRedeemRepository, jdbcHelper, mockOfferRepository);
         verify(mockGetVoucherRedirectHandler).processExpiredVoucherLinkRedirect(any(), any());
     }
 
@@ -390,14 +381,17 @@ public class OfferManagerImplTest {
         when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString())).thenReturn(fxOfferRedeemDBEntity);
         when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date(fxOfferRedeemDBEntity.getExpiredOn() - 1));
         when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).then(AdditionalAnswers.returnsFirstArg());
+        when(mockOfferRepository.saveAndFlush(any(OfferDBEntity.class))).then(AdditionalAnswers.returnsFirstArg());
         PowerMockito.doNothing().when(mockGetVoucherRedirectHandler).processGetVoucherInfoRedirect(any(), any(), any());
+        fxOfferRedeemDBEntity.setOfferRedeemEventDBEntities(Sets.newHashSet(new OfferRedeemEventDBEntity(1L, fxOfferRedeemDBEntity,  1L,OfferRedeemStatusType.GENERATED)));
 
         unit.processRedemptionLinkRedirect("hash", "email@email.com", 1L, mockResponse);
 
         verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString());
         verify(mockOfferRedeemRepository, times(1)).saveAndFlush(any(OfferRedeemDBEntity.class));
+        verify(mockOfferRepository, times(1)).saveAndFlush(any(OfferDBEntity.class));
         verify(jdbcHelper, times(1)).lookupCurrentDbTime();
-        verifyNoMoreInteractions(mockOfferRedeemRepository, jdbcHelper);
+        verifyNoMoreInteractions(mockOfferRedeemRepository, jdbcHelper, mockOfferRepository);
         verify(mockGetVoucherRedirectHandler).processGetVoucherInfoRedirect(any(), any(), any());
     }
 }
