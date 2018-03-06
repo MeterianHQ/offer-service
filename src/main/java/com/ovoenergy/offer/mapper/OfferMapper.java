@@ -29,6 +29,7 @@ public class OfferMapper {
                 .value(offerDBEntity.getValue() == null ? null : offerDBEntity.getValue().toString())
                 .id(offerDBEntity.getId())
                 .actualOfferRedemptions(offerDBEntity.getActualOfferRedemptions())
+                .linksRedeemed(offerDBEntity.getLinksRedeemed())
                 .status(offerDBEntity.getStatus().name())
                 .updatedOn(offerDBEntity.getUpdatedOn())
                 .build();
@@ -49,6 +50,7 @@ public class OfferMapper {
                 .expiryDate(offerDTO.getExpiryDate())
                 .isExpirable(offerDTO.getIsExpirable())
                 .maxOfferRedemptions(maxOfferRedemptions == null ? null : Longs.tryParse(maxOfferRedemptions))
+                .linksRedeemed(offerDTO.getLinksRedeemed())
                 .supplier(SupplierType.byValue(offerDTO.getSupplier()))
                 .value(value == null ? null : Longs.tryParse(value))
                 .id(offerDTO.getId())

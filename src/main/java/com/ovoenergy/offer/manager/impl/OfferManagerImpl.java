@@ -1,5 +1,6 @@
 package com.ovoenergy.offer.manager.impl;
 
+import com.ovoenergy.offer.amazon.AmazonStubbedVoucher;
 import com.ovoenergy.offer.config.RedemptionLinkProperties;
 import com.ovoenergy.offer.db.entity.OfferDBEntity;
 import com.ovoenergy.offer.db.entity.OfferRedeemDBEntity;
@@ -11,28 +12,32 @@ import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferLinkGenerateDTO;
-import com.ovoenergy.offer.dto.OfferRedeemInfoDTO;
 import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.manager.HashGenerator;
 import com.ovoenergy.offer.manager.OfferManager;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
+import com.ovoenergy.offer.manager.redirect.GetVoucherRedirectHandler;
 import com.ovoenergy.offer.mapper.OfferMapper;
 import com.ovoenergy.offer.utils.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_EXPIRED;
 import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_INVALID;
-import static com.ovoenergy.offer.validation.key.CodeKeys.OFFER_LINK_EXPIRED;
 
 @Service
 public class OfferManagerImpl implements OfferManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OfferManagerImpl.class);
 
     private static final String LINK_TEMPLATE = "%1$s/offers/redemption/link/%2$s?user=%3$s&offer_id=%4$d";
 
@@ -53,6 +58,9 @@ public class OfferManagerImpl implements OfferManager {
 
     @Autowired
     private RedemptionLinkProperties redemptionLinkProperties;
+
+    @Autowired
+    private GetVoucherRedirectHandler getVoucherRedirectHandler;
 
     @Value("${OFFER_SERVICE_URL:#{'http://localhost:8080'}}")
     private String offerServiceDomain;
@@ -141,23 +149,38 @@ public class OfferManagerImpl implements OfferManager {
     }
 
     @Override
-    @Transactional(Transactional.TxType.REQUIRED)
-    public OfferRedeemInfoDTO getOfferRedeemInfo(String hash, String email, Long id) {
+    public void processRedemptionLinkRedirect(String hash, String email, Long id, HttpServletResponse response) {
         OfferRedeemDBEntity offerRedeemDBEntity = offerRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(email, id, hash);
-        long now = jdbcHelper.lookupCurrentDbTime().getTime();
-        if (offerRedeemDBEntity.getExpiredOn() < now) {
-            throw new VariableNotValidException(OFFER_LINK_EXPIRED);
+
+        if (offerRedeemDBEntity == null) {
+            getVoucherRedirectHandler.processNotFoundVoucherRedirect(response);
+        } else {
+            long now = jdbcHelper.lookupCurrentDbTime().getTime();
+            if (offerRedeemDBEntity.getExpiredOn() < now) {
+                getVoucherRedirectHandler.processExpiredVoucherLinkRedirect(response, offerRedeemDBEntity.getExpiredOn());
+            } else {
+                if (!isRedemptionLinkClicked(offerRedeemDBEntity)) {
+                    processRedemptionLinkClick(offerRedeemDBEntity, now);
+                    //TODO: Add call to Amazon to generate voucher
+                }
+                //TODO: Fetch previously stored Amazon voucher information
+                getVoucherRedirectHandler.processGetVoucherInfoRedirect(response, AmazonStubbedVoucher.EXPIRE_ON, AmazonStubbedVoucher.VOUCHER_CODE);
+            }
         }
+    }
+
+    @Transactional(Transactional.TxType.REQUIRED)
+    public void processRedemptionLinkClick(OfferRedeemDBEntity offerRedeemDBEntity, Long now) {
         offerRedeemDBEntity.setStatus(OfferRedeemStatusType.CLICKED);
         offerRedeemDBEntity.setUpdatedOn(now);
         offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
-        return OfferRedeemInfoDTO.builder()
-                .email(email)
-                .updatedOn(offerRedeemDBEntity.getUpdatedOn())
-                .offerCode(offerRedeemDBEntity.getOfferDBEntity().getOfferCode())
-                .offerName(offerRedeemDBEntity.getOfferDBEntity().getOfferName())
-                .expiredOn(offerRedeemDBEntity.getExpiredOn())
-                .build();
+        OfferDBEntity offerDBEntity = offerRedeemDBEntity.getOfferDBEntity();
+        offerDBEntity.setLinksRedeemed(offerDBEntity.getLinksRedeemed() == null ? 1 : offerDBEntity.getLinksRedeemed() + 1);
+        offerRepository.saveAndFlush(offerDBEntity);
+    }
+
+    private boolean isRedemptionLinkClicked(OfferRedeemDBEntity offerRedeemDBEntity) {
+        return offerRedeemDBEntity.getOfferRedeemEventDBEntities().stream().anyMatch(or -> OfferRedeemStatusType.CLICKED.equals(or.getStatus()));
     }
 
     private OfferDBEntity fetchActiveOfferByOfferCode(String offerCode) {

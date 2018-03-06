@@ -45,6 +45,7 @@ public class OfferMapperTest {
         assertEquals(fixtureOfferDBEntity.getSupplier().value(), result.getSupplier());
         assertEquals(fixtureOfferDBEntity.getUpdatedOn(), result.getUpdatedOn());
         assertEquals(fixtureOfferDBEntity.getValue().toString(), result.getValue());
+        assertEquals(fixtureOfferDBEntity.getLinksRedeemed(), result.getLinksRedeemed());
         assertEquals(fixtureOfferDBEntity.getId(), result.getId());
     }
 
@@ -71,5 +72,6 @@ public class OfferMapperTest {
         assertEquals(fixtureOfferDTO.getSupplier(), result.getSupplier().value());
         assertEquals(Longs.tryParse(fixtureOfferDTO.getValue()), result.getValue());
         assertEquals(fixtureOfferDTO.getId(), result.getId());
+        assertEquals(fixtureOfferDTO.getLinksRedeemed(), result.getLinksRedeemed());
     }
 }

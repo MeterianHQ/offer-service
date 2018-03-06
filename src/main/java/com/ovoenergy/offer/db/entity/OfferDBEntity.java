@@ -95,4 +95,7 @@ public class OfferDBEntity {
 
     @Column(name = "updated_on")
     private Long updatedOn;
+
+    @Column(name = "links_redeemed")
+    private Long linksRedeemed;
 }

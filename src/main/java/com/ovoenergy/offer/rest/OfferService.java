@@ -1,9 +1,6 @@
 package com.ovoenergy.offer.rest;
 
-import com.ovoenergy.offer.dto.ErrorMessageDTO;
-import com.ovoenergy.offer.dto.OfferDTO;
-import com.ovoenergy.offer.dto.OfferValidationDTO;
-import com.ovoenergy.offer.dto.OfferVerifyDTO;
+import com.ovoenergy.offer.dto.*;
 import com.ovoenergy.offer.manager.OfferManager;
 import com.ovoenergy.offer.validation.CustomValidationProcessor;
 import io.swagger.annotations.Api;
@@ -17,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static com.ovoenergy.offer.dto.OffersServiceURLs.*;
@@ -143,4 +141,16 @@ public class OfferService {
         LOGGER.debug("Returning response for VERIFY offer: {}", response);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(value = CHECK_LINK, params = {"user", "offer_id"})
+    @ApiResponses({ @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
+            @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class)})
+    @ApiOperation(value = CHECK_LINK, notes = "Redirects to voucher info url")
+    public void getRedemptionLinkInfo(@PathVariable("hash") String hash,
+                                      @RequestParam("user") String user,
+                                      @RequestParam("offer_id") Long offerId,
+                                      HttpServletResponse response) {
+        offerManager.processRedemptionLinkRedirect(hash, user, offerId, response);
+    }
+
 }

@@ -119,4 +119,7 @@ public class OfferDTO {
 
     @ApiModelProperty(name = "updatedOn", notes = "response field only", required = true)
     private Long updatedOn;
+
+    @ApiModelProperty(name = "linksRedeemed", notes = "response field only", required = true)
+    private Long linksRedeemed;
 }

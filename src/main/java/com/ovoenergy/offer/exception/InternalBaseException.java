@@ -10,6 +10,11 @@ public class InternalBaseException extends RuntimeException {
         this.errorMessageProperty = message;
     }
 
+    public InternalBaseException(String message, Throwable t) {
+        super(message, t);
+        this.errorMessageProperty = message;
+    }
+
     public String getErrorMessageProperty() {
         return errorMessageProperty;
     }

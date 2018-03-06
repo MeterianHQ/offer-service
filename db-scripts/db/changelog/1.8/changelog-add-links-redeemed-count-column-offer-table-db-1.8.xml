@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="changelog_add_links_redeemed_count_column_offer_table" author="yuliya.makarchuk" runAlways="false" failOnError="true">
+        <addColumn catalogName="offers_db"
+                   schemaName="offers_db"
+                   tableName="offer">
+            <column name="links_redeemed" type="BIGINT"/>
+        </addColumn>
+        <rollback>
+            <dropColumn catalogName="offers_db"
+                        schemaName="offers_db"
+                        tableName="offer"
+                        columnName="links_redeemed"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
