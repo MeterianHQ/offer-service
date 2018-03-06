@@ -7,6 +7,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -23,27 +24,30 @@ import java.util.Map;
 @Configuration
 public class KafkaConfiguration {
 
-//    @Bean
-//    public ProducerFactory<String, Object> commsProducerFactory() {
-//        Map<String, Object> configParams = ImmutableMap.<String, Object>builder()
-//                .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-uat.ovo-uat.aivencloud.com:13581")
-//                .put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL")
-//                .put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, "client.truststore.jks")
-//                .put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "secret")
-//                .put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12")
-//                .put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, "client.keystore.p12")
-//                .put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, "secret")
-//                .put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, "secret")
-//                .put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class)
-//                .put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringDeserializer.class)
-//                .build();
-//        return new DefaultKafkaProducerFactory<>(configParams);
-//    }
-//
-//    @Bean
-//    public KafkaTemplate<String, Object> commsKafkaTemplate() {
-//        return new KafkaTemplate<>(commsProducerFactory());
-//    }
+    @Autowired
+    private KafkaSecurityProperties kafkaSecurityProperties;
+
+    @Bean
+    public ProducerFactory<String, Object> producerFactory() {
+        Map<String, Object> configParams = ImmutableMap.<String, Object>builder()
+                .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-uat.ovo-uat.aivencloud.com:13581")
+                .put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL")
+                .put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, "client.truststore.jks")
+                .put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "secret")
+                .put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12")
+                .put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, "client.keystore.p12")
+                .put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, "secret")
+                .put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, "secret")
+                .put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class)
+                .put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringDeserializer.class)
+                .build();
+        return new DefaultKafkaProducerFactory<>(configParams);
+    }
+
+    @Bean
+    public KafkaTemplate<String, Object> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
+    }
 
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
