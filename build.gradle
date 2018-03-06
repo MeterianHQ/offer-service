@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
         classpath('se.transmode.gradle:gradle-docker:1.2')
     }
 }
@@ -30,9 +30,11 @@ targetCompatibility = 1.8
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-actuator")
-    compile('org.springframework.boot:spring-boot-starter-data-jpa')
-    runtime('org.postgresql:postgresql:42.2.1')
-    compile("org.projectlombok:lombok:1.16.18")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("org.springframework.kafka:spring-kafka")
+    compile("org.apache.avro:avro:1.8.2")
+    runtime("org.postgresql:postgresql:42.2.1")
+    compile("org.projectlombok:lombok")
     compile("com.google.guava:guava:23.6-jre")
     compile("javax.validation:validation-api:1.1.0.Final")
     compile("io.springfox:springfox-swagger2:2.0.3") {
@@ -44,6 +46,7 @@ dependencies {
     compile("org.apache.commons:commons-lang3:3.4")
     compile("org.reflections:reflections:0.9.10")
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile("org.springframework.kafka:spring-kafka-test")
     testCompile("org.powermock:powermock-api-mockito:1.6.2")
     testCompile("org.powermock:powermock-module-junit4:1.6.2")
     testCompile("com.flextrade.jfixture:jfixture:2.4.0")
