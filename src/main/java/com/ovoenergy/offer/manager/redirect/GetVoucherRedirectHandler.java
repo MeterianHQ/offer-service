@@ -5,6 +5,7 @@ import com.ovoenergy.offer.exception.VoucherRedirectOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponents;
@@ -34,12 +35,16 @@ public class GetVoucherRedirectHandler {
     private String voucherNotFoundPage;
 
     public void processGetVoucherInfoRedirect(HttpServletResponse response, Long expireOnDate, String voucherCode) {
-        String location = resolveRedirectUrl(voucherExpiredPage, (MultiValueMap)ImmutableMap.of(EXPIRE_ON_DATE_QUERY_PARAM, expireOnDate.toString(), VOUCHER_CODE_QUERY_PARAM, voucherCode));
+        MultiValueMap queryParams = new HttpHeaders();
+        queryParams.setAll(ImmutableMap.of(EXPIRE_ON_DATE_QUERY_PARAM, expireOnDate.toString(), VOUCHER_CODE_QUERY_PARAM, voucherCode));
+        String location = resolveRedirectUrl(voucherInfoPage, queryParams);
         processRedirect(location, response);
     }
 
     public void processExpiredVoucherLinkRedirect(HttpServletResponse response, Long expireOnDate) {
-        String location = resolveRedirectUrl(voucherExpiredPage, (MultiValueMap)ImmutableMap.of(EXPIRE_ON_DATE_QUERY_PARAM, expireOnDate.toString()));
+        MultiValueMap queryParams = new HttpHeaders();
+        queryParams.setAll(ImmutableMap.of(EXPIRE_ON_DATE_QUERY_PARAM, expireOnDate.toString()));
+        String location = resolveRedirectUrl(voucherExpiredPage, queryParams);
         processRedirect(location, response);
     }
 

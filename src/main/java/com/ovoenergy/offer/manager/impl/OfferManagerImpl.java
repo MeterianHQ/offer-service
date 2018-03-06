@@ -175,7 +175,7 @@ public class OfferManagerImpl implements OfferManager {
         offerRedeemDBEntity.setUpdatedOn(now);
         offerRedeemRepository.saveAndFlush(offerRedeemDBEntity);
         OfferDBEntity offerDBEntity = offerRedeemDBEntity.getOfferDBEntity();
-        offerDBEntity.setActualOfferRedemptions(offerDBEntity.getLinksRedeemed() + 1);
+        offerDBEntity.setLinksRedeemed(offerDBEntity.getLinksRedeemed() == null ? 1 : offerDBEntity.getLinksRedeemed() + 1);
         offerRepository.saveAndFlush(offerDBEntity);
     }
 
