@@ -15,11 +15,11 @@ import com.ovoenergy.offer.db.repository.OfferRepository;
 import com.ovoenergy.offer.dto.OfferApplyDTO;
 import com.ovoenergy.offer.dto.OfferDTO;
 import com.ovoenergy.offer.dto.OfferLinkGenerateDTO;
-import com.ovoenergy.offer.dto.OfferRedeemInfoDTO;
 import com.ovoenergy.offer.exception.VariableNotValidException;
 import com.ovoenergy.offer.manager.impl.HashGeneratorImpl;
 import com.ovoenergy.offer.manager.impl.OfferManagerImpl;
 import com.ovoenergy.offer.manager.operation.OfferOperationsRegistry;
+import com.ovoenergy.offer.manager.redirect.GetVoucherRedirectHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,14 +29,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
 import org.springframework.data.domain.Sort;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
@@ -115,6 +116,12 @@ public class OfferManagerImplTest {
 
     @Mock
     private RedemptionLinkProperties redemptionLinkProperties;
+
+    @Mock
+    private HttpServletResponse mockResponse;
+
+    @Mock
+    private GetVoucherRedirectHandler mockGetVoucherRedirectHandler;
 
     @Test
     public void testGetOfferByIdSuccess() {
@@ -351,35 +358,46 @@ public class OfferManagerImplTest {
     }
 
     @Test
-    public void testGetOfferRedeemInfoException() {
-        when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString())).thenReturn(fxOfferRedeemDBEntity);
-        when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date(fxOfferRedeemDBEntity.getExpiredOn() + 1));
-        expectedException.expect(instanceOf(VariableNotValidException.class));
+    public void testGetOfferRedeemInfoRedirectToNotFound() {
+        when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString())).thenReturn(null);
+        PowerMockito.doNothing().when(mockGetVoucherRedirectHandler).processNotFoundVoucherRedirect(any());
 
-        unit.getOfferRedeemInfo("hash", "email@email.com", 1L);
+        unit.processRedemptionLinkRedirect("hash", "email@email.com", 1L, mockResponse);
 
-        verify(mockOfferRedeemRepository, only()).findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString());
-        verify(jdbcHelper, only()).lookupCurrentDbTime();
+        verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString());
         verifyNoMoreInteractions(mockOfferRedeemRepository, jdbcHelper);
+        verify(mockGetVoucherRedirectHandler).processNotFoundVoucherRedirect(any());
     }
 
     @Test
-    public void testGetOfferRedeemInfo() {
+    public void testGetOfferRedeemInfoRedirectToExpired() {
         when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString())).thenReturn(fxOfferRedeemDBEntity);
-        when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date(fxOfferRedeemDBEntity.getExpiredOn() - 1));
+        when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date(fxOfferRedeemDBEntity.getExpiredOn() + 1));
         when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).then(AdditionalAnswers.returnsFirstArg());
+        PowerMockito.doNothing().when(mockGetVoucherRedirectHandler).processExpiredVoucherLinkRedirect(any(), any());
 
-        OfferRedeemInfoDTO offerRedeemInfoDTO = unit.getOfferRedeemInfo("hash", "email@email.com", 1L);
-
-        assertThat(offerRedeemInfoDTO, notNullValue());
-        assertThat(offerRedeemInfoDTO.getOfferCode(), is(fxOfferRedeemDBEntity.getOfferDBEntity().getOfferCode()));
-        assertThat(offerRedeemInfoDTO.getOfferName(), is(fxOfferRedeemDBEntity.getOfferDBEntity().getOfferName()));
-        assertThat(offerRedeemInfoDTO.getUpdatedOn(), is(fxOfferRedeemDBEntity.getUpdatedOn()));
-        assertThat(offerRedeemInfoDTO.getExpiredOn(), is(fxOfferRedeemDBEntity.getExpiredOn()));
+        unit.processRedemptionLinkRedirect("hash", "email@email.com", 1L, mockResponse);
 
         verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString());
         verify(mockOfferRedeemRepository, times(1)).saveAndFlush(any(OfferRedeemDBEntity.class));
-        verify(jdbcHelper, only()).lookupCurrentDbTime();
+        verify(jdbcHelper, times(1)).lookupCurrentDbTime();
         verifyNoMoreInteractions(mockOfferRedeemRepository, jdbcHelper);
+        verify(mockGetVoucherRedirectHandler).processExpiredVoucherLinkRedirect(any(), any());
+    }
+
+    @Test
+    public void testGetOfferRedeemInfoRedirect() {
+        when(mockOfferRedeemRepository.findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString())).thenReturn(fxOfferRedeemDBEntity);
+        when(jdbcHelper.lookupCurrentDbTime()).thenReturn(new Date(fxOfferRedeemDBEntity.getExpiredOn() - 1));
+        when(mockOfferRedeemRepository.saveAndFlush(any(OfferRedeemDBEntity.class))).then(AdditionalAnswers.returnsFirstArg());
+        PowerMockito.doNothing().when(mockGetVoucherRedirectHandler).processGetVoucherInfoRedirect(any(), any(), any());
+
+        unit.processRedemptionLinkRedirect("hash", "email@email.com", 1L, mockResponse);
+
+        verify(mockOfferRedeemRepository, times(1)).findByEmailAndOfferDBEntityIdAndHash(anyString(), anyLong(), anyString());
+        verify(mockOfferRedeemRepository, times(1)).saveAndFlush(any(OfferRedeemDBEntity.class));
+        verify(jdbcHelper, times(1)).lookupCurrentDbTime();
+        verifyNoMoreInteractions(mockOfferRedeemRepository, jdbcHelper);
+        verify(mockGetVoucherRedirectHandler).processGetVoucherInfoRedirect(any(), any(), any());
     }
 }

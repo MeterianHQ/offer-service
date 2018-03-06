@@ -63,16 +63,4 @@ public class TestService {
         return ResponseEntity.status(HttpStatus.CREATED).body(ImmutableMap.of("link", link));
     }
 
-    @GetMapping(value = CHECK_LINK, params = {"user", "offer_id"})
-    @ResponseBody
-    @ApiResponses({@ApiResponse(code = 200, message = "Ok", response = OfferRedeemInfoDTO.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorMessageDTO.class),
-            @ApiResponse(code = 500, message = "Error occurred", response = ErrorMessageDTO.class)})
-    @ApiOperation(value = CHECK_LINK, notes = "Create offer", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OfferRedeemInfoDTO> generateLink(@PathVariable("hash") String hash,
-                                                           @RequestParam("user") String user,
-                                                           @RequestParam("offer_id") Long offerId) {
-        OfferRedeemInfoDTO offerRedeemInfoDTO = offerManager.getOfferRedeemInfo(hash, user, offerId);
-        return ResponseEntity.ok(offerRedeemInfoDTO);
-    }
 }
